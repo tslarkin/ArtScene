@@ -1,0 +1,291 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		127CF8B11BD1810A00F571D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127CF8B01BD1810A00F571D9 /* AppDelegate.swift */; };
+		127CF8B31BD1810A00F571D9 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127CF8B21BD1810A00F571D9 /* Document.swift */; };
+		127CF8B61BD1810A00F571D9 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = 127CF8B41BD1810A00F571D9 /* Document.xib */; };
+		127CF8B81BD1810A00F571D9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 127CF8B71BD1810A00F571D9 /* Assets.xcassets */; };
+		127CF8BB1BD1810A00F571D9 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 127CF8B91BD1810A00F571D9 /* MainMenu.xib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		127CF8AD1BD1810A00F571D9 /* Art Scene.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Art Scene.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		127CF8B01BD1810A00F571D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		127CF8B21BD1810A00F571D9 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
+		127CF8B51BD1810A00F571D9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/Document.xib; sourceTree = "<group>"; };
+		127CF8B71BD1810A00F571D9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		127CF8BA1BD1810A00F571D9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		127CF8BC1BD1810A00F571D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		127CF8AA1BD1810A00F571D9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		127CF8A41BD1810900F571D9 = {
+			isa = PBXGroup;
+			children = (
+				127CF8AF1BD1810A00F571D9 /* Art Scene */,
+				127CF8AE1BD1810A00F571D9 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		127CF8AE1BD1810A00F571D9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				127CF8AD1BD1810A00F571D9 /* Art Scene.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		127CF8AF1BD1810A00F571D9 /* Art Scene */ = {
+			isa = PBXGroup;
+			children = (
+				127CF8B01BD1810A00F571D9 /* AppDelegate.swift */,
+				127CF8B21BD1810A00F571D9 /* Document.swift */,
+				127CF8B41BD1810A00F571D9 /* Document.xib */,
+				127CF8B71BD1810A00F571D9 /* Assets.xcassets */,
+				127CF8B91BD1810A00F571D9 /* MainMenu.xib */,
+				127CF8BC1BD1810A00F571D9 /* Info.plist */,
+			);
+			path = "Art Scene";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		127CF8AC1BD1810A00F571D9 /* Art Scene */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 127CF8BF1BD1810A00F571D9 /* Build configuration list for PBXNativeTarget "Art Scene" */;
+			buildPhases = (
+				127CF8A91BD1810A00F571D9 /* Sources */,
+				127CF8AA1BD1810A00F571D9 /* Frameworks */,
+				127CF8AB1BD1810A00F571D9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Art Scene";
+			productName = "Art Scene";
+			productReference = 127CF8AD1BD1810A00F571D9 /* Art Scene.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		127CF8A51BD1810900F571D9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0700;
+				ORGANIZATIONNAME = "Timothy Larkin";
+				TargetAttributes = {
+					127CF8AC1BD1810A00F571D9 = {
+						CreatedOnToolsVersion = 7.0.1;
+					};
+				};
+			};
+			buildConfigurationList = 127CF8A81BD1810900F571D9 /* Build configuration list for PBXProject "Art Scene" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 127CF8A41BD1810900F571D9;
+			productRefGroup = 127CF8AE1BD1810A00F571D9 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				127CF8AC1BD1810A00F571D9 /* Art Scene */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		127CF8AB1BD1810A00F571D9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				127CF8B81BD1810A00F571D9 /* Assets.xcassets in Resources */,
+				127CF8B61BD1810A00F571D9 /* Document.xib in Resources */,
+				127CF8BB1BD1810A00F571D9 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		127CF8A91BD1810A00F571D9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				127CF8B31BD1810A00F571D9 /* Document.swift in Sources */,
+				127CF8B11BD1810A00F571D9 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		127CF8B41BD1810A00F571D9 /* Document.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				127CF8B51BD1810A00F571D9 /* Base */,
+			);
+			name = Document.xib;
+			sourceTree = "<group>";
+		};
+		127CF8B91BD1810A00F571D9 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				127CF8BA1BD1810A00F571D9 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		127CF8BD1BD1810A00F571D9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		127CF8BE1BD1810A00F571D9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		127CF8C01BD1810A00F571D9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = "Art Scene/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.abstracttools.Art-Scene";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		127CF8C11BD1810A00F571D9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = "Art Scene/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.abstracttools.Art-Scene";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		127CF8A81BD1810900F571D9 /* Build configuration list for PBXProject "Art Scene" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				127CF8BD1BD1810A00F571D9 /* Debug */,
+				127CF8BE1BD1810A00F571D9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		127CF8BF1BD1810A00F571D9 /* Build configuration list for PBXNativeTarget "Art Scene" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				127CF8C01BD1810A00F571D9 /* Debug */,
+				127CF8C11BD1810A00F571D9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 127CF8A51BD1810900F571D9 /* Project object */;
+}
