@@ -14,6 +14,15 @@ enum Units {
     case Feet
 }
 
+enum NodeEdge {
+    case None
+    case Top
+    case Bottom
+    case Left
+    case Right
+    case Pivot
+}
+
 enum NodeType: String {
     case Wall
     case Frame
@@ -25,6 +34,15 @@ enum NodeType: String {
     case Picture
     case Image
     case Floor
+}
+
+enum EditMode {
+    case None
+    case Resizing(NodeType, NodeEdge)
+    case Moving(NodeType)
+    case Selecting
+    case ContextualMenu
+    case GetInfo
 }
 
 enum Axis {
@@ -53,6 +71,15 @@ func nodeType (node: SCNNode?) -> NodeType?
     }
 }
 
+func parent(node: SCNNode, ofType type: NodeType) -> SCNNode?
+{
+    var tmp: SCNNode? = node
+    repeat {
+        tmp = tmp?.parentNode
+    } while tmp != nil && nodeType(tmp) != type
+    return tmp
+}
+
 func runOpenPanel() -> NSURL?
 {
     let panel = NSOpenPanel()
@@ -71,17 +98,17 @@ func runOpenPanel() -> NSURL?
 
 let r2d = CGFloat(180.0 / M_PI)
 
-func roundToQuarterInch(x: CGFloat) -> CGFloat
-{
-    let quarters = round(x * 12 * 4)
-    return quarters / (12 * 4)
-}
+//func roundToQuarterInch(x: CGFloat) -> CGFloat
+//{
+//    let quarters = round(x * 12 * 4)
+//    return quarters / (12 * 4)
+//}
 
-func constrainToGrid(point: SCNVector3) -> SCNVector3
-{
-    
-    return SCNVector3(x: roundToQuarterInch(point.x), y: roundToQuarterInch(point.y), z: point.z)
-}
+//func constrainToGrid(point: SCNVector3) -> SCNVector3
+//{
+//    
+//    return SCNVector3(x: roundToQuarterInch(point.x), y: roundToQuarterInch(point.y), z: point.z)
+//}
 
 func nodeSize(node: SCNNode) -> CGSize
 {
@@ -92,6 +119,18 @@ func nodeSize(node: SCNNode) -> CGSize
     }
 }
 
+func setNodeEmission(parentNode: SCNNode, color: NSColor) {
+    let children = parentNode.childNodesPassingTest {  x, yes in x.geometry != nil }
+    
+    for child in children {
+        let material = child.geometry!.firstMaterial!
+        material.emission.contents = color
+    }
+    
+}
+
+/// Return the positive distance from the left edge of the picture's wall. (The picture's position
+/// is in a coordinate system with {0, 0} at the center of the wall.
 func distanceForPicture(node: SCNNode, axis: Axis, coordinate: CGFloat = 0.0) -> String
 {
     let wallSize = nodeSize(node.parentNode!)
@@ -105,6 +144,7 @@ func distanceForPicture(node: SCNNode, axis: Axis, coordinate: CGFloat = 0.0) ->
     return convertToFeetAndInches(distance, units: .Feet)
 }
 
+/// GetInfo properties for a wall.
 func wallInfo(wall: SCNNode, camera: SCNNode? = nil) -> (size: String, location: String, rotation: String, distance: String?) {
     let plane = wall.geometry as! SCNPlane
     let length = convertToFeetAndInches(plane.width)
@@ -123,6 +163,7 @@ func wallInfo(wall: SCNNode, camera: SCNNode? = nil) -> (size: String, location:
 
 }
 
+/// GetInfo properties for a picture.
 func pictureInfo(node: SCNNode) -> (size: String, location: String, name: String?) {
     let plane = node.geometry as! SCNPlane
     let s = plane.name as NSString?
@@ -133,6 +174,26 @@ func pictureInfo(node: SCNNode) -> (size: String, location: String, name: String
     return ("\(convertToFeetAndInches(size.width, units: .Inches)) x \(convertToFeetAndInches(size.height, units: .Inches))",
             "\(convertToFeetAndInches(node.position.x + area.width / 2)), \(convertToFeetAndInches(node.position.y + area.height / 2))",
             name as String?)
+}
+
+/// Determine if a wall with `newSize` contains all its pictures.
+func wallContainsPictures(wall: SCNNode, withNewSize newSize: CGSize) -> Bool
+{
+    let pictures = wall.childNodesPassingTest( { x, yes in x.name == "Picture"} )
+    if pictures.isEmpty {
+        return true
+    } else {
+        let rect = CGRect(x: -newSize.width / 2, y: -newSize.height / 2, width: newSize.width, height: newSize.height)
+        for picture in pictures {
+            let frame = picture.geometry as! SCNPlane
+            let r = CGRect(x: picture.position.x - frame.width / 2, y: picture.position.y - frame.height / 2,
+                width: frame.width, height: frame.height)
+            if !CGRectContainsRect(rect, r) {
+                return false
+            }
+        }
+        return true
+    }
 }
 
 func convertToFeetAndInches(length: CGFloat, units:Units = .Feet) -> String
@@ -148,26 +209,25 @@ func convertToFeetAndInches(length: CGFloat, units:Units = .Feet) -> String
     let fractionalInches = xInches - wholeInches
     var formattedFractionalInches = ""
     switch round(fractionalInches / 0.25) {
+    case 0:
+        if wholeInches > 0 {
+            formattedFractionalInches = "'"
+        }
     case 1:
-        formattedFractionalInches = "¼"
+        formattedFractionalInches = "¼\""
     case 2:
-        formattedFractionalInches = "½"
+        formattedFractionalInches = "½\""
     case 3:
-        formattedFractionalInches = "¾"
+        formattedFractionalInches = "¾\""
     default:
         break
     }
-    if units == .Feet {
-        if xFeet == 0 {
-            return "\(Int(wholeInches))\(formattedFractionalInches)\""
-        } else {
-            return "\(xFeet)'\(Int(wholeInches))\(formattedFractionalInches)\""
-        }
-    } else {
-        return "\(Int(wholeInches))\(formattedFractionalInches)\""
-    }
+    let formattedFeet = xFeet == 0 ? "" : "\(xFeet)'"
+    let formattedInches = wholeInches == 0 ? "" : "\(Int(wholeInches))"
+    return formattedFeet + formattedInches + formattedFractionalInches
 }
 
+/// 
 func makeThumbnail(picture: SCNNode) -> (String, NSImage)? {
     let geometry = picture.geometry!
     if let name: String = geometry.name,
@@ -194,7 +254,8 @@ func moveNode(deltaUp: CGFloat, deltaRight: CGFloat, node: SCNNode)
 {
     let angle = node.eulerAngles.y
     let v = SCNVector3(x: sin(angle), y: 0.0, z: cos(angle))
-    let u = crossProduct(v, b: SCNVector3(0, 1, 0))
+//    let u = crossProduct(v, b: SCNVector3(0, 1, 0))
+    let u = v × SCNVector3(0, 1, 0)
     node.position.x += v.x * deltaUp + u.x * deltaRight
     node.position.z += v.z * deltaUp + u.z * deltaRight
 }

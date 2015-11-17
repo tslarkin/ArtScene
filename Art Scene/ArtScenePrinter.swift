@@ -9,6 +9,11 @@
 import Cocoa
 import SceneKit
 
+/**
+The view that is rendered on a printer. This shows each wall on a separate page, with distances
+for placing pictures. Vertical distances are measured from the floor. Horizontal distances are
+measured from the left end of the wall and from the previous picture.
+*/
 class ArtScenePrinter: NSView {
     
     var pageRange: NSRange = NSRange()
@@ -23,6 +28,7 @@ class ArtScenePrinter: NSView {
         return true
     }
     
+    /// returns the rect from the view that needs to be printed for `page`.
     override func rectForPage(page: Int) -> NSRect {
         currentPageNumber = page
         var bounds = self.bounds
@@ -44,12 +50,14 @@ class ArtScenePrinter: NSView {
         string.drawInRect(rect, withAttributes: attribs)
     }
 
+    /// Draw an entire scene in some number of pages.
     func drawScene(dirtyRect: NSRect)
     {
+        /// Draw the picture's image from the cache, if it is available. Otherwise, draw the
+        /// name of the picture
         func drawImage(name: NSString, rect: CGRect, attribs: [String: AnyObject])
         {
             if let image = imageCache?[name as String] {
-//                Swift.print(rect.size, image.size)
                 image.drawInRect(rect, fromRect: NSRect(origin: CGPoint.zero, size: image.size),
                     operation: .CompositeCopy, fraction: 1.0, respectFlipped: false, hints: nil)
                 
@@ -69,6 +77,7 @@ class ArtScenePrinter: NSView {
 
         }
         
+        /// Draw the picture's frame, image, and distances.
         func drawPicture(picture: SCNNode, referencex: CGFloat, attributes attribs: [String: AnyObject])
         {
             let font = attribs[NSFontAttributeName]
@@ -118,8 +127,10 @@ class ArtScenePrinter: NSView {
             
         }
         
+        /// Draw a wall and its pictures.
         func drawWall(wall: SCNNode)
         {
+            // Prepare the attributes for text
             let font = NSFont.systemFontOfSize(8.0 * bounds.height / frame.height)
             let style = NSMutableParagraphStyle()
             style.lineBreakMode = NSLineBreakMode.ByWordWrapping
@@ -127,18 +138,23 @@ class ArtScenePrinter: NSView {
             style.maximumLineHeight = 9.0 * bounds.height / frame.height
             let attributes = [NSFontAttributeName: font, NSParagraphStyleAttributeName: style]
             
+            // Stroke a rect the size of wall with its center at {0, 0}
             let wallSize = nodeSize(wall)
             var rect = NSRect()
             rect.size = wallSize
             rect.origin.x = -wallSize.width / 2.0
             rect.origin.y = -wallSize.height / 2.0
             NSBezierPath.strokeRect(rect)
+            
+            // Draw the pictures in x order, keeping track of the x coordinate of the previous picture
+            // so that we can report its distance from the current picture.
             var pictures = wall.childNodes
             pictures.sortInPlace({ $0.position.x < $1.position.x })
             var previousX = -wallSize.width / 2.0
             var previousY: CGFloat?
             for picture in pictures {
                 drawPicture(picture, referencex: previousX, attributes: attributes)
+                // Draw a line from the center of the previous picture to the center of the current one.
                 if let previousy = previousY {
                     NSBezierPath.strokeLineFromPoint(NSPoint(x: previousX, y: previousy),
                         toPoint: NSPoint(x: picture.position.x, y: picture.position.y))
@@ -148,16 +164,20 @@ class ArtScenePrinter: NSView {
             }
         }
         
+        // DrawScene begins.
         let walls = scene!.rootNode.childNodesPassingTest({ x, yes in x.name == "Wall"})
         if walls.isEmpty { return }
         let pageHeight: CGFloat = bounds.height / CGFloat(pageRange.length)
         NSBezierPath.setDefaultLineWidth(0.01)
         NSColor.blackColor().setStroke()
         
-        let transform = NSAffineTransform()
-        transform.translateXBy(bounds.width / 2.0, yBy: pageHeight / 2.0)
+        // `dTransform` is the transform delta, which prepares `transform` to print the next page.
         let dTransform = NSAffineTransform()
         dTransform.translateXBy(0, yBy: pageHeight)
+
+        // `transform` puts {0, 0} at the center of the page.
+        let transform = NSAffineTransform()
+        transform.translateXBy(bounds.width / 2.0, yBy: pageHeight / 2.0)
         transform.concat()
         for (i, wall) in walls.enumerate() {
             if i == currentPageNumber - 1 {
@@ -177,6 +197,7 @@ class ArtScenePrinter: NSView {
         drawScene(dirtyRect)
     }
 
+    /// Draw the page number and date at the header and footer of the page.
     override func drawPageBorderWithSize(borderSize: NSSize) {
         guard let info = printInfo else { return }
         

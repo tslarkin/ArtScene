@@ -74,6 +74,7 @@ class Document: NSDocument {
             scene = createDefaultScene()
         }
         sceneView.scene = scene
+        // if the scene was saved with a selection, then the nodes have to revert their emissions to black
         if let children = sceneView.scene?.rootNode.childNodesPassingTest ( {  x, yes in x.geometry != nil } ) {
             for child in children {
                 let material = child.geometry!.firstMaterial!
@@ -110,14 +111,6 @@ class Document: NSDocument {
         scene = data
     }
 
-    override func validateMenuItem(menuItem: NSMenuItem) -> Bool {
-        if menuItem.title == "Print…" {
-            return sceneView.imageCacheForPrint != nil
-        } else {
-            return super.validateMenuItem(menuItem)
-        }
-    }
-    
     override func printOperationWithSettings(printSettings: [String : AnyObject]) throws -> NSPrintOperation
     {
         let info = printInfo
@@ -126,5 +119,14 @@ class Document: NSDocument {
         let op = NSPrintOperation(view: sceneView.printView(info), printInfo: info)
         return op
     }
+    
+    override func validateMenuItem(menuItem: NSMenuItem) -> Bool {
+        if menuItem.title == "Print…" {
+            return sceneView.imageCacheForPrint?.count > 0
+        }
+        return true
+    }
+    
+
 }
 

@@ -9,6 +9,9 @@
 import Cocoa
 import SceneKit
 
+/**
+Extension for support of contextual menus and their actions.
+*/
 extension ArtSceneView {
     
     @IBAction func addWall(sender: AnyObject?) {
@@ -24,8 +27,8 @@ extension ArtSceneView {
         wallNode.position = mouseClickLocation!
         wallNode.position.y = 6
         wallNode.castsShadow = true
-        scene!.rootNode.addChildNode(wallNode)
-        document?.updateChangeCount(NSDocumentChangeType.ChangeDone)
+        document?.undoManager?.setActionName("Add Wall")
+        setParentOf(wallNode, to: scene!.rootNode)
     }
     
     @IBAction func pickWallColor(sender: AnyObject?)
@@ -38,6 +41,7 @@ extension ArtSceneView {
         picker.orderFront(nil)
     }
     
+    /// Set `editMode` and the cursor image based on modifier keys.
     override func flagsChanged(theEvent: NSEvent) {
         if inDrag { return }
         let controlAlone = theEvent.modifierFlags.rawValue & NSEventModifierFlags.ControlKeyMask.rawValue != 0
@@ -63,29 +67,45 @@ extension ArtSceneView {
         super.flagsChanged(theEvent)
     }
     
+    func makePictureMenu() -> NSMenu
+    {
+        let menu = NSMenu()
+        menu.autoenablesItems = false
+        let sizes = ["16x16", "16x20", "20x16", "20x20", "20x24", "24x20", "24x24"]
+        for size in sizes {
+            menu.addItemWithTitle(size, action: Selector("reframePicture:"), keyEquivalent: "")
+        }
+        menu.addItemWithTitle("Nudge Size", action: "editFrameSize:", keyEquivalent: "")
+        menu.addItemWithTitle("Nudge Position", action: "editFramePosition:", keyEquivalent: "")
+        menu.addItem(NSMenuItem.separatorItem())
+        menu.addItemWithTitle("Replace Picture…", action: "replacePicture:", keyEquivalent: "")
+        menu.addItemWithTitle("Delete Picture", action: "deletePictures:", keyEquivalent: "")
+        return menu
+    }
+    
+    /// Main logic for returning a menu appropriate to the context.
     override func menuForEvent(event: NSEvent) -> NSMenu? {
-        
+        controller.editMode = .None
         let p = self.convertPoint(event.locationInWindow, fromView: nil)
         let hitResults = self.hitTest(p, options: nil)
         let pictureHit = hitOfType(hitResults, type: .Picture)
         if let picture = pictureHit?.node {
-            if selection.contains(picture) {
+            if selection.contains(picture) && selection.count > 1 {
                 return super.menuForEvent(event)
             } else {
-                controller.targetPicture = picture
-                return controller.makePictureMenu()
+                controller.theNode = picture
+                return makePictureMenu()
             }
         } else if let wallHit = hitOfType(hitResults, type: .Wall) {
                 let menu = NSMenu()
                 menu.autoenablesItems = true
-                controller.targetWall = wallHit.node
+                controller.theNode = wallHit.node
                 menu.addItemWithTitle("Nudge Wall Position", action: "editWallPosition:", keyEquivalent: "")
                 menu.addItemWithTitle("Nudge Wall Size", action: "editWallSize:", keyEquivalent: "")
                 menu.addItemWithTitle("Delete Wall", action: "deleteWall:", keyEquivalent: "")
                 menu.addItemWithTitle("Wall Color", action: "pickWallColor:", keyEquivalent: "")
                 menu.addItemWithTitle("Add Picture", action: "addPicture:", keyEquivalent: "")
                 mouseClickLocation = wallHit.localCoordinates
-                controller.targetWall = wallHit.node
                 return menu
         } else if let floorHit = hitOfType(hitResults, type: .Floor) {
             let menu = NSMenu()

@@ -8,10 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		1200F71D1BD690FE003E4F24 /* Gestures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1200F71C1BD690FE003E4F24 /* Gestures.swift */; };
+		120C61461BF92F3E00D1F49D /* SCNVector Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120C61451BF92F3E00D1F49D /* SCNVector Extensions.swift */; };
 		1254A8001BD82B100056A0C8 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1254A7FF1BD82B100056A0C8 /* Utilities.swift */; };
 		1254A8021BD96EE40056A0C8 /* TextFieldExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1254A8011BD96EE40056A0C8 /* TextFieldExtension.swift */; };
 		1254A8041BDA9C1F0056A0C8 /* Print.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1254A8031BDA9C1F0056A0C8 /* Print.swift */; };
 		1254A8061BDAB9910056A0C8 /* ArtScenePrinter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1254A8051BDAB9910056A0C8 /* ArtScenePrinter.swift */; };
+		125A067B1BE909F200D145AC /* Undo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 125A067A1BE909F200D145AC /* Undo.swift */; };
 		127CF8B11BD1810A00F571D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127CF8B01BD1810A00F571D9 /* AppDelegate.swift */; };
 		127CF8B31BD1810A00F571D9 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127CF8B21BD1810A00F571D9 /* Document.swift */; };
 		127CF8B61BD1810A00F571D9 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = 127CF8B41BD1810A00F571D9 /* Document.xib */; };
@@ -31,10 +33,12 @@
 
 /* Begin PBXFileReference section */
 		1200F71C1BD690FE003E4F24 /* Gestures.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Gestures.swift; sourceTree = "<group>"; };
+		120C61451BF92F3E00D1F49D /* SCNVector Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SCNVector Extensions.swift"; sourceTree = "<group>"; };
 		1254A7FF1BD82B100056A0C8 /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Utilities.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		1254A8011BD96EE40056A0C8 /* TextFieldExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextFieldExtension.swift; sourceTree = "<group>"; };
 		1254A8031BDA9C1F0056A0C8 /* Print.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Print.swift; sourceTree = "<group>"; };
 		1254A8051BDAB9910056A0C8 /* ArtScenePrinter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArtScenePrinter.swift; sourceTree = "<group>"; };
+		125A067A1BE909F200D145AC /* Undo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Undo.swift; sourceTree = "<group>"; };
 		127CF8AD1BD1810A00F571D9 /* Art Scene.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Art Scene.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		127CF8B01BD1810A00F571D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		127CF8B21BD1810A00F571D9 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
@@ -84,6 +88,8 @@
 		127CF8AF1BD1810A00F571D9 /* Art Scene */ = {
 			isa = PBXGroup;
 			children = (
+				125A067A1BE909F200D145AC /* Undo.swift */,
+				120C61451BF92F3E00D1F49D /* SCNVector Extensions.swift */,
 				129BCF2F1BE29D5200F6B8F3 /* rotate-icon.png */,
 				127CF8B01BD1810A00F571D9 /* AppDelegate.swift */,
 				127CF8B21BD1810A00F571D9 /* Document.swift */,
@@ -188,6 +194,8 @@
 				1254A8021BD96EE40056A0C8 /* TextFieldExtension.swift in Sources */,
 				127CF8D21BD1823300F571D9 /* ArtSceneViewController.swift in Sources */,
 				1254A8061BDAB9910056A0C8 /* ArtScenePrinter.swift in Sources */,
+				120C61461BF92F3E00D1F49D /* SCNVector Extensions.swift in Sources */,
+				125A067B1BE909F200D145AC /* Undo.swift in Sources */,
 				127CF8B31BD1810A00F571D9 /* Document.swift in Sources */,
 				127CF8D31BD1823300F571D9 /* Framer.swift in Sources */,
 				127CF8CD1BD1821000F571D9 /* ArtSceneView.swift in Sources */,
