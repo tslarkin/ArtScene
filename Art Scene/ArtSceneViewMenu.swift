@@ -14,11 +14,11 @@ Extension for support of contextual menus and their actions.
 */
 extension ArtSceneView {
     
-    @IBAction func addWall(sender: AnyObject?) {
+    @IBAction func addWall(_ sender: AnyObject?) {
         let wall = SCNPlane(width: 20, height: 12)
         let paint = SCNMaterial()
         paint.diffuse.contents = wallColor
-        paint.doubleSided = false
+        paint.isDoubleSided = false
         //            paint.locksAmbientWithDiffuse = false
         //            paint.ambient.contents = NSColor.blackColor()
         wall.materials = [paint]
@@ -31,40 +31,40 @@ extension ArtSceneView {
         setParentOf(wallNode, to: scene!.rootNode)
     }
     
-    @IBAction func pickWallColor(sender: AnyObject?)
+    @IBAction func pickWallColor(_ sender: AnyObject?)
     {
-        let picker = NSColorPanel.sharedColorPanel()
+        let picker = NSColorPanel.shared()
         picker.setTarget(self)
         picker.setAction("setColorOfWalls:")
         picker.color = wallColor
-        picker.continuous = true
+        picker.isContinuous = true
         picker.orderFront(nil)
     }
     
     /// Set `editMode` and the cursor image based on modifier keys.
-    override func flagsChanged(theEvent: NSEvent) {
+    override func flagsChanged(with theEvent: NSEvent) {
         if inDrag { return }
-        let controlAlone = theEvent.modifierFlags.rawValue & NSEventModifierFlags.ControlKeyMask.rawValue != 0
+        let controlAlone = theEvent.modifierFlags.rawValue & NSEventModifierFlags.control.rawValue != 0
         if controlAlone {
-            NSCursor.contextualMenuCursor().set()
-            editMode = .ContextualMenu
+            NSCursor.contextualMenu().set()
+            editMode = .contextualMenu
         } else {
-            let commandAlone = theEvent.modifierFlags.rawValue & NSEventModifierFlags.CommandKeyMask.rawValue != 0
+            let commandAlone = theEvent.modifierFlags.rawValue & NSEventModifierFlags.command.rawValue != 0
             if commandAlone {
-                NSCursor.pointingHandCursor().set()
-                editMode = .Selecting
+                NSCursor.pointingHand().set()
+                editMode = .selecting
             } else {
-                let altAlone = theEvent.modifierFlags.rawValue & NSEventModifierFlags.AlternateKeyMask.rawValue != 0
+                let altAlone = theEvent.modifierFlags.rawValue & NSEventModifierFlags.option.rawValue != 0
                 if altAlone {
-                    editMode = .GetInfo
+                    editMode = .getInfo
                     questionCursor.set()
                 } else {
-                    NSCursor.arrowCursor().set()
-                    editMode = .None
+                    NSCursor.arrow().set()
+                    editMode = .none
                 }
             }
         }
-        super.flagsChanged(theEvent)
+        super.flagsChanged(with: theEvent)
     }
     
     func makePictureMenu() -> NSMenu
@@ -73,25 +73,25 @@ extension ArtSceneView {
         menu.autoenablesItems = false
         let sizes = ["16x16", "16x20", "20x16", "20x20", "20x24", "24x20", "24x24"]
         for size in sizes {
-            menu.addItemWithTitle(size, action: Selector("reframePicture:"), keyEquivalent: "")
+            menu.addItem(withTitle: size, action: Selector("reframePicture:"), keyEquivalent: "")
         }
-        menu.addItemWithTitle("Nudge Size", action: "editFrameSize:", keyEquivalent: "")
-        menu.addItemWithTitle("Nudge Position", action: "editFramePosition:", keyEquivalent: "")
-        menu.addItem(NSMenuItem.separatorItem())
-        menu.addItemWithTitle("Replace Picture…", action: "replacePicture:", keyEquivalent: "")
-        menu.addItemWithTitle("Delete Picture", action: "deletePictures:", keyEquivalent: "")
+        menu.addItem(withTitle: "Nudge Size", action: "editFrameSize:", keyEquivalent: "")
+        menu.addItem(withTitle: "Nudge Position", action: "editFramePosition:", keyEquivalent: "")
+        menu.addItem(NSMenuItem.separator())
+        menu.addItem(withTitle: "Replace Picture…", action: "replacePicture:", keyEquivalent: "")
+        menu.addItem(withTitle: "Delete Picture", action: "deletePictures:", keyEquivalent: "")
         return menu
     }
     
     /// Main logic for returning a menu appropriate to the context.
-    override func menuForEvent(event: NSEvent) -> NSMenu? {
-        controller.editMode = .None
-        let p = self.convertPoint(event.locationInWindow, fromView: nil)
+    override func menu(for event: NSEvent) -> NSMenu? {
+        controller.editMode = .none
+        let p = self.convert(event.locationInWindow, from: nil)
         let hitResults = self.hitTest(p, options: nil)
         let pictureHit = hitOfType(hitResults, type: .Picture)
         if let picture = pictureHit?.node {
             if selection.contains(picture) && selection.count > 1 {
-                return super.menuForEvent(event)
+                return super.menu(for: event)
             } else {
                 controller.theNode = picture
                 return makePictureMenu()
@@ -100,17 +100,17 @@ extension ArtSceneView {
                 let menu = NSMenu()
                 menu.autoenablesItems = true
                 controller.theNode = wallHit.node
-                menu.addItemWithTitle("Nudge Wall Position", action: "editWallPosition:", keyEquivalent: "")
-                menu.addItemWithTitle("Nudge Wall Size", action: "editWallSize:", keyEquivalent: "")
-                menu.addItemWithTitle("Delete Wall", action: "deleteWall:", keyEquivalent: "")
-                menu.addItemWithTitle("Wall Color", action: "pickWallColor:", keyEquivalent: "")
-                menu.addItemWithTitle("Add Picture", action: "addPicture:", keyEquivalent: "")
+                menu.addItem(withTitle: "Nudge Wall Position", action: "editWallPosition:", keyEquivalent: "")
+                menu.addItem(withTitle: "Nudge Wall Size", action: "editWallSize:", keyEquivalent: "")
+                menu.addItem(withTitle: "Delete Wall", action: "deleteWall:", keyEquivalent: "")
+                menu.addItem(withTitle: "Wall Color", action: "pickWallColor:", keyEquivalent: "")
+                menu.addItem(withTitle: "Add Picture", action: "addPicture:", keyEquivalent: "")
                 mouseClickLocation = wallHit.localCoordinates
                 return menu
         } else if let floorHit = hitOfType(hitResults, type: .Floor) {
             let menu = NSMenu()
             menu.autoenablesItems = true
-            menu.addItemWithTitle("Add Wall", action: "addWall:", keyEquivalent: "")
+            menu.addItem(withTitle: "Add Wall", action: "addWall:", keyEquivalent: "")
             mouseClickLocation = floorHit.worldCoordinates
             return menu
         } else {
@@ -118,18 +118,18 @@ extension ArtSceneView {
         }
      }
     
-    func setColorOfWalls(sender: AnyObject?) {
+    func setColorOfWalls(_ sender: AnyObject?) {
         if let sender = sender as? NSColorPanel {
             let color = sender.color
             self.wallColor = color
         }
     }
     
-    func equalizeCenterDistances(sender: AnyObject?)
+    func equalizeCenterDistances(_ sender: AnyObject?)
     {
-        SCNTransaction.setAnimationDuration(0.5)
-        let pictures = selection.sort { $0.position.x < $1.position.x }
-        let wall = masterNode!.parentNode!
+        SCNTransaction.animationDuration = 0.5
+        let pictures = selection.sorted { $0.position.x < $1.position.x }
+        let wall = masterNode!.parent!
         let width = (wall.geometry as! SCNPlane).width
         let centerDistance = width / CGFloat(selection.count + 1)
         var positionx = centerDistance - width / 2.0
@@ -139,12 +139,12 @@ extension ArtSceneView {
         }
     }
     
-    func equalizeGaps(sender: AnyObject?) {
-        SCNTransaction.setAnimationDuration(0.5)
-        let pictures = selection.sort { $0.position.x < $1.position.x }
-        let wall = masterNode!.parentNode!
+    func equalizeGaps(_ sender: AnyObject?) {
+        SCNTransaction.animationDuration = 0.5
+        let pictures = selection.sorted { $0.position.x < $1.position.x }
+        let wall = masterNode!.parent!
         let wallWidth = (wall.geometry as! SCNPlane).width
-        let pictureWidth = pictures.map(nodeSize).reduce(0.0, combine: { $0 + $1.width })
+        let pictureWidth = pictures.map(nodeSize).reduce(0.0, { $0 + $1.width })
         let whiteSpace = wallWidth - pictureWidth
         let gap = whiteSpace / CGFloat(pictures.count + 1)
         var positionx = gap - wallWidth / 2.0
@@ -156,8 +156,8 @@ extension ArtSceneView {
         
     }
     
-    func alignTops(sender: AnyObject?) {
-        SCNTransaction.setAnimationDuration(0.5)
+    func alignTops(_ sender: AnyObject?) {
+        SCNTransaction.animationDuration = 0.5
         let masterPlane = masterNode?.geometry as! SCNPlane
         let masterTop = masterNode!.position.y + masterPlane.height / 2
         for picture in selection {
@@ -166,8 +166,8 @@ extension ArtSceneView {
         }
     }
     
-    func alignBottoms(sender: AnyObject?) {
-        SCNTransaction.setAnimationDuration(0.5)
+    func alignBottoms(_ sender: AnyObject?) {
+        SCNTransaction.animationDuration = 0.5
         let masterPlane = masterNode?.geometry as! SCNPlane
         let masterBottom = masterNode!.position.y - masterPlane.height / 2
         for picture in selection {
@@ -177,8 +177,8 @@ extension ArtSceneView {
         
     }
     
-    func alignHCenters(sender: AnyObject?) {
-        SCNTransaction.setAnimationDuration(0.5)
+    func alignHCenters(_ sender: AnyObject?) {
+        SCNTransaction.animationDuration = 0.5
         let masterCenter = masterNode!.position.y
         for picture in selection {
             picture.position.y = masterCenter
@@ -186,7 +186,7 @@ extension ArtSceneView {
         
     }
     
-    func alignVCenters(sender: AnyObject?) {
+    func alignVCenters(_ sender: AnyObject?) {
         let masterCenter = masterNode!.position.x
         for picture in selection {
             picture.position.x = masterCenter

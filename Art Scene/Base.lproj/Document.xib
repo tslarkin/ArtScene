@@ -1,8 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9059" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14113" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9059"/>
-        <plugIn identifier="com.apple.SceneKitIBPlugin" version="9059"/>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14113"/>
+        <plugIn identifier="com.apple.SceneKitIBPlugin" version="14113"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="Document" customModule="Art_Scene" customModuleProvider="target">
@@ -26,7 +28,6 @@
                 <subviews>
                     <sceneView translatesAutoresizingMaskIntoConstraints="NO" id="aAp-gS-prI" customClass="ArtSceneView" customModule="Art_Scene" customModuleProvider="target">
                         <rect key="frame" x="0.0" y="0.0" width="507" height="380"/>
-                        <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <connections>
                             <outlet property="controller" destination="bVB-bI-cVA" id="k5d-3j-SbI"/>
@@ -38,7 +39,6 @@
                         <constraints>
                             <constraint firstAttribute="height" constant="33" id="KIc-tt-JVU"/>
                         </constraints>
-                        <animations/>
                         <textFieldCell key="cell" lineBreakMode="truncatingTail" refusesFirstResponder="YES" allowsUndo="NO" sendsActionOnEndEditing="YES" alignment="left" title="Label" placeholderString="" drawsBackground="YES" usesSingleLineMode="YES" id="ODo-u6-Hpf">
                             <font key="font" metaFont="system" size="24"/>
                             <color key="textColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -64,12 +64,11 @@
                     <constraint firstItem="ekZ-od-wn4" firstAttribute="leading" secondItem="gIp-Ho-8D9" secondAttribute="leading" id="d8H-or-BAf"/>
                     <constraint firstAttribute="trailing" secondItem="aAp-gS-prI" secondAttribute="trailing" id="j3Q-2p-BF9"/>
                 </constraints>
-                <animations/>
             </view>
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-x8E"/>
             </connections>
-            <point key="canvasLocation" x="41.5" y="265.5"/>
+            <point key="canvasLocation" x="236" y="258"/>
         </window>
         <customObject id="bVB-bI-cVA" userLabel="View Controller" customClass="ArtSceneViewController" customModule="Art_Scene" customModuleProvider="target">
             <connections>

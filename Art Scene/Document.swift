@@ -8,6 +8,30 @@
 
 import Cocoa
 import SceneKit
+// FIXME: comparison operators with optionals were removed from the Swift Standard Libary.
+// Consider refactoring the code to use the non-optional operators.
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+// FIXME: comparison operators with optionals were removed from the Swift Standard Libary.
+// Consider refactoring the code to use the non-optional operators.
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
 
 class Document: NSDocument {
 
@@ -39,7 +63,7 @@ class Document: NSDocument {
         light.color = NSColor(white: 0.8, alpha: 1.0)
         let lightNode = SCNNode()
         lightNode.light = light
-        light.type = SCNLightTypeOmni
+        light.type = SCNLight.LightType.omni
         light.castsShadow = true
         lightNode.position = SCNVector3(x: 0, y: wallHeight * 2, z: 0)
         scene.rootNode.addChildNode(lightNode)
@@ -47,7 +71,7 @@ class Document: NSDocument {
         // create and add an ambient light to the scene
         let ambientLightNode = SCNNode()
         ambientLightNode.light = SCNLight()
-        ambientLightNode.light!.type = SCNLightTypeAmbient
+        ambientLightNode.light!.type = SCNLight.LightType.ambient
         ambientLightNode.light!.color = NSColor(white: 0.5, alpha: 1.0)
         scene.rootNode.addChildNode(ambientLightNode)
         
@@ -56,7 +80,7 @@ class Document: NSDocument {
         floorNode.position = SCNVector3(x: 0, y: 0, z: 0)
         floorNode.name = "Floor"
         let floorMaterial = SCNMaterial()
-        floorMaterial.diffuse.contents = NSColor.lightGrayColor()
+        floorMaterial.diffuse.contents = NSColor.lightGray
         floor.materials = [floorMaterial]
         floor.reflectivity = 0.1
         
@@ -67,7 +91,7 @@ class Document: NSDocument {
         
     }
 
-    override func windowControllerDidLoadNib(aController: NSWindowController) {
+    override func windowControllerDidLoadNib(_ aController: NSWindowController) {
         super.windowControllerDidLoadNib(aController)
         // Add any code here that needs to be executed once the windowController has loaded the document's window.
         if scene == nil {
@@ -75,10 +99,10 @@ class Document: NSDocument {
         }
         sceneView.scene = scene
         // if the scene was saved with a selection, then the nodes have to revert their emissions to black
-        if let children = sceneView.scene?.rootNode.childNodesPassingTest ( {  x, yes in x.geometry != nil } ) {
+        if let children = sceneView.scene?.rootNode.childNodes ( passingTest: {  x, yes in x.geometry != nil } ) {
             for child in children {
                 let material = child.geometry!.firstMaterial!
-                material.emission.contents = NSColor.blackColor()
+                material.emission.contents = NSColor.black
             }
         }
         let window = windowForSheet!
@@ -96,31 +120,31 @@ class Document: NSDocument {
         return "Document"
     }
 
-    override func dataOfType(typeName: String) throws -> NSData {
+    override func data(ofType typeName: String) throws -> Data {
         // Insert code here to write your document to data of the specified type. If outError != nil, ensure that you create and set an appropriate error when returning nil.
         // You can also choose to override fileWrapperOfType:error:, writeToURL:ofType:error:, or writeToURL:ofType:forSaveOperation:originalContentsURL:error: instead.
         
-        return NSKeyedArchiver.archivedDataWithRootObject(sceneView!.scene!)
+        return NSKeyedArchiver.archivedData(withRootObject: sceneView!.scene!)
     }
 
-    override func readFromData(data: NSData, ofType typeName: String) throws {
+    override func read(from data: Data, ofType typeName: String) throws {
         // Insert code here to read your document from the given data of the specified type. If outError != nil, ensure that you create and set an appropriate error when returning false.
         // You can also choose to override readFromFileWrapper:ofType:error: or readFromURL:ofType:error: instead.
         // If you override either of these, you should also override -isEntireFileLoaded to return false if the contents are lazily loaded.
-        let data = NSKeyedUnarchiver.unarchiveObjectWithData(data) as! SCNScene
+        let data = NSKeyedUnarchiver.unarchiveObject(with: data) as! SCNScene
         scene = data
     }
 
-    override func printOperationWithSettings(printSettings: [String : AnyObject]) throws -> NSPrintOperation
+    override func printOperation(withSettings printSettings: [String : Any]) throws -> NSPrintOperation
     {
         let info = printInfo
-        info.horizontalPagination = NSPrintingPaginationMode.AutoPagination
-        info.verticalPagination = NSPrintingPaginationMode.AutoPagination
+        info.horizontalPagination = NSPrintingPaginationMode.autoPagination
+        info.verticalPagination = NSPrintingPaginationMode.autoPagination
         let op = NSPrintOperation(view: sceneView.printView(info), printInfo: info)
         return op
     }
     
-    override func validateMenuItem(menuItem: NSMenuItem) -> Bool {
+    override func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         if menuItem.title == "Print…" {
             return sceneView.imageCacheForPrint?.count > 0
         }

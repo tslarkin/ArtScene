@@ -16,13 +16,13 @@ import CoreGraphics
 extension ArtSceneViewController {
     
     /// Make a black picture frame, one inch deep, of a given height and width.
-    func makeFrame(size: CGSize) -> SCNNode {
+    func makeFrame(_ size: CGSize) -> SCNNode {
         let segmentDepth: CGFloat = 1.0 / 12.0
         let segmentWidth: CGFloat = segmentDepth / 4.0
         let top = SCNBox(width: size.width, height: segmentWidth, length: segmentDepth, chamferRadius: 0)
         let blackMaterial = SCNMaterial()
-        blackMaterial.diffuse.contents = NSColor.blackColor()
-        blackMaterial.specular.contents = NSColor.whiteColor()
+        blackMaterial.diffuse.contents = NSColor.black
+        blackMaterial.specular.contents = NSColor.white
         blackMaterial.shininess = 1.0
         top.materials = [blackMaterial]
         let topNode = SCNNode(geometry: top)
@@ -54,10 +54,10 @@ extension ArtSceneViewController {
     }
     
     /// Make a picture's matt.
-    func makeMatt(size: CGSize) -> SCNNode {
+    func makeMatt(_ size: CGSize) -> SCNNode {
         let matt = SCNPlane(width: size.width - 0.02, height: size.height - 0.02)
         let material = SCNMaterial()
-        material.doubleSided = true
+        material.isDoubleSided = true
         matt.materials = [material]
         let mattNode = SCNNode(geometry: matt)
         mattNode.name = "Matt"
@@ -65,7 +65,7 @@ extension ArtSceneViewController {
     }
     
     /// Make the picture's image.
-    func makeImage(image: NSImage) ->SCNNode
+    func makeImage(_ image: NSImage) ->SCNNode
     {
         let size = image.size
         let picture = SCNPlane(width: size.width, height: size.height)
@@ -81,7 +81,7 @@ extension ArtSceneViewController {
     
     /// Make the picture's glass. This is a transparent plane; its only function is to be
     /// found by `hitTest`.
-    func makeGlass(size: CGSize) -> SCNPlane
+    func makeGlass(_ size: CGSize) -> SCNPlane
     {
         let plane = SCNPlane(width: size.width, height: size.height)
         let planeMaterial = SCNMaterial()
@@ -91,7 +91,7 @@ extension ArtSceneViewController {
     }
     
     /// Make the entire picture from frame, matt, image, and glass.
-    func makePicture(path: String, size _size: CGSize = CGSize.zero) -> SCNNode? {
+    func makePicture(_ path: String, size _size: CGSize = CGSize.zero) -> SCNNode? {
         guard let image = NSImage(byReferencingFile: path) else {
             return nil
         }
@@ -99,9 +99,9 @@ extension ArtSceneViewController {
         let scale = 256.0 / max(size.width, size.height)
         let thumbnail = NSImage(size: CGSize(width: size.width * scale, height: size.height * scale))
         thumbnail.lockFocus()
-        image.drawInRect(NSRect(origin: CGPoint.zero, size: thumbnail.size),
-            fromRect: NSRect(origin: CGPoint.zero, size: image.size),
-            operation: NSCompositingOperation.CompositeCopy, fraction: 1.0)
+        image.draw(in: NSRect(origin: CGPoint.zero, size: thumbnail.size),
+            from: NSRect(origin: CGPoint.zero, size: image.size),
+            operation: NSCompositingOperation.copy, fraction: 1.0)
         thumbnail.unlockFocus()
         thumbnail.size = image.size
         let front: CGFloat = 0.9 * (1.0 / 12.0)
@@ -135,9 +135,9 @@ extension ArtSceneViewController {
     }
 
     /// Reframe a picture to a new size. The size cannot be smaller than the image.
-    func reframePictureWithSize(picture: SCNNode, newsize: CGSize)
+    func reframePictureWithSize(_ picture: SCNNode, newsize: CGSize)
     {
-        let image = picture.childNodeWithName("Image", recursively: true)!
+        let image = picture.childNode(withName: "Image", recursively: true)!
         let oldPlane = image.geometry as! SCNPlane
         var size = newsize
         if size.width < oldPlane.width {
@@ -148,12 +148,12 @@ extension ArtSceneViewController {
         }
 //        size.width = roundToQuarterInch(size.width)
 //        size.height = roundToQuarterInch(size.height)
-        let oldMatt = picture.childNodeWithName("Matt", recursively: true)
+        let oldMatt = picture.childNode(withName: "Matt", recursively: true)
         if let geometry = oldMatt?.geometry as? SCNPlane {
             geometry.width = size.width - 0.02
             geometry.height = size.height - 0.02
         }
-        let oldFrame = picture.childNodeWithName("Frame", recursively: true)
+        let oldFrame = picture.childNode(withName: "Frame", recursively: true)
         picture.replaceChildNode(oldFrame!, with: makeFrame(size))
         let glass = makeGlass(size)
         glass.name = picture.geometry?.name

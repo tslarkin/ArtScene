@@ -10,17 +10,17 @@ import Cocoa
 import SceneKit
 
 enum Units {
-    case Inches
-    case Feet
+    case inches
+    case feet
 }
 
 enum NodeEdge {
-    case None
-    case Top
-    case Bottom
-    case Left
-    case Right
-    case Pivot
+    case none
+    case top
+    case bottom
+    case left
+    case right
+    case pivot
 }
 
 enum NodeType: String {
@@ -37,20 +37,20 @@ enum NodeType: String {
 }
 
 enum EditMode {
-    case None
-    case Resizing(NodeType, NodeEdge)
-    case Moving(NodeType)
-    case Selecting
-    case ContextualMenu
-    case GetInfo
+    case none
+    case resizing(NodeType, NodeEdge)
+    case moving(NodeType)
+    case selecting
+    case contextualMenu
+    case getInfo
 }
 
 enum Axis {
-    case X
-    case Y
+    case x
+    case y
 }
 
-func hitOfType(hits: [SCNHitTestResult], type: NodeType) -> SCNHitTestResult?
+func hitOfType(_ hits: [SCNHitTestResult], type: NodeType) -> SCNHitTestResult?
 {
     let key = type.rawValue
     let found = hits.filter { $0.node.name == key }
@@ -61,7 +61,7 @@ func hitOfType(hits: [SCNHitTestResult], type: NodeType) -> SCNHitTestResult?
     }
 }
 
-func nodeType (node: SCNNode?) -> NodeType?
+func nodeType (_ node: SCNNode?) -> NodeType?
 {
     if  let node = node,
         let name = node.name {
@@ -71,16 +71,16 @@ func nodeType (node: SCNNode?) -> NodeType?
     }
 }
 
-func parent(node: SCNNode, ofType type: NodeType) -> SCNNode?
+func parent(_ node: SCNNode, ofType type: NodeType) -> SCNNode?
 {
     var tmp: SCNNode? = node
     repeat {
-        tmp = tmp?.parentNode
+        tmp = tmp?.parent
     } while tmp != nil && nodeType(tmp) != type
     return tmp
 }
 
-func runOpenPanel() -> NSURL?
+func runOpenPanel() -> URL?
 {
     let panel = NSOpenPanel()
     panel.canChooseDirectories = false
@@ -90,7 +90,7 @@ func runOpenPanel() -> NSURL?
     panel.allowedFileTypes = NSImage.imageTypes()
     let button = panel.runModal()
     if button == NSFileHandlingPanelOKButton {
-        return panel.URL!
+        return panel.url!
     } else {
         return nil
     }
@@ -110,7 +110,7 @@ let r2d = CGFloat(180.0 / M_PI)
 //    return SCNVector3(x: roundToQuarterInch(point.x), y: roundToQuarterInch(point.y), z: point.z)
 //}
 
-func nodeSize(node: SCNNode) -> CGSize
+func nodeSize(_ node: SCNNode) -> CGSize
 {
     if let plane = node.geometry as? SCNPlane {
         return CGSize(width: plane.width, height: plane.height)
@@ -119,8 +119,8 @@ func nodeSize(node: SCNNode) -> CGSize
     }
 }
 
-func setNodeEmission(parentNode: SCNNode, color: NSColor) {
-    let children = parentNode.childNodesPassingTest {  x, yes in x.geometry != nil }
+func setNodeEmission(_ parentNode: SCNNode, color: NSColor) {
+    let children = parentNode.childNodes {  x, yes in x.geometry != nil }
     
     for child in children {
         let material = child.geometry!.firstMaterial!
@@ -131,27 +131,27 @@ func setNodeEmission(parentNode: SCNNode, color: NSColor) {
 
 /// Return the positive distance from the left edge of the picture's wall. (The picture's position
 /// is in a coordinate system with {0, 0} at the center of the wall.
-func distanceForPicture(node: SCNNode, axis: Axis, coordinate: CGFloat = 0.0) -> String
+func distanceForPicture(_ node: SCNNode, axis: Axis, coordinate: CGFloat = 0.0) -> String
 {
-    let wallSize = nodeSize(node.parentNode!)
+    let wallSize = nodeSize(node.parent!)
     let distance: CGFloat = {
         switch axis {
-        case .X:
+        case .x:
             return coordinate + wallSize.width / 2.0
-        case .Y:
+        case .y:
             return coordinate + wallSize.height / 2.0
         }}()
-    return convertToFeetAndInches(distance, units: .Feet)
+    return convertToFeetAndInches(distance, units: .feet)
 }
 
 /// GetInfo properties for a wall.
-func wallInfo(wall: SCNNode, camera: SCNNode? = nil) -> (size: String, location: String, rotation: String, distance: String?) {
+func wallInfo(_ wall: SCNNode, camera: SCNNode? = nil) -> (size: String, location: String, rotation: String, distance: String?) {
     let plane = wall.geometry as! SCNPlane
     let length = convertToFeetAndInches(plane.width)
     let height = convertToFeetAndInches(plane.height)
     let x = convertToFeetAndInches(wall.position.x)
     let y = convertToFeetAndInches(wall.position.z)
-    let angle = (wall.eulerAngles.y * r2d) % 360.0
+    let angle = (wall.eulerAngles.y * r2d).truncatingRemainder(dividingBy: 360.0)
     let rotation = String(format: "%0.0f°", angle)
     var distance: String? = nil
     if let camera = camera {
@@ -164,22 +164,22 @@ func wallInfo(wall: SCNNode, camera: SCNNode? = nil) -> (size: String, location:
 }
 
 /// GetInfo properties for a picture.
-func pictureInfo(node: SCNNode) -> (size: String, location: String, name: String?) {
+func pictureInfo(_ node: SCNNode) -> (size: String, location: String, name: String?) {
     let plane = node.geometry as! SCNPlane
     let s = plane.name as NSString?
     let name: NSString? = s?.lastPathComponent
     let size = nodeSize(node)
-    let wall = node.parentNode!
+    let wall = node.parent!
     let area = wall.geometry as! SCNPlane
-    return ("\(convertToFeetAndInches(size.width, units: .Inches)) x \(convertToFeetAndInches(size.height, units: .Inches))",
+    return ("\(convertToFeetAndInches(size.width, units: .inches)) x \(convertToFeetAndInches(size.height, units: .inches))",
             "\(convertToFeetAndInches(node.position.x + area.width / 2)), \(convertToFeetAndInches(node.position.y + area.height / 2))",
             name as String?)
 }
 
 /// Determine if a wall with `newSize` contains all its pictures.
-func wallContainsPictures(wall: SCNNode, withNewSize newSize: CGSize) -> Bool
+func wallContainsPictures(_ wall: SCNNode, withNewSize newSize: CGSize) -> Bool
 {
-    let pictures = wall.childNodesPassingTest( { x, yes in x.name == "Picture"} )
+    let pictures = wall.childNodes( passingTest: { x, yes in x.name == "Picture"} )
     if pictures.isEmpty {
         return true
     } else {
@@ -188,7 +188,7 @@ func wallContainsPictures(wall: SCNNode, withNewSize newSize: CGSize) -> Bool
             let frame = picture.geometry as! SCNPlane
             let r = CGRect(x: picture.position.x - frame.width / 2, y: picture.position.y - frame.height / 2,
                 width: frame.width, height: frame.height)
-            if !CGRectContainsRect(rect, r) {
+            if !rect.contains(r) {
                 return false
             }
         }
@@ -196,10 +196,10 @@ func wallContainsPictures(wall: SCNNode, withNewSize newSize: CGSize) -> Bool
     }
 }
 
-func convertToFeetAndInches(length: CGFloat, units:Units = .Feet) -> String
+func convertToFeetAndInches(_ length: CGFloat, units:Units = .feet) -> String
 {
     
-    let xFeet = units == .Feet ? Int(length) : 0
+    let xFeet = units == .feet ? Int(length) : 0
     let xInches: CGFloat = {
         let x = (length - CGFloat(xFeet)) * 12.0
         return xFeet == 0 ? x : abs(x)
@@ -228,16 +228,16 @@ func convertToFeetAndInches(length: CGFloat, units:Units = .Feet) -> String
 }
 
 /// 
-func makeThumbnail(picture: SCNNode) -> (String, NSImage)? {
+func makeThumbnail(_ picture: SCNNode) -> (String, NSImage)? {
     let geometry = picture.geometry!
     if let name: String = geometry.name,
         let original = NSImage(byReferencingFile: name),
-        let imageNode = picture.childNodeWithName("Image", recursively: true),
+        let imageNode = picture.childNode(withName: "Image", recursively: true),
         let imageSize = imageNode.geometry as? SCNPlane {
             let thumbnail = NSImage(size: NSSize(width: imageSize.width * 100, height: imageSize.height * 100))
             thumbnail.lockFocus()
             let toRect = NSRect(x: 0, y: 0, width: thumbnail.size.width, height: thumbnail.size.height)
-            original.drawInRect(toRect, fromRect: NSRect(origin: CGPoint.zero, size: original.size), operation: NSCompositingOperation.CompositeCopy, fraction: 1.0, respectFlipped: false, hints: nil)
+            original.draw(in: toRect, from: NSRect(origin: CGPoint.zero, size: original.size), operation: NSCompositingOperation.copy, fraction: 1.0, respectFlipped: false, hints: nil)
             thumbnail.unlockFocus()
             return (name, thumbnail)
     }
@@ -245,12 +245,12 @@ func makeThumbnail(picture: SCNNode) -> (String, NSImage)? {
 }
 
 
-func crossProduct(a: SCNVector3, b: SCNVector3) -> SCNVector3
+func crossProduct(_ a: SCNVector3, b: SCNVector3) -> SCNVector3
 {
     return SCNVector3(x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x)
 }
 
-func moveNode(deltaUp: CGFloat, deltaRight: CGFloat, node: SCNNode)
+func moveNode(_ deltaUp: CGFloat, deltaRight: CGFloat, node: SCNNode)
 {
     let angle = node.eulerAngles.y
     let v = SCNVector3(x: sin(angle), y: 0.0, z: cos(angle))

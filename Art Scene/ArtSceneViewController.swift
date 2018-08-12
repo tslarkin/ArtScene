@@ -24,10 +24,10 @@ class ArtSceneViewController: NSViewController, Undo {
     /// when key based editing begins. A change in `editMode` triggers an end to that grouping.
     var preparedForUndo: Bool = false
     
-    var editMode = EditMode.None {
+    var editMode = EditMode.none {
         willSet(newMode) {
             status = ""
-            if case EditMode.None = newMode where preparedForUndo {
+            if case EditMode.none = newMode where preparedForUndo {
                 undoer.endUndoGrouping()
                 preparedForUndo = false
             }
@@ -37,7 +37,7 @@ class ArtSceneViewController: NSViewController, Undo {
     var defaultFrameSize: CGSize = CGSize(width: 2, height: 2)
     /// The target of key-based editing, either a picture or a wall.
     var theNode: SCNNode? = nil
-    var undoer:NSUndoManager {
+    var undoer:UndoManager {
         get { return (document?.undoManager)! }
     }
 
@@ -58,12 +58,12 @@ class ArtSceneViewController: NSViewController, Undo {
         set { artSceneView.selection = newValue }
     }
     
-    @IBAction func hideStatus(sender: AnyObject) {
+    @IBAction func hideStatus(_ sender: AnyObject) {
         status = ""
     }
     
     override func awakeFromNib(){
-        NSBundle.mainBundle().loadNibNamed("ActionMenu", owner: artSceneView, topLevelObjects: nil)
+        Bundle.main.loadNibNamed("ActionMenu", owner: artSceneView, topLevelObjects: nil)
         
         // create a new scene
         
@@ -74,19 +74,19 @@ class ArtSceneViewController: NSViewController, Undo {
         self.artSceneView!.showsStatistics = false
         
         // configure the view
-        self.artSceneView!.backgroundColor = NSColor.blackColor()
+        self.artSceneView!.backgroundColor = NSColor.black
         
         let window = artSceneView!.window!
         window.acceptsMouseMovedEvents = true;
         window.makeFirstResponder(artSceneView)
         
         // Clicking in the menu bar ends the undo group.
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("menuBarClicked:"),
-            name: NSMenuDidBeginTrackingNotification, object: NSApp.mainMenu)
+        NotificationCenter.default.addObserver(self, selector: Selector("menuBarClicked:"),
+            name: NSNotification.Name.NSMenuDidBeginTracking, object: NSApp.mainMenu)
     }
     
     /// A menu action to reframe a picture to one of the standard sizes.
-    func reframePicture(sender: AnyObject?)
+    func reframePicture(_ sender: AnyObject?)
     {
         if let sender = sender as? NSMenuItem {
             let title = sender.title
@@ -98,7 +98,7 @@ class ArtSceneViewController: NSViewController, Undo {
     }
     
     /// Add a picture based on an image from the path at a given location.
-    func addPicture(wall: SCNNode, path: String, point: SCNVector3, size: CGSize = CGSize.zero) -> SCNNode? {
+    func addPicture(_ wall: SCNNode, path: String, point: SCNVector3, size: CGSize = CGSize.zero) -> SCNNode? {
         if let node = makePicture(path, size: size) {
             undoer.setActionName("Add Picture")
             node.position = point
@@ -111,7 +111,7 @@ class ArtSceneViewController: NSViewController, Undo {
     }
     
     /// A menu action to add a picture by getting a path from an open panel.
-    func addPicture(sender: AnyObject?)
+    func addPicture(_ sender: AnyObject?)
     {
         if let url = runOpenPanel() {
            self.addPicture(self.theNode!, path: url.path!, point: self.artSceneView.mouseClickLocation!)
@@ -119,9 +119,9 @@ class ArtSceneViewController: NSViewController, Undo {
     }
     
     /// Replace a picture with a new one from `path`.
-    func replacePicture(picture: SCNNode, path: String) {
+    func replacePicture(_ picture: SCNNode, path: String) {
         if  let size = picture.geometry as? SCNPlane,
-            let _ = addPicture(picture.parentNode!, path: path, point: picture.position,
+            let _ = addPicture(picture.parent!, path: path, point: picture.position,
                 size: CGSize(width: size.width, height: size.height)) {
             undoer.setActionName("Replace Picture")
             setParentOf(picture, to: nil)
@@ -129,39 +129,39 @@ class ArtSceneViewController: NSViewController, Undo {
     }
     
     /// A menu action to replace a picture with a new one from a path from an open panel.
-    func replacePicture(sender: AnyObject?)
+    func replacePicture(_ sender: AnyObject?)
     {
         if let url = runOpenPanel() {
             replacePicture(theNode!, path: url.path!)
         }
     }
     
-    func deleteWall(sender: AnyObject?) {
-        editMode = .None
+    func deleteWall(_ sender: AnyObject?) {
+        editMode = .none
         undoer.setActionName("Delete Wall")
         setParentOf(theNode!, to: nil)
        theNode = nil
     }
     
     /// A menu action to put the controller in `.Moving(.Wall)` mode.
-    func editWallPosition(sender: AnyObject?) {
-        editMode = .Moving(.Wall)
+    func editWallPosition(_ sender: AnyObject?) {
+        editMode = .moving(.Wall)
         let (_, location, _, distance) = wallInfo(theNode!, camera: artSceneView.camera())
         status = "Wall Position: \(location); Distance: \(distance!)"
     }
     
     /// A menu action to put the controller in `.Resizing(.Wall)` mode.
-    func editWallSize(sender: AnyObject?)
+    func editWallSize(_ sender: AnyObject?)
     {
-        editMode = .Resizing(.Wall, .None)
+        editMode = .resizing(.Wall, .none)
         let (size, _, _, _) = wallInfo(theNode!)
         status = "Wall Size: \(size)"
     }
     
     /// A menu action to put the controller in `.Resizing(.Picture)` mode.
-    func editFrameSize(sender: AnyObject?)
+    func editFrameSize(_ sender: AnyObject?)
     {
-        editMode = .Resizing(.Picture, .None)
+        editMode = .resizing(.Picture, .none)
         if let theNode = theNode {
             let (size, _, _) = pictureInfo(theNode)
             status = "Picture: \(size)"
@@ -171,9 +171,9 @@ class ArtSceneViewController: NSViewController, Undo {
     }
     
     /// A menu action to put the controller in `.Moving(.Picture)` mode.
-    @IBAction func editFramePosition(sender: AnyObject?)
+    @IBAction func editFramePosition(_ sender: AnyObject?)
     {
-        editMode = .Moving(.Picture)
+        editMode = .moving(.Picture)
         if let theNode = theNode {
             let (_, location, _) = pictureInfo(theNode)
             status = "Picture Location: \(location)"
@@ -183,7 +183,7 @@ class ArtSceneViewController: NSViewController, Undo {
     }
     
     /// Required by the `Undo` protocol. Unpacks the argument and calls the set method.
-    func setPosition1(args: [String: AnyObject])
+    func setPosition1(_ args: [String: AnyObject])
     {
         let node = args["node"] as! SCNNode
         let v = args["position"] as! [CGFloat]
@@ -192,7 +192,7 @@ class ArtSceneViewController: NSViewController, Undo {
     }
     
     /// Required by the `Undo` protocol. Unpacks the argument and calls the set method.
-    func setPivot1(args: [String: AnyObject])
+    func setPivot1(_ args: [String: AnyObject])
     {
         let node = args["node"] as! SCNNode
         let angle = args["angle"] as! CGFloat
@@ -200,7 +200,7 @@ class ArtSceneViewController: NSViewController, Undo {
     }
     
     /// Required by the `Undo` protocol. Unpacks the argument and calls the set method.
-    func setNodeSize1(args: [String: AnyObject])
+    func setNodeSize1(_ args: [String: AnyObject])
     {
         let node = args["node"] as! SCNNode
         let v = args["size"] as! [CGFloat]
@@ -208,7 +208,7 @@ class ArtSceneViewController: NSViewController, Undo {
     }
     
     /// Required by the `Undo` protocol. Unpacks the argument and calls the set method.
-    func setParentOf1(args: [String: AnyObject])
+    func setParentOf1(_ args: [String: AnyObject])
     {
         let node = args["node"] as! SCNNode
         let parent = args["parent"] as? SCNNode
@@ -218,12 +218,12 @@ class ArtSceneViewController: NSViewController, Undo {
 // MARK: Edit node position
     
     /// Edit the position of a picture or the selection using the arrow keys.
-    func doFrameEditPosition(theEvent: NSEvent)
+    func doFrameEditPosition(_ theEvent: NSEvent)
     {
         if let keyString = theEvent.charactersIgnoringModifiers?.utf16,
             let theNode = theNode {
                 let modifiers = theEvent.modifierFlags
-                let shift = modifiers.contains(.ShiftKeyMask)
+                let shift = modifiers.contains(.shift)
                 let jump: CGFloat = shift ? 1.0 / 48.0 : 1.0 / 12.0
                 var dx: CGFloat = 0, dy: CGFloat = 0
                 let keyChar = Int(keyString[keyString.startIndex])
@@ -254,27 +254,27 @@ class ArtSceneViewController: NSViewController, Undo {
     /// Edit the position of a wall using the arrow keys. If the command key is down, then
     /// use the left and right arrow keys to rotate the wall. If the shift key is down,
     /// use smaller deltas.
-    func doWallEditPosition (theEvent: NSEvent)
+    func doWallEditPosition (_ theEvent: NSEvent)
     {
         if let keyString = theEvent.charactersIgnoringModifiers?.utf16,
             let theNode = theNode {
                 let modifiers = theEvent.modifierFlags
-                let shift = modifiers.contains(.ShiftKeyMask)
+                let shift = modifiers.contains(.shift)
                 let jump: CGFloat = shift ? 0.1 : 1.0
                 let rotation: CGFloat = (shift ? 1 : 10) / r2d
                 let keyChar = Int(keyString[keyString.startIndex])
-                SCNTransaction.setAnimationDuration(0.5)
-                if modifiers.contains(.CommandKeyMask) {
+                SCNTransaction.animationDuration = 0.5
+                if modifiers.contains(.command) {
                     var angle = theNode.eulerAngles.y
                     switch keyChar {
                     case NSLeftArrowFunctionKey:
-                        SCNTransaction.setAnimationDuration(0.2)
+                        SCNTransaction.animationDuration = 0.2
                         angle += rotation
                     case NSRightArrowFunctionKey:
-                        SCNTransaction.setAnimationDuration(0.2)
+                        SCNTransaction.animationDuration = 0.2
                         angle -= rotation
                     default:
-                        super.keyDown(theEvent)
+                        super.keyDown(with: theEvent)
                     }
                     setPivot(theNode, angle: angle)
                 } else {
@@ -298,13 +298,13 @@ class ArtSceneViewController: NSViewController, Undo {
     }
     
     /// Edit the size of the frame using the arrow keys. If the shift key is down, use smaller deltas.
-    func doFrameEditSize(theEvent: NSEvent)
+    func doFrameEditSize(_ theEvent: NSEvent)
     {
         if let keyString = theEvent.charactersIgnoringModifiers?.utf16,
             let theNode = theNode,
             let plane = theNode.geometry as! SCNPlane? {
                 let modifiers = theEvent.modifierFlags
-                let shift = modifiers.contains(.ShiftKeyMask)
+                let shift = modifiers.contains(.shift)
                 let jump: CGFloat = shift ? 1.0 / 48.0 : 1.0 / 12.0
                 let keyChar = Int(keyString[keyString.startIndex])
                 var size = CGSize(width: plane.width, height: plane.height)
@@ -328,13 +328,13 @@ class ArtSceneViewController: NSViewController, Undo {
     
     /// Edit the size fo a wall using the arrow keys. If the shift key is down, use smaller deltas.
     /// Ensure that the wall encloses all the pictures.
-    func doWallEditSize(theEvent: NSEvent)
+    func doWallEditSize(_ theEvent: NSEvent)
     {
         if let theNode = theNode,
             let keyString = theEvent.charactersIgnoringModifiers?.utf16,
             let plane = theNode.geometry as! SCNPlane? {
                 let modifiers = theEvent.modifierFlags
-                let shift = modifiers.contains(.ShiftKeyMask)
+                let shift = modifiers.contains(.shift)
                 let jump: CGFloat = shift ? 1 / 12 : 0.5
                 let keyChar = Int(keyString[keyString.startIndex])
                 var size = CGSize(width: plane.width, height: plane.height)
@@ -356,7 +356,7 @@ class ArtSceneViewController: NSViewController, Undo {
                         dx = -jump
                     }
                 default:
-                    super.keyDown(theEvent)
+                    super.keyDown(with: theEvent)
                 }
                 size.width += dx
                 size.height += dy
@@ -404,7 +404,7 @@ class ArtSceneViewController: NSViewController, Undo {
     
     /// Change the location and rotation of the camera with the arrow keys. The rotation
     /// is changed if the command key is down.
-    func doCameraEdit(theEvent: NSEvent) {
+    func doCameraEdit(_ theEvent: NSEvent) {
         if let keyString = theEvent.charactersIgnoringModifiers?.utf16 {
             let modifiers = theEvent.modifierFlags
             let charCode = Int(keyString[keyString.startIndex])
@@ -412,12 +412,12 @@ class ArtSceneViewController: NSViewController, Undo {
 //                moveSelection(charCode, shift: modifiers.contains(.ShiftKeyMask))
 //                return
 //            }
-            let shift = modifiers.contains(.ShiftKeyMask)
+            let shift = modifiers.contains(.shift)
             let jump: CGFloat = shift ? 0.1 : 1.0
             let rotation: CGFloat = (shift ? 1 : 10) / r2d
             let cameraNode = artSceneView.camera()
-            SCNTransaction.setAnimationDuration(0.5)
-            if modifiers.contains(.CommandKeyMask) {
+            SCNTransaction.animationDuration = 0.5
+            if modifiers.contains(.command) {
                 switch charCode {
                 case NSLeftArrowFunctionKey:
                     cameraNode.eulerAngles.y += rotation
@@ -428,7 +428,7 @@ class ArtSceneViewController: NSViewController, Undo {
                 case NSDownArrowFunctionKey:
                      cameraNode.position.y -= jump
                 default:
-                    super.keyDown(theEvent)
+                    super.keyDown(with: theEvent)
                 }
                 
             } else {
@@ -457,10 +457,10 @@ class ArtSceneViewController: NSViewController, Undo {
     }
     
     /// Dispatch the key down event on `editMode`.
-    override func keyDown(theEvent: NSEvent)
+    override func keyDown(with theEvent: NSEvent)
     {
-        if theEvent.modifierFlags.contains(.NumericPadKeyMask) {
-            if case EditMode.None = editMode {
+        if theEvent.modifierFlags.contains(.numericPad) {
+            if case EditMode.none = editMode {
                 doCameraEdit(theEvent)
             } else {
                 guard let theNode = theNode else {
@@ -472,13 +472,13 @@ class ArtSceneViewController: NSViewController, Undo {
                     preparedForUndo = true
                 }
                 switch editMode {
-                case .Moving(.Wall):
+                case .moving(.Wall):
                     doWallEditPosition(theEvent)
-                case .Resizing(.Wall, _):
+                case .resizing(.Wall, _):
                     doWallEditSize(theEvent)
-                case .Resizing(.Picture, _):
+                case .resizing(.Picture, _):
                     doFrameEditSize(theEvent)
-                case .Moving(.Picture):
+                case .moving(.Picture):
                     doFrameEditPosition(theEvent)
                 default: ()
                 }
@@ -487,9 +487,9 @@ class ArtSceneViewController: NSViewController, Undo {
         }
     }
     
-    func menuBarClicked(info: AnyObject)
+    func menuBarClicked(_ info: AnyObject)
     {
-        editMode = .None
+        editMode = .none
     }
     
 }
