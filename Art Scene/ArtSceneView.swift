@@ -60,7 +60,7 @@ class ArtSceneView: SCNView, Undo {
     /// Detach a thread to make the image cache.
     override var scene: SCNScene? {
         didSet {
-            Thread.detachNewThreadSelector(Selector("makePrintImageCache"),
+            Thread.detachNewThreadSelector(#selector(makePrintImageCache),
                 toTarget: self, with: nil)
         }
     }
@@ -82,6 +82,14 @@ class ArtSceneView: SCNView, Undo {
     let questionCursor: NSCursor
     /// The cursor that appears when the mouse is over the bottom of a wall.
     let rotateCursor: NSCursor
+    /// The resize uniformly cursor.
+    let resizeCursor: NSCursor
+    
+    var wallsLocked: Bool {
+        return controller.wallsLocked
+    }
+    
+    var saved: Any = ""
     
     /// Makes the `questionCursor` and `rotateCursor`, then calls `super.init()`
     required init?(coder: NSCoder) {
@@ -89,20 +97,28 @@ class ArtSceneView: SCNView, Undo {
         var image: NSImage = NSImage(size: NSSize(width: size, height: size))
         let font = NSFont.boldSystemFont(ofSize: size)
         let q = "?"
-        let attributes = [NSFontAttributeName: font, NSStrokeColorAttributeName: NSColor.white,
-            NSForegroundColorAttributeName: NSColor.black, NSStrokeWidthAttributeName: -2]
+        let attributes: [NSAttributedStringKey: AnyObject] = [.font: font, .strokeColor: NSColor.white,
+                                                              .foregroundColor: NSColor.black, .strokeWidth: NSNumber(value: -2)]
         image.lockFocus()
         q.draw(in: NSRect(x: 0, y: 0, width: size, height: size), withAttributes:attributes)
         image.unlockFocus()
-        questionCursor = NSCursor.init(image: image, hotSpot: NSPoint(x: 0, y: 0))
+        questionCursor = NSCursor.init(image: image, hotSpot: NSPoint(x: 12, y: 12))
         
         size = 24
-        let rotate = NSImage(named: "rotate-icon.png")!
+        let rotate = NSImage(named: (("rotate-icon.png" as NSString) as NSImage.Name))!
         image = NSImage(size: NSSize(width: size, height: size))
         image.lockFocus()
         rotate.draw(in: NSRect(x: 0, y: 0, width: size, height: size))
         image.unlockFocus()
-        rotateCursor = NSCursor.init(image: image, hotSpot: NSPoint(x: 0, y: 0))
+        rotateCursor = NSCursor.init(image: image, hotSpot: NSPoint(x: 12, y: 12))
+        
+        let resize = NSImage(named: (("4way-arrow.png" as NSString) as NSImage.Name))!
+        image = NSImage(size: NSSize(width: size, height: size))
+        image.lockFocus()
+        resize.draw(in: NSRect(x: 0, y: 0, width: size, height: size))
+        image.unlockFocus()
+        resizeCursor = NSCursor.init(image: image, hotSpot: NSPoint(x: 12, y: 12))
+        
         super.init(coder: coder)
     }
     
@@ -113,23 +129,55 @@ class ArtSceneView: SCNView, Undo {
     
     /// Register for drags of file names.
     override func awakeFromNib() {
-        register(forDraggedTypes: [NSFilenamesPboardType])
-        acceptsTouchEvents = true
+        registerForDraggedTypes([NSPasteboard.PasteboardType(rawValue: "NSFilenamesPboardType")])
+        //acceptsTouchEvents = true
     }
     
-    /// Returns the single scene camera.
+    /// Returns the single scene camera node.
     func camera () -> SCNNode
     {
-        return scene!.rootNode.childNode(withName: "Camera", recursively: false) as SCNNode!
+        return scene!.rootNode.childNode(withName: "Camera", recursively: false)!
     }
     
-    func setPrintingCache(_ cache: [String: NSImage])
+    /// Returns the omni light node
+    func omniLight () -> SCNNode
+    {
+        return scene!.rootNode.childNode(withName: "Omni", recursively: false)!
+    }
+    
+    /// Returns the ambient light node
+    func ambientLight () -> SCNNode
+    {
+        return scene!.rootNode.childNode(withName: "Ambient", recursively: false)!
+    }
+    
+    /// Returns the grid
+    func grid()->SCNNode {
+        return scene!.rootNode.childNode(withName: "Grid", recursively: false)!
+    }
+    
+    /// Returns the floor
+    func floor()->SCNNode {
+        return scene!.rootNode.childNode(withName: "Floor", recursively: false)!
+    }
+    
+    /// Hide the grid
+    @objc func hideGrid(_ sender: AnyObject?) {
+        grid().isHidden = true
+    }
+    
+    /// Show the grid
+    @objc func showGrid(_ sender: AnyObject?) {
+        grid().isHidden = false
+    }
+
+    @objc func setPrintingCache(_ cache: [String: NSImage])
     {
         imageCacheForPrint = cache
     }
     
     /// Makes thumbnail images of each picture for the printed report.
-    func makePrintImageCache ()
+    @objc func makePrintImageCache ()
     {
         var images: [String: NSImage] = [:]
         if let scene = scene {
@@ -138,32 +186,82 @@ class ArtSceneView: SCNView, Undo {
                     images[name] = image
                 }
             }
-            self.performSelector(onMainThread: Selector("setPrintingCache:"), with: images, waitUntilDone: true)
+            self.performSelector(onMainThread: #selector(ArtSceneView.setPrintingCache(_:)), with: images, waitUntilDone: true)
         }
+    }
+    
+    /// Add a wall to the scene
+    
+    func makeFakeWall()->SCNNode {
+//        let plane = controller.makeGlass(NSSize(width: 100, height: 100))
+        //                let fakeWall = SCNNode(geometry: plane)
+        let wall = SCNPlane(width: 100, height: 100)
+        let paint = SCNMaterial()
+        paint.diffuse.contents = NSColor.clear
+        paint.isDoubleSided = true
+        //            paint.locksAmbientWithDiffuse = false
+        //            paint.ambient.contents = NSColor.blackColor()
+        wall.materials = [paint]
+        let wallNode = SCNNode(geometry: wall)
+        wallNode.name = "Fake"
+//        wallNode.position.y = 50
+        wallNode.castsShadow = false
+        return wallNode
+    }
+    
+    func makeWall(at: SCNVector3)->SCNNode {
+        let wall = SCNPlane(width: controller.defaultWallSize.width, height: controller.defaultWallSize.height)
+        let paint = SCNMaterial()
+        paint.diffuse.contents = wallColor
+        paint.isDoubleSided = true
+        //            paint.locksAmbientWithDiffuse = false
+        //            paint.ambient.contents = NSColor.blackColor()
+        wall.materials = [paint]
+        let wallNode = SCNNode(geometry: wall)
+        wallNode.name = "Wall"
+        wallNode.position = at
+        wallNode.position.y = controller.defaultWallSize.height / 2.0
+        wallNode.castsShadow = true
+        let image = NSImage(named: ("Back.png" as NSString) as NSImage.Name)!
+        let ratio = image.size.height / image.size.width
+        image.size.width = 3.0
+        image.size.height = image.size.width * ratio
+        let back = controller.makeImage(image.copy() as! NSImage)
+        back.name = "Back"
+        back.position = SCNVector3(x: 0.0, y: 0.0, z: -0.1)
+        wallNode.addChildNode(back)
+        return wallNode
     }
     
     /// Displays info on some node in the status line.
     func getInfo(_ node: SCNNode) {
-        var node = node
-        if node.name == NodeType.Image.rawValue {
-            node = node.parent!
+        guard let type = nodeType(node) else { return }
+        var vNode = node
+        switch type {
+        case .Wall:
+            let (size, location, rotation, distance) = wallInfo(node, camera: camera())
+            controller.status = "Wall Size: \(size); Position: \(location); Rotation: \(rotation); Distance: \(distance!)"
+        case .Matt:
+            vNode = node.parent!
+            fallthrough
+        case .Picture:
+            let (size, location) = pictureInfo(vNode)
+            controller.status = "Picture Size: \(size); Position: \(location)"
+        case .Image:
+            let (size, name) = imageInfo(node)
+            controller.status = "Image Size: \(size), Name: \(name)"
+        default:
+            break
         }
-        if  let name = node.name,
-            let type = NodeType(rawValue: name) {
-                switch type {
-                case .Wall:
-                    let (size, location, rotation, distance) = wallInfo(node, camera: camera())
-                    controller.status = "Wall Size: \(size); Position: \(location); Rotation: \(rotation); Distance: \(distance!)"
-                case .Picture:
-                    let (size, location, name) = pictureInfo(node)
-                    if let name = name {
-                        controller.status = "Picture Size: \(size); Position: \(location); Name: \(name)"
-                    } else {
-                        controller.status = "Picture Size: \(size); Position: \(location)"
-                    }
-                default:
-                    break
-                }
+    }
+    
+    @IBAction func getInfo(_ sender: AnyObject?) {
+        if case .getInfo = editMode {
+            editMode = .none
+            NSCursor.arrow.set()
+        } else {
+            editMode = .getInfo
+            questionCursor.set()
         }
     }
     
@@ -171,104 +269,156 @@ class ArtSceneView: SCNView, Undo {
     /// Otherwise delete only the `mouseNode`.
     @IBAction func deletePictures(_ sender: AnyObject?)
     {
-        if let mouseNode = mouseNode {
-            if selection.contains(mouseNode) {
-                undoer.setActionName("Delete Pictures")
-                for picture in selection {
-                    setParentOf(picture, to: nil)
-                }
-                selection = []
-            } else {
-                undoer.setActionName("Delete Picture")
-                setParentOf(mouseNode, to: nil)
+        if selection.count > 0 {
+            undoer.setActionName("Delete Pictures")
+            for picture in selection {
+                changeParent(picture, from: picture.parent!, to: nil)
             }
+            selection = []
+        } else if let node = mouseNode, nodeType(node) == NodeType.Picture {
+            undoer.setActionName("Delete Picture")
+            changeParent(node, from: node.parent!, to: nil)
         }
     }
     
     override func mouseUp(with theEvent: NSEvent) {
         if inDrag == true {
+            guard let mouseNode = mouseNode else { return }
+            switch editMode {
+            case .resizing(.Picture, _):
+                let size = snapToGrid(mouseNode.size()!)
+                controller.doChangePictureSize(mouseNode, from: saved as! CGSize, to: size)
+                let (newsize, _) = pictureInfo(mouseNode)
+                controller.status = "Picture Size: \(newsize)"
+            case .resizing(.Image, _):
+                let size = snapToGrid(mouseNode.childNode(withName: "Image", recursively: false)!.size()!)
+                controller.doChangeImageSize(mouseNode, from: saved as! CGSize, to: size)
+                let (newsize, name) = imageInfo(mouseNode)
+                controller.status = "\(name): \(newsize)"
+            case .resizing(.Wall, _):
+                if wallsLocked {
+                    break
+                }
+                let (oldSize, oldPosition) = saved as! (CGSize, SCNVector3)
+                let currentSize = mouseNode.size()!
+                let newSize = snapToGrid(mouseNode.size()!)
+                changeSize(mouseNode, from: oldSize, to: newSize)
+                let delta = CGSize(width: newSize.width - currentSize.width,
+                                   height: newSize.height - currentSize.height)
+                let translate = simd_make_float3(Float(delta.width / 2.0),
+                                                 Float(delta.height / 2.0),
+                                                 0.0)
+                mouseNode.simdLocalTranslate(by: translate)
+                changePosition(mouseNode, from: oldPosition, to: mouseNode.position)
+                for child in mouseNode.childNodes {
+                    if nodeType(child) == .Picture {
+                        child.position.y -= delta.height / 2.0
+                    }
+                }
+                let (newsize, _, _, _) = wallInfo(mouseNode)
+                controller.status = "Wall Size: \(newsize)"
+            case .moving(.Picture):
+                for (node, oldPosition, parent) in saved as! [(SCNNode, SCNVector3, SCNNode)] {
+                    let position = snapToGrid(node.position)
+                    changePosition(node, from: oldPosition, to: position)
+                    changeParent(node, from: parent, to: node.parent!)
+                }
+                showNodePosition(mouseNode)
+            case .moving(.Wall):
+                if !wallsLocked {
+                    let position = snapToGrid(mouseNode.position)
+                    changePosition(mouseNode, from: saved as! SCNVector3, to: position)
+                }
+            default: ()
+            }
             undoer.endUndoGrouping()
         }
         
         inDrag = false
         // Remove the false wall.
-        if let child = mouseNode?.childNode(withName: "Wall", recursively: false) {
+        if let child = mouseNode?.childNode(withName: "Fake", recursively: false) {
             child.removeFromParentNode()
         }
         mouseNode = nil
-        if case .getInfo = editMode {
-        } else {
-            controller.status = ""
-        }
         flagsChanged(with: theEvent)
     }
     
     /// Sets `mouseNode`, `editMode`, and the cursor image based on the the the first node in the
     /// sorted list of hits returned from `hitTest`.
     override func mouseMoved(with theEvent: NSEvent) {
-        if inDrag {
-            return
-        }
-        
-        switch editMode {
-        case .getInfo, .selecting, .contextualMenu:
-            return
-        default:
-            break
-        }
-
-        editMode = .none
-//        mouseHit = nil
-        mouseNode = nil
+        if inDrag { return }
         let p = theEvent.locationInWindow
+        mouseNode = nil
+        switch editMode {
+        case .selecting, .getInfo, .resizing(.Image, _): break
+        default:
+            editMode = .none
+        }
         lastYLocation = p.y
         if NSPointInRect(p, frame) {
-            let hitResults = self.hitTest(p, options: [SCNHitTestOption.firstFoundOnly: false, SCNHitTestOption.sortResults: true])
+            var hitResults = self.hitTest(p, options: [SCNHitTestOption.searchMode: NSNumber(value: 1)])
+            hitResults = hitResults.filter({ nodeType($0.node) != .Back})
             if hitResults.count > 0 {
+                let hit = hitResults[0]
+                switch editMode {
+                case .getInfo:
+                    mouseNode = hit.node
+                    return
+                case .selecting:
+                    mouseNode = parent(hit.node, ofType: .Picture)
+                    return
+                default:
+                    break
+                }
+                
                 if let wallHit = hitOfType(hitResults, type: .Wall) {
                     lastMousePosition = wallHit.localCoordinates
                 }
-                let hit = hitResults[0]
-//                mouseHit = hit
-                mouseNode = hit.node
-                if let type = nodeType(hit.node) {
+               if let type = nodeType(hit.node) {
                     switch type {
                     case .Left, .Right:
-                        mouseNode = parent(mouseNode!, ofType: .Picture)
                         let edge: NodeEdge = type == .Left ? .left : .right
                         editMode = .resizing(.Picture, edge)
-                        NSCursor.resizeLeftRight().set()
+                        mouseNode = hit.node.parent!.parent!
+                        NSCursor.resizeLeftRight.set()
                     case .Top, .Bottom:
-                        mouseNode = parent(mouseNode!, ofType: .Picture)
                         editMode = .resizing(.Picture, type == .Top ? .top : .bottom)
-                        NSCursor.resizeUpDown().set()
+                        mouseNode = hit.node.parent!.parent!
+                        NSCursor.resizeUpDown.set()
                     case .Matt, .Image:
-                        mouseNode = parent(mouseNode!, ofType: .Picture)
                         fallthrough
                     case .Picture:
-                        editMode = .moving(.Picture)
-                        NSCursor.openHand().set()
+                        mouseNode = parent(hit.node, ofType: .Picture)
+                        let altAlone = theEvent.modifierFlags.rawValue & NSEvent.ModifierFlags.option.rawValue != 0
+                        if !altAlone {
+                            editMode = .moving(.Picture)
+                            NSCursor.openHand.set()
+                        }
                     case .Wall:
+                        if wallsLocked {
+                            NSCursor.arrow.set()
+                            break
+                        }
                         let local = NSPoint(x: hit.localCoordinates.x, y: hit.localCoordinates.y)
-                        let node = hit.node
-                        let size = nodeSize(node)
+                        mouseNode = hit.node
+                        let size = nodeSize(mouseNode!)
                         let width2 = size.width / 2
                         let height2 = size.height / 2
                         let cusp: CGFloat = 0.5
                         var rect = NSRect(x: -width2, y: -height2, width: cusp, height: size.height)
                         if NSPointInRect(local, rect) {
                             editMode = .resizing(.Wall, .left)
-                            NSCursor.resizeLeftRight().set()
+                            NSCursor.resizeLeftRight.set()
                         } else {
                             rect = NSRect(x: width2 - cusp, y: -height2, width: cusp, height: size.height)
                             if NSPointInRect(local, rect) {
                                 editMode = .resizing(.Wall, .right)
-                                NSCursor.resizeLeftRight().set()
+                                NSCursor.resizeLeftRight.set()
                             } else {
                                 rect = NSRect(x: -width2, y: height2 - cusp, width: size.width, height: cusp)
                                 if NSPointInRect(local, rect) {
                                     editMode = .resizing(.Wall, .top)
-                                    NSCursor.resizeUp().set()
+                                    NSCursor.resizeUp.set()
                                 } else {
                                     rect = NSRect(x: -width2, y: -height2, width: size.width, height: cusp)
                                     if NSPointInRect(local, rect) {
@@ -276,23 +426,25 @@ class ArtSceneView: SCNView, Undo {
                                         rotateCursor.set()
                                     } else {
                                         editMode = .moving(.Wall)
-                                        NSCursor.openHand().set()
+                                        NSCursor.openHand.set()
                                     }
                                 }
                             }
                         }
                     default:
-                        NSCursor.arrow().set()
+                        mouseNode = nil
+                        editMode = .none
+                        NSCursor.arrow.set()
                     }
                 }
             } else {
                 mouseNode = nil
-//                mouseHit = nil
-                NSCursor.arrow().set()
+                editMode = .none
+                NSCursor.arrow.set()
                 super.mouseMoved(with: theEvent)
             }
         } else {
-            NSCursor.arrow().set()
+            NSCursor.arrow.set()
             super.mouseMoved(with: theEvent)
         }
     }
@@ -309,50 +461,12 @@ class ArtSceneView: SCNView, Undo {
     }
     
 
-    /// Required by the `Undo` protocol. Unpacks the argument and calls the set method.
-    func setPosition1(_ args: [String: AnyObject])
-    {
-        let node = args["node"] as! SCNNode
-        let v = args["position"] as! [CGFloat]
-        let vec = SCNVector3(x: v[0], y: v[1], z: v[2])
-        setPosition(node, position: vec)
-    }
-
-    /// Required by the `Undo` protocol. Unpacks the argument and calls the set method.
-    func setPivot1(_ args: [String: AnyObject])
-    {
-        let node = args["node"] as! SCNNode
-        let angle = args["angle"] as! CGFloat
-        setPivot(node, angle: angle)
-    }
-    
-    /// Required by the `Undo` protocol. Unpacks the argument and calls the set method.
-    func setNodeSize1(_ args: [String: AnyObject])
-    {
-        let node = args["node"] as! SCNNode
-        let v = args["size"] as! [CGFloat]
-        setNodeSize(node, size: CGSize(width: v[0], height: v[1]))
-    }
-    
-    /// Required by the `Undo` protocol. Unpacks the argument and calls the set method.
-    func setParentOf1(_ args: [String: AnyObject])
-    {
-        let node = args["node"] as! SCNNode
-        let parent = args["parent"] as? SCNNode
-        setParentOf(node, to: parent)
-    }
-    
     /// Based on `editMode` and `mouseNode`, perform a drag operation, either resizing,
     /// moving, or rotating a wall.
     override func mouseDragged(with theEvent: NSEvent) {
-        guard let mouseNode = mouseNode else { return }
-        
-        if !inDrag {
-            controller.editMode = .none
-            prepareForUndo(mouseNode)
+        guard let mouseNode = mouseNode else {
+            return
         }
-        inDrag = true
-        
         let p = theEvent.locationInWindow
         
         // Handle the rotate operation separately, since there may not be a hit node, which is
@@ -360,33 +474,49 @@ class ArtSceneView: SCNView, Undo {
         if case .resizing(.Wall, .pivot) = editMode {
             let dy = p.y - lastYLocation
             lastYLocation = p.y
-            mouseNode.eulerAngles.y += dy / 100
+            mouseNode.eulerAngles.y = mouseNode.eulerAngles.y + dy / 10
             let (_, _, rotation, _) = wallInfo(mouseNode)
             controller.status = "Wall Rotation: \(rotation)"
             return
         }
 
         // Find a hit node or bail.
-        let hitResults = self.hitTest(p, options: nil)
+        let hitResults = self.hitTest(p, options: [SCNHitTestOption.searchMode: NSNumber(value: 1)])
         SCNTransaction.animationDuration = 0.0
-        guard var wallHit = hitOfType(hitResults, type: .Wall) else {
-            return
-        }
+
+        var wallHit = hitOfType(hitResults, type: .Wall)
+
         
         // Weird special case. If the wall width is being resized, and the resizer overlaps
         // another wall in front of the resized wall, that other wall becomes the wallHit,
         // and the delta is wrong. So if we are not dragging on the original wall, then
         // we want to be dragging over the false wall. The false wall is a subnode of the
         // mouseNode with the name "Wall"
-        if case .resizing(.Wall, _) = editMode where wallHit.node != mouseNode {
+        if let theHit = wallHit, case .resizing(.Wall, _) = editMode, theHit.node != mouseNode {
             let falseHit = hitResults.filter( { $0.node.parent == mouseNode && $0.node.name == "Wall" } )
             if !falseHit.isEmpty {
                 wallHit = falseHit[0]
             }
         }
+        let wall1: SCNNode?
+        if wallHit == nil {
+            if let fake = hitOfType(hitResults, type: .Fake) {
+                wallHit = fake
+                wall1 = fake.node.parent!
+            } else {
+                wall1 = nil
+            }
+        } else {
+            wall1 = wallHit!.node
+        }
         
-        let wall = wallHit.node
-        let currentMousePosition = wallHit.localCoordinates
+        if wallHit == nil {
+            return
+        }
+        
+        guard let wall = wall1 else { return }
+        
+        let currentMousePosition = wallHit!.localCoordinates
         if lastMousePosition == nil {
             lastMousePosition = currentMousePosition
             return
@@ -402,43 +532,59 @@ class ArtSceneView: SCNView, Undo {
             for node in dragged {
                 node.position.x += delta.x
                 node.position.y += delta.y
-                // The drag may have gone from one wall to another
+               // The drag may have gone from one wall to another
                 if wall !== node.parent {
-                    setParentOf(node, to: wall)
+                    wall.addChildNode(node)
+                    node.position = currentMousePosition
                 }
                 if node === mouseNode {
                     showNodePosition(node)
                 }
             }
         case .resizing(.Picture, let edge):
-            if let geometry = mouseNode.geometry as? SCNPlane {
-                let dy: CGFloat = { switch edge {
-                    case .top: return delta.y
-                    case .bottom: return -delta.y
-                    default: return 0 }
-                }()
-                let dx: CGFloat = { switch edge {
-                    case .right: return delta.x
-                    case .left: return -delta.x
-                    default: return 0 }
-                }()
-                let size = CGSize(width: geometry.width + dx, height: geometry.height + dy)
-                controller.reframePictureWithSize(mouseNode, newsize: size)
-                let (newsize, _, _) = pictureInfo(mouseNode)
-                controller.status = "Picture Size: \(newsize)"
+            var size = mouseNode.size()!
+            var dy: CGFloat = 0.0
+            switch edge {
+                case .top: dy = delta.y
+                case .bottom: dy = -delta.y
+                default: ()
             }
+            var dx: CGFloat = 0.0
+            switch edge {
+                case .right: dx = delta.x
+                case .left: dx = -delta.x
+                default: ()
+            }
+            size = CGSize(width: size.width + dx, height: size.height + dy)
+            controller.reframePictureWithSize(mouseNode, newsize: size)
+            let (newsize, _) = pictureInfo(mouseNode)
+            controller.status = "Picture Size: \(newsize)"
+        case .resizing(.Image, _):
+            var size = mouseNode.childNode(withName: "Image", recursively: false)!.size()!
+            let dy = delta.y
+            let dx = dy * size.width / size.height
+            size = CGSize(width: size.width + dx, height: size.height + dy)
+            controller.reframeImageWithSize(mouseNode, newsize: size)
+            let (newsize, name) = imageInfo(mouseNode)
+            controller.status = "\(name): \(newsize)"
         case .moving(.Wall):
+            if wallsLocked {
+                break
+            }
             SCNTransaction.animationDuration = 0.2
             let shift = theEvent.modifierFlags.contains(.shift)
             let scale: CGFloat = shift ? 40.0 : 10.0
-            let dx = theEvent.deltaX / scale
-            let dy = theEvent.deltaY / scale
-            moveNode(dy, deltaRight: -dx, node: mouseNode)
+            let size = CGSize(width: theEvent.deltaX / scale, height: theEvent.deltaY / scale)
+            moveNode(size.height, deltaRight: -size.width, node: mouseNode, angle: camera().eulerAngles.y)
             let (_, location, _, distance) = wallInfo(wall, camera: camera())
             controller.status = "Wall Location: \(location); Camera distance: \(distance!)"
         case .resizing(.Wall, let edge):
+            if wallsLocked {
+                break
+            }
             if let geometry = mouseNode.geometry as? SCNPlane {
                 SCNTransaction.animationDuration = 0.0
+                var factor: Float = 1.0
                 let dy: CGFloat = { switch edge {
                     case .top: return delta.y
                     case .bottom: return -delta.y
@@ -446,32 +592,37 @@ class ArtSceneView: SCNView, Undo {
                     }()
                 let dx: CGFloat = { switch edge {
                     case .right: return delta.x
-                    case .left: return -delta.x
+                    case .left:
+                        factor = -1.0
+                        return -delta.x
                     default: return 0 }
                     }()
+                let newSize = CGSize(width: geometry.width + dx, height: geometry.height + dy)
                 // The wall must enclose all the pictures
-                if wallContainsPictures(mouseNode, withNewSize: CGSize(width: geometry.width + dx,
-                    height: geometry.height + dy)) {
-                        geometry.width += dx
-                        geometry.height += dy
-                        mouseNode.position.y += dy / 2
-                        for child in mouseNode.childNodes {
-                            if let type = nodeType(child) {
-                                switch type {
-                                case .Picture:
-                                    child.position.y -= dy / 2
-                                case .Wall:
-                                    break
-                                default: ()
-                                }
+                if newSize.width >= 0.5 && newSize.height >= 0.5
+                    && wallContainsPictures(mouseNode, withNewSize: newSize)
+                {
+                    geometry.width = newSize.width
+                    geometry.height = newSize.height
+                    let translate = simd_make_float3(factor * Float(dx / 2.0), factor * Float(dy / 2.0), 0.0)
+                    mouseNode.simdLocalTranslate(by: translate)
+                    for child in mouseNode.childNodes {
+                        if let type = nodeType(child) {
+                            switch type {
+                            case .Picture:
+                                child.position.y -= dy / 2
+                            case .Wall:
+                                break
+                            default: ()
                             }
                         }
-                        let (newsize, _, _, _) = wallInfo(mouseNode)
-                        controller.status = "Wall Size: \(newsize)"
+                    }
+                    let (newsize, _, _, _) = wallInfo(mouseNode)
+                    controller.status = "Wall Size: \(newsize)"
                 }
             }
          default:
-            break
+            editMode = .none
         }
         lastMousePosition = currentMousePosition
    }
@@ -480,23 +631,39 @@ class ArtSceneView: SCNView, Undo {
     override func mouseDown(with theEvent: NSEvent) {
         /* Called when a mouse click occurs */
         controller.editMode = .none
-        
+       if mouseNode == nil {
+            for node in selection {
+                setNodeEmission(node, color: NSColor.black)
+            }
+            selection = []
+            editMode = .none
+            return
+        }
+        guard let mouseNode = mouseNode else { return }
         let p = theEvent.locationInWindow
-        let hitResults = self.hitTest(p, options: nil)
-        guard hitResults.count > 0 else { return }
+        let hitResults = self.hitTest(p, options: [SCNHitTestOption.searchMode: NSNumber(value: 1)])
+        guard hitResults.count > 0 else {
+            return
+        }
+        if nodeType(hitResults[0].node) == .Back {
+            return
+        }
         switch editMode {
         case .getInfo:
-            getInfo(hitResults[0].node)
-        case .selecting:
-            guard let node = hitOfType(hitResults, type: .Picture)?.node
-                else {
-                    for node in selection {
-                        setNodeEmission(node, color: NSColor.black)
-                    }
-                    selection = []
-                    break
+            getInfo(mouseNode)
+        case .moving(.Wall):
+            if wallsLocked {
+                break
             }
-            let pictureNodes = Set([node])
+            prepareForUndo(mouseNode)
+            inDrag = true
+            NSCursor.closedHand.set()
+        case .moving(.Picture):
+            prepareForUndo(mouseNode)
+            inDrag = true
+            NSCursor.closedHand.set()
+        case .selecting:
+            let pictureNodes = Set([mouseNode])
             let selectedSet = Set<SCNNode>(selection)
             let hitSet = Set<SCNNode>(pictureNodes)
             let oldSelection = Set(selection)
@@ -519,16 +686,40 @@ class ArtSceneView: SCNView, Undo {
                 setNodeEmission(node, color: NSColor.black)
             }
         case .resizing(.Wall, _):
+            if wallsLocked {
+                break
+            }
             // Make a gigantic transparent wall coplanar with `mouseNode` so that the mouse can be off
             // the wall while dragging it larger.
-            if let wall = mouseNode where nodeType(mouseNode) == .Wall {
-                let plane = controller.makeGlass(NSSize(width: 100, height: 100))
-                let fakeWall = SCNNode(geometry: plane)
-                fakeWall.name = "Wall"
-                wall.addChildNode(fakeWall)
-            }
+                prepareForUndo(mouseNode)
+                inDrag = true
+                let fakeWall = makeFakeWall()
+                mouseNode.addChildNode(fakeWall)
+        case .resizing(.Picture, _):
+            prepareForUndo(mouseNode)
+            inDrag = true
+       case .resizing(.Image, _):
+                prepareForUndo(mouseNode)
+                inDrag = true
         default:
-            break
+            editMode = .none
+        }
+    }
+    
+    override func keyDown(with theEvent: NSEvent)
+    {
+        if let keyString = theEvent.charactersIgnoringModifiers {
+            if keyString == "+" {
+                camera().camera?.fieldOfView += 2.0
+                controller.updateCameraStatus()
+            } else if keyString == "-" {
+                camera().camera?.fieldOfView -= 2.0
+                controller.updateCameraStatus()
+            } else {
+                controller.keyDown(with: theEvent)
+            }
+        } else {
+            controller.keyDown(with: theEvent)
         }
     }
     
@@ -539,7 +730,7 @@ class ArtSceneView: SCNView, Undo {
     }
     
     override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation {
-        let hits = hitTest(sender.draggingLocation(), options: nil)
+        let hits = hitTest(sender.draggingLocation(), options: [SCNHitTestOption.searchMode: NSNumber(value: 1)])
         guard let wallHit = hitOfType(hits, type: .Wall) else {
             controller.status = "No Wall Under Mouse"
             return NSDragOperation()
@@ -567,12 +758,12 @@ class ArtSceneView: SCNView, Undo {
     override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
         var result = false
         let pasteboard = sender.draggingPasteboard()
-        if let plist = pasteboard.propertyList(forType: NSFilenamesPboardType) as! NSArray?
-            where plist.count > 0 {
+        if let plist = pasteboard.propertyList(forType: NSPasteboard.PasteboardType(rawValue: "NSFilenamesPboardType")) as? NSArray
+            {
                 let path = plist[0] as! String
                 var point = sender.draggingLocation()
                 point = convert(point, from: nil)
-                let hitResults = self.hitTest(point, options: nil)
+                let hitResults = self.hitTest(point, options: [SCNHitTestOption.searchMode: NSNumber(value: 1)])
                 if hitResults.count > 0 {
                     if let pictureHit = hitOfType(hitResults, type: .Picture) {
                         result = true
