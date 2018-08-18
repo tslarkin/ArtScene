@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		1200F71D1BD690FE003E4F24 /* Gestures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1200F71C1BD690FE003E4F24 /* Gestures.swift */; };
 		120C61461BF92F3E00D1F49D /* SCNVector Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120C61451BF92F3E00D1F49D /* SCNVector Extensions.swift */; };
+		1232CBCD2121FA00006F9A64 /* NSImage+File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1232CBCC2121FA00006F9A64 /* NSImage+File.swift */; };
+		1232CBCF212328A4006F9A64 /* 4way-arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 1232CBCE212328A4006F9A64 /* 4way-arrow.png */; };
 		1254A8001BD82B100056A0C8 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1254A7FF1BD82B100056A0C8 /* Utilities.swift */; };
 		1254A8021BD96EE40056A0C8 /* TextFieldExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1254A8011BD96EE40056A0C8 /* TextFieldExtension.swift */; };
 		1254A8041BDA9C1F0056A0C8 /* Print.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1254A8031BDA9C1F0056A0C8 /* Print.swift */; };
@@ -29,11 +31,15 @@
 		127CF8D21BD1823300F571D9 /* ArtSceneViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127CF8CF1BD1823300F571D9 /* ArtSceneViewController.swift */; };
 		127CF8D31BD1823300F571D9 /* Framer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127CF8D01BD1823300F571D9 /* Framer.swift */; };
 		129BCF301BE29D5200F6B8F3 /* rotate-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 129BCF2F1BE29D5200F6B8F3 /* rotate-icon.png */; };
+		12E95BB221246D1500F025B6 /* Back.png in Resources */ = {isa = PBXBuildFile; fileRef = 12E95BB121246D1500F025B6 /* Back.png */; };
+		12E95BB42126A68900F025B6 /* SCNNodeExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB32126A68900F025B6 /* SCNNodeExtension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		1200F71C1BD690FE003E4F24 /* Gestures.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Gestures.swift; sourceTree = "<group>"; };
 		120C61451BF92F3E00D1F49D /* SCNVector Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SCNVector Extensions.swift"; sourceTree = "<group>"; };
+		1232CBCC2121FA00006F9A64 /* NSImage+File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSImage+File.swift"; sourceTree = "<group>"; };
+		1232CBCE212328A4006F9A64 /* 4way-arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "4way-arrow.png"; sourceTree = "<group>"; };
 		1254A7FF1BD82B100056A0C8 /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Utilities.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		1254A8011BD96EE40056A0C8 /* TextFieldExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextFieldExtension.swift; sourceTree = "<group>"; };
 		1254A8031BDA9C1F0056A0C8 /* Print.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Print.swift; sourceTree = "<group>"; };
@@ -56,6 +62,8 @@
 		127CF8CF1BD1823300F571D9 /* ArtSceneViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArtSceneViewController.swift; sourceTree = "<group>"; };
 		127CF8D01BD1823300F571D9 /* Framer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Framer.swift; sourceTree = "<group>"; };
 		129BCF2F1BE29D5200F6B8F3 /* rotate-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "rotate-icon.png"; sourceTree = "<group>"; };
+		12E95BB121246D1500F025B6 /* Back.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Back.png; sourceTree = "<group>"; };
+		12E95BB32126A68900F025B6 /* SCNNodeExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCNNodeExtension.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,7 +98,7 @@
 			children = (
 				125A067A1BE909F200D145AC /* Undo.swift */,
 				120C61451BF92F3E00D1F49D /* SCNVector Extensions.swift */,
-				129BCF2F1BE29D5200F6B8F3 /* rotate-icon.png */,
+				12E95BB32126A68900F025B6 /* SCNNodeExtension.swift */,
 				127CF8B01BD1810A00F571D9 /* AppDelegate.swift */,
 				127CF8B21BD1810A00F571D9 /* Document.swift */,
 				127CF8CC1BD1821000F571D9 /* ArtSceneView.swift */,
@@ -107,10 +115,14 @@
 				127CF8B91BD1810A00F571D9 /* MainMenu.xib */,
 				127CF8BC1BD1810A00F571D9 /* Info.plist */,
 				127CF8C21BD181FA00F571D9 /* ActionMenu.xib */,
+				12E95BB121246D1500F025B6 /* Back.png */,
+				129BCF2F1BE29D5200F6B8F3 /* rotate-icon.png */,
+				1232CBCE212328A4006F9A64 /* 4way-arrow.png */,
 				127CF8C31BD181FA00F571D9 /* aligntop.png */,
 				127CF8C41BD181FA00F571D9 /* alignbottom.png */,
 				127CF8C51BD181FA00F571D9 /* alignhcenter.png */,
 				127CF8C61BD181FA00F571D9 /* alignvcenter.png */,
+				1232CBCC2121FA00006F9A64 /* NSImage+File.swift */,
 			);
 			path = "Art Scene";
 			sourceTree = "<group>";
@@ -141,12 +153,12 @@
 		127CF8A51BD1810900F571D9 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0700;
+				LastUpgradeCheck = 0940;
 				ORGANIZATIONNAME = "Timothy Larkin";
 				TargetAttributes = {
 					127CF8AC1BD1810A00F571D9 = {
 						CreatedOnToolsVersion = 7.0.1;
-						LastSwiftMigration = 0830;
+						LastSwiftMigration = 0940;
 					};
 				};
 			};
@@ -181,6 +193,8 @@
 				127CF8C91BD181FA00F571D9 /* alignbottom.png in Resources */,
 				127CF8CB1BD181FA00F571D9 /* alignvcenter.png in Resources */,
 				127CF8BB1BD1810A00F571D9 /* MainMenu.xib in Resources */,
+				1232CBCF212328A4006F9A64 /* 4way-arrow.png in Resources */,
+				12E95BB221246D1500F025B6 /* Back.png in Resources */,
 				127CF8CA1BD181FA00F571D9 /* alignhcenter.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -196,11 +210,13 @@
 				127CF8D21BD1823300F571D9 /* ArtSceneViewController.swift in Sources */,
 				1254A8061BDAB9910056A0C8 /* ArtScenePrinter.swift in Sources */,
 				120C61461BF92F3E00D1F49D /* SCNVector Extensions.swift in Sources */,
+				1232CBCD2121FA00006F9A64 /* NSImage+File.swift in Sources */,
 				125A067B1BE909F200D145AC /* Undo.swift in Sources */,
 				127CF8B31BD1810A00F571D9 /* Document.swift in Sources */,
 				127CF8D31BD1823300F571D9 /* Framer.swift in Sources */,
 				127CF8CD1BD1821000F571D9 /* ArtSceneView.swift in Sources */,
 				127CF8B11BD1810A00F571D9 /* AppDelegate.swift in Sources */,
+				12E95BB42126A68900F025B6 /* SCNNodeExtension.swift in Sources */,
 				1200F71D1BD690FE003E4F24 /* Gestures.swift in Sources */,
 				1254A8041BDA9C1F0056A0C8 /* Print.swift in Sources */,
 				1254A8001BD82B100056A0C8 /* Utilities.swift in Sources */,
@@ -238,13 +254,23 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
@@ -266,7 +292,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -282,13 +308,23 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
@@ -304,9 +340,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
 			};
 			name = Release;
 		};
@@ -317,10 +354,11 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = "Art Scene/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.abstracttools.Art-Scene";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
@@ -331,10 +369,11 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = "Art Scene/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.abstracttools.Art-Scene";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
 		};

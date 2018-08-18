@@ -24,7 +24,7 @@ func != (u: SCNVector3, v: SCNVector3) -> Bool {
     return !(u == v)
 }
 
-infix operator × { associativity left precedence 100 }
+infix operator × //{ associativity left precedence 100 }
 
 func × (a: SCNVector3, b: SCNVector3) -> SCNVector3
 {

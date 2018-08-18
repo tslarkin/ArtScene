@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9059" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14113" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9059"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14113"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="NSView">
+        <customObject id="-2" userLabel="File's Owner" customClass="ArtSceneView" customModule="Art_Scene" customModuleProvider="target">
             <connections>
                 <outlet property="menu" destination="9FC-Ve-tKQ" id="hot-l7-lZE"/>
             </connections>
@@ -15,7 +15,7 @@
             <items>
                 <menuItem title="Neaten" id="jnc-lI-yi2">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="Neaten" id="5hc-tM-rNS">
+                    <menu key="submenu" title="Neaten" autoenablesItems="NO" id="5hc-tM-rNS">
                         <items>
                             <menuItem title="Space Centers Equally" id="l5H-ja-ORZ">
                                 <modifierMask key="keyEquivalentModifierMask"/>
@@ -34,7 +34,7 @@
                 </menuItem>
                 <menuItem title="Alignment" id="soW-CP-HsP">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="Alignment" id="waS-3l-AbI">
+                    <menu key="submenu" title="Alignment" autoenablesItems="NO" id="waS-3l-AbI">
                         <items>
                             <menuItem image="aligntop" id="CaK-YP-KuJ">
                                 <modifierMask key="keyEquivalentModifierMask"/>

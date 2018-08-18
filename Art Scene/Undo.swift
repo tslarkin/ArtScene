@@ -30,124 +30,103 @@ import Cocoa
 protocol Undo : AnyObject
 {
     /// The scene document
-    weak var document: Document? { get }
+    var document: Document? { get }
     /// The edit mode of the adopting class
     var editMode: EditMode { get }
-    /// This is called by `SetNodeSize()` when the node is a picture
-    func reframePictureWithSize(_ node: SCNNode, newsize: CGSize)
     /// The set of selected pictures, needed by `SetPosition`
     var selection: Set<SCNNode> { get set }
-    func setPosition1(_ args: [String: AnyObject])
-    func setPivot1(_ args: [String: AnyObject])
-    func setNodeSize1(_ args: [String: AnyObject])
-    func setParentOf1(_ args: [String: AnyObject])
+    var saved: Any { get set }
 }
 
 extension Undo
 {
     
-    func setPivot(_ node: SCNNode, angle: CGFloat)
+    func changePivot(_ node: SCNNode, from: CGFloat, to: CGFloat)
     {
-        let oldAngle = node.eulerAngles.y
         let undoer = document!.undoManager!
-        undoer.registerUndo(withTarget: self, selector: Selector("setPivot1:"),
-            object: ["node": node, "angle": oldAngle])
-        if angle != node.eulerAngles.y {
-            node.eulerAngles.y = angle
+        undoer.registerUndo(withTarget: self, handler: { $0.changePivot(node, from: to, to: from) })
+        if node.yRotation() != to {
+            node.setYRotation(to)
         }
     }
     
-    func setPosition(_ node: SCNNode, position: SCNVector3)
+    func changePosition(_ node: SCNNode, from: SCNVector3, to: SCNVector3)
     {
         let undoer = document!.undoManager!
-        let old = node.position
-        let dict: [String: AnyObject] = ["node": node, "position": [old.x, old.y, old.z]]
-        undoer.registerUndo(withTarget: self, selector: Selector("setPosition1:"), object: dict)
-        if node.position.x != position.x || node.position.y != position.y || node.position.z != position.z {
-            node.position = position
+        undoer.registerUndo(withTarget: self, handler: { $0.changePosition(node, from: to, to: from) })
+        if node.position != to {
+            node.position = to
         }
     }
     
-    func setNodeSize(_ node: SCNNode, size: CGSize)
+    func changeSize(_ node: SCNNode, from: CGSize, to: CGSize)
     {
-        if let geometry = node.geometry as? SCNPlane {
-            let oldsize = CGSize(width: geometry.width, height: geometry.height)
-            let undoer = document!.undoManager!
-            let dict: [String: AnyObject] = ["node": node, "size": [oldsize.width, oldsize.height]]
-            undoer.registerUndo(withTarget: self, selector: Selector("setNodeSize1:"),
-                object: dict)
-            if oldsize != size {
-                switch nodeType(node)! {
-                case .Wall:
-                    // When the wall is resized, its y coordinate must be adjusted so the the bottom
-                    // of the wall stays on the floor. Also, the y coordinates of the pictures have
-                    // to be adjusted to keep them at the same distance above the floor.
-                    let geometry = node.geometry as! SCNPlane
-                    geometry.width = size.width
-                    geometry.height = size.height
-                    let dy2 = (size.height - oldsize.height) / 2
-                    node.position.y += dy2
-                    for child in node.childNodes {
-                        switch nodeType(child)! {
-                        case .Picture:
-                            child.position.y -= dy2
-                        case .Wall:
-                            break
-                        default: ()
-                        }
-                    }
-                    
-                case .Picture:
-                    reframePictureWithSize(node, newsize: size)
-                default:()
-                }
-            }
+        let undoer = document!.undoManager!
+        undoer.registerUndo(withTarget: self, handler: { $0.changeSize(node, from: to, to: from) })
+        if node.size()! != to {
+            node.setSize(to)
         }
     }
     
-    func setParentOf(_ node: SCNNode, to: SCNNode?)
+    func changeParent(_ node: SCNNode, from: SCNNode?, to: SCNNode?)
     {
         let undoer = document!.undoManager!
-        if let parent = node.parent {
-            let dict = ["node": node, "parent": parent]
-            undoer.registerUndo(withTarget: self, selector: Selector("setParentOf1:"), object: dict)
-            node.removeFromParentNode()
+        undoer.registerUndo(withTarget: self, handler: { $0.changeParent(node, from: to, to: from) })
+        if let parent = to {
+            parent.addChildNode(node)
         } else {
-            let dict = ["node": node]
-            undoer.registerUndo(withTarget: self, selector: Selector("setParentOf1:"), object: dict)
+            node.removeFromParentNode()
         }
-        if let newParent = to {
-            newParent.addChildNode(node)
+    }
+    
+    func changePictureSize(_ node: SCNNode, from:CGSize, to: CGSize)
+    {
+        let undoer = document!.undoManager!
+        undoer.registerUndo(withTarget: self,
+                            handler: { $0.changePictureSize(node, from: to, to: from) })
+        if from != to {
+            (self as! ArtSceneViewController).reframePictureWithSize(node, newsize: to)
         }
-        if selection.contains(node) {
-            selection.remove(node)
-            setNodeEmission(node, color: NSColor.black)
+    }
+    
+    func changeImageSize(_ node: SCNNode, from: CGSize, to: CGSize)
+    {
+        let undoer = document!.undoManager!
+        undoer.registerUndo(withTarget: self,
+                            handler: { $0.changeImageSize(node, from: to, to: from) })
+        if from != to {
+            (self as! ArtSceneViewController).reframeImageWithSize(node, newsize: to)
         }
+
     }
     
     func prepareForUndo(_ node: SCNNode)
     {
         if let undoer = document?.undoManager {
-            undoer.removeAllActions()
             undoer.beginUndoGrouping()
             switch editMode {
             case .resizing(_, .pivot):
                 undoer.setActionName("Wall Rotation")
-                setPivot(node, angle: node.eulerAngles.y)
-            case .resizing(_, _):
-                if let geometry = node.geometry as? SCNPlane {
-                    undoer.setActionName("Resizing \(node.name)")
-                    setNodeSize(node, size: CGSize(width: geometry.width, height: geometry.height) )
-                }
-            case .moving(_):
-                undoer.setActionName("Moving \(node.name)")
+                saved = node.eulerAngles.y
+            case .resizing(.Image, _):
+                undoer.setActionName("Resizing Image of \(String(describing: node.name!))")
+                saved = node.childNode(withName: "Image", recursively: false)!.size()!
+            case .resizing(.Picture, _):
+                undoer.setActionName("Resizing Frame of \(String(describing: node.name!))")
+                saved = node.size()!
+            case .resizing(.Wall, _):
+                undoer.setActionName("Resizing \(String(describing: node.name!))")
+                saved = (node.size()!, node.position)
+            case .moving(.Picture):
+                undoer.setActionName("Moving \(String(describing: node.name!))")
                 if selection.contains(node) {
-                    for node in selection {
-                        setPosition(node, position: node.position)
-                    }
+                    saved = selection.map{ ($0, $0.position, $0.parent!) }
                 } else {
-                    setPosition(node, position: node.position)
+                    saved = [(node, node.position, node.parent!)]
                 }
+            case .moving(.Wall):
+                undoer.setActionName("Moving \(String(describing: node.name!))")
+                saved = node.position
             default:
                 ()
             }

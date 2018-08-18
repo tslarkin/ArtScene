@@ -48,24 +48,23 @@ class Document: NSDocument {
         let scene = SCNScene()
         
         let camera = SCNCamera()
-        camera.xFov = 60
-        camera.yFov = 60
+        camera.fieldOfView = 60
         let cameraNode = SCNNode()
         cameraNode.camera = camera
         cameraNode.name = "Camera"
         scene.rootNode.addChildNode(cameraNode)
         
-        let wallHeight: CGFloat = 12.0
-        cameraNode.position = SCNVector3(x: 0, y: 6, z: 0)
+        cameraNode.position = SCNVector3(x: 0, y: 6, z: 15)
         
         // create and add a light to the scene
         let light = SCNLight()
         light.color = NSColor(white: 0.8, alpha: 1.0)
         let lightNode = SCNNode()
+        lightNode.name = "Omni"
         lightNode.light = light
         light.type = SCNLight.LightType.omni
         light.castsShadow = true
-        lightNode.position = SCNVector3(x: 0, y: wallHeight * 2, z: 0)
+        lightNode.position = cameraNode.position
         scene.rootNode.addChildNode(lightNode)
         
         // create and add an ambient light to the scene
@@ -73,8 +72,57 @@ class Document: NSDocument {
         ambientLightNode.light = SCNLight()
         ambientLightNode.light!.type = SCNLight.LightType.ambient
         ambientLightNode.light!.color = NSColor(white: 0.5, alpha: 1.0)
+        ambientLightNode.name = "Ambient"
         scene.rootNode.addChildNode(ambientLightNode)
         
+        let gridNode = makeCheckerBoardFloor()
+        scene.rootNode.addChildNode(gridNode)
+        let floorNode = makeGrayFloor()
+        scene.rootNode.addChildNode(floorNode)
+        
+        let wallNode = sceneView.makeWall(at: SCNVector3(x: 0.0, y: 6.0, z: 0.0))
+        scene.rootNode.addChildNode(wallNode)
+        
+        return scene
+    }
+    
+    func makeCheckerBoardFloor()->SCNNode {
+        let transform = SCNMatrix4MakeRotation(-.pi / 2.0, 1.0, 0.0, 0.0)
+        let black = SCNMaterial()
+        black.diffuse.contents = NSColor.gray
+        black.transparency = 0.5
+        let white = SCNMaterial()
+        white.diffuse.contents = NSColor.clear
+        let blackTile = SCNPlane(width: 1.0, height: 1.0)
+        blackTile.firstMaterial = black
+        let whiteTile = SCNPlane(width: 1.0, height: 1.0)
+        whiteTile.firstMaterial = white
+        
+        let floorNode = SCNNode()
+        floorNode.name = "Grid"
+        let y: CGFloat = 0.01
+        floorNode.position = SCNVector3(x: 0, y: y, z: 0)
+        let size = 200
+        let size2 = size / 2
+        var odd = false
+        for x in -size2...size2 {
+            for z in -size2...size2 {
+                odd = !odd
+                if !odd {
+                    continue
+                }
+                let tileNode = SCNNode()
+                tileNode.geometry = blackTile
+                tileNode.transform = transform
+                tileNode.position = SCNVector3Make(CGFloat(x), y, CGFloat(z))
+                
+                floorNode.addChildNode(tileNode)
+            }
+        }
+        return floorNode
+    }
+    
+    func makeGrayFloor()->SCNNode {
         let floor = SCNFloor()
         let floorNode = SCNNode(geometry: floor)
         floorNode.position = SCNVector3(x: 0, y: 0, z: 0)
@@ -82,13 +130,9 @@ class Document: NSDocument {
         let floorMaterial = SCNMaterial()
         floorMaterial.diffuse.contents = NSColor.lightGray
         floor.materials = [floorMaterial]
-        floor.reflectivity = 0.1
-        
-        scene.rootNode.addChildNode(floorNode)
-        
-        // set the scene to the view
-        return scene
-        
+        floor.reflectivity = 0.2
+        floorMaterial.transparency = 1.0
+        return floorNode
     }
 
     override func windowControllerDidLoadNib(_ aController: NSWindowController) {
@@ -98,6 +142,9 @@ class Document: NSDocument {
             scene = createDefaultScene()
         }
         sceneView.scene = scene
+        if (scene?.rootNode.childNode(withName: "Lock", recursively: false)) != nil {
+            sceneView.controller.wallsLocked = true
+        }
         // if the scene was saved with a selection, then the nodes have to revert their emissions to black
         if let children = sceneView.scene?.rootNode.childNodes ( passingTest: {  x, yes in x.geometry != nil } ) {
             for child in children {
@@ -110,14 +157,14 @@ class Document: NSDocument {
 
     }
 
-    override class func autosavesInPlace() -> Bool {
+    override class var autosavesInPlace: Bool {
         return true
     }
 
-    override var windowNibName: String? {
+    override var windowNibName: NSNib.Name? {
         // Returns the nib file name of the document
         // If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this property and override -makeWindowControllers instead.
-        return "Document"
+        return NSNib.Name("Document")
     }
 
     override func data(ofType typeName: String) throws -> Data {
@@ -135,11 +182,11 @@ class Document: NSDocument {
         scene = data
     }
 
-    override func printOperation(withSettings printSettings: [String : Any]) throws -> NSPrintOperation
+    override func printOperation(withSettings printSettings: [NSPrintInfo.AttributeKey : Any]) throws -> NSPrintOperation
     {
         let info = printInfo
-        info.horizontalPagination = NSPrintingPaginationMode.autoPagination
-        info.verticalPagination = NSPrintingPaginationMode.autoPagination
+        info.horizontalPagination = NSPrintInfo.PaginationMode.autoPagination
+        info.verticalPagination = NSPrintInfo.PaginationMode.autoPagination
         let op = NSPrintOperation(view: sceneView.printView(info), printInfo: info)
         return op
     }

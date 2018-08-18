@@ -34,6 +34,8 @@ enum NodeType: String {
     case Picture
     case Image
     case Floor
+    case Fake
+    case Back
 }
 
 enum EditMode {
@@ -74,9 +76,9 @@ func nodeType (_ node: SCNNode?) -> NodeType?
 func parent(_ node: SCNNode, ofType type: NodeType) -> SCNNode?
 {
     var tmp: SCNNode? = node
-    repeat {
+    while tmp != nil && nodeType(tmp) != type {
         tmp = tmp?.parent
-    } while tmp != nil && nodeType(tmp) != type
+    }
     return tmp
 }
 
@@ -87,16 +89,16 @@ func runOpenPanel() -> URL?
     panel.canChooseFiles = true
     panel.resolvesAliases = true
     panel.allowsMultipleSelection = false
-    panel.allowedFileTypes = NSImage.imageTypes()
+    panel.allowedFileTypes = NSImage.imageTypes
     let button = panel.runModal()
-    if button == NSFileHandlingPanelOKButton {
+    if button == NSApplication.ModalResponse.OK {
         return panel.url!
     } else {
         return nil
     }
 }
 
-let r2d = CGFloat(180.0 / M_PI)
+let r2d = CGFloat(180.0 / .pi)
 
 //func roundToQuarterInch(x: CGFloat) -> CGFloat
 //{
@@ -150,8 +152,11 @@ func wallInfo(_ wall: SCNNode, camera: SCNNode? = nil) -> (size: String, locatio
     let length = convertToFeetAndInches(plane.width)
     let height = convertToFeetAndInches(plane.height)
     let x = convertToFeetAndInches(wall.position.x)
-    let y = convertToFeetAndInches(wall.position.z)
-    let angle = (wall.eulerAngles.y * r2d).truncatingRemainder(dividingBy: 360.0)
+    let y = convertToFeetAndInches(-wall.position.z)
+    var angle = (wall.eulerAngles.y * r2d).truncatingRemainder(dividingBy: 360.0)
+    if angle < 0 {
+        angle += 360.0
+    }
     let rotation = String(format: "%0.0f°", angle)
     var distance: String? = nil
     if let camera = camera {
@@ -164,16 +169,21 @@ func wallInfo(_ wall: SCNNode, camera: SCNNode? = nil) -> (size: String, locatio
 }
 
 /// GetInfo properties for a picture.
-func pictureInfo(_ node: SCNNode) -> (size: String, location: String, name: String?) {
-    let plane = node.geometry as! SCNPlane
-    let s = plane.name as NSString?
-    let name: NSString? = s?.lastPathComponent
+func pictureInfo(_ node: SCNNode) -> (size: String, location: String) {
     let size = nodeSize(node)
     let wall = node.parent!
     let area = wall.geometry as! SCNPlane
     return ("\(convertToFeetAndInches(size.width, units: .inches)) x \(convertToFeetAndInches(size.height, units: .inches))",
-            "\(convertToFeetAndInches(node.position.x + area.width / 2)), \(convertToFeetAndInches(node.position.y + area.height / 2))",
-            name as String?)
+            "\(convertToFeetAndInches(node.position.x + area.width / 2)), \(convertToFeetAndInches(node.position.y + area.height / 2))")
+}
+
+/// GetInfo properties for an image.
+func imageInfo(_ node: SCNNode) -> (size: String, name: String) {
+    let plane = node.geometry as! SCNPlane
+    let s = plane.name as NSString?
+    let name = s?.lastPathComponent as String? ?? "None"
+    let size = node.childNode(withName: "Image", recursively: false)!.size()!
+    return ("\(convertToFeetAndInches(size.width, units: .inches)) x \(convertToFeetAndInches(size.height, units: .inches))", name)
 }
 
 /// Determine if a wall with `newSize` contains all its pictures.
@@ -198,7 +208,9 @@ func wallContainsPictures(_ wall: SCNNode, withNewSize newSize: CGSize) -> Bool
 
 func convertToFeetAndInches(_ length: CGFloat, units:Units = .feet) -> String
 {
-    
+    if length == 0.0 {
+        return "0\'"
+    }
     let xFeet = units == .feet ? Int(length) : 0
     let xInches: CGFloat = {
         let x = (length - CGFloat(xFeet)) * 12.0
@@ -211,7 +223,7 @@ func convertToFeetAndInches(_ length: CGFloat, units:Units = .feet) -> String
     switch round(fractionalInches / 0.25) {
     case 0:
         if wholeInches > 0 {
-            formattedFractionalInches = "'"
+            formattedFractionalInches = "\""
         }
     case 1:
         formattedFractionalInches = "¼\""
@@ -222,8 +234,8 @@ func convertToFeetAndInches(_ length: CGFloat, units:Units = .feet) -> String
     default:
         break
     }
-    let formattedFeet = xFeet == 0 ? "" : "\(xFeet)'"
     let formattedInches = wholeInches == 0 ? "" : "\(Int(wholeInches))"
+    let formattedFeet = (xFeet == 0) ? "" : "\(xFeet)'"
     return formattedFeet + formattedInches + formattedFractionalInches
 }
 
@@ -250,12 +262,81 @@ func crossProduct(_ a: SCNVector3, b: SCNVector3) -> SCNVector3
     return SCNVector3(x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x)
 }
 
-func moveNode(_ deltaUp: CGFloat, deltaRight: CGFloat, node: SCNNode)
+func moveNode(_ deltaUp: CGFloat, deltaRight: CGFloat, node: SCNNode, angle: CGFloat)
 {
-    let angle = node.eulerAngles.y
     let v = SCNVector3(x: sin(angle), y: 0.0, z: cos(angle))
 //    let u = crossProduct(v, b: SCNVector3(0, 1, 0))
     let u = v × SCNVector3(0, 1, 0)
     node.position.x += v.x * deltaUp + u.x * deltaRight
     node.position.z += v.z * deltaUp + u.z * deltaRight
+}
+
+func primeFactors(_ numToCheck:Int) -> [(factor: Int, power: Int)] {
+    
+    if numToCheck == 1 { return []}
+    
+    var primeFactors:Array<(Int, Int)> = []
+    var n = numToCheck
+    let divisor = 2
+    var count: Int = 0
+    while n >= divisor && n % divisor == 0 {
+        count += 1
+        n = n / 2
+    }
+    if count > 0 {
+        primeFactors.append((divisor, count))
+    }
+    for divisor in stride(from: 3, to: Int(Double(n).squareRoot()) + 1, by:2) {
+        count = 0
+        while n >= divisor && n % divisor == 0 {
+            count += 1
+            n = n / divisor
+        }
+        if count > 0 {
+            primeFactors.append((divisor, count))
+        }
+    }
+    if n > 1 {
+        primeFactors.append((n, 1))
+    }
+    return primeFactors
+}
+
+func isPrime(_ num: Int)->Bool {
+    let factors = primeFactors(num)
+    return factors.count == 1 && factors[0].power == 1
+}
+
+let snapToGridP = true
+let gridFactor:CGFloat = 48.0
+let rotationFactor: CGFloat = 5.0
+
+func snapToGrid(_ position: SCNVector3)->SCNVector3 {
+    if !snapToGridP {
+        return position
+    }
+    var p = position
+    p.x = round(position.x * gridFactor) / gridFactor
+    p.y = round(position.y * gridFactor) / gridFactor
+    p.z = round(position.z * gridFactor) / gridFactor
+    return p
+}
+
+func snapToGrid(_ size: CGSize)->CGSize {
+    if !snapToGridP {
+        return size
+    }
+    var s = size
+    s.height = round(size.height * gridFactor) / gridFactor
+    s.width = round(size.width * gridFactor) / gridFactor
+    return s
+}
+
+func snapToGrid(_ angle: CGFloat)->CGFloat{
+    if !snapToGridP {
+        return angle
+    }
+    var degrees = angle * r2d
+    degrees = round(degrees / rotationFactor) * rotationFactor
+    return degrees / r2d
 }

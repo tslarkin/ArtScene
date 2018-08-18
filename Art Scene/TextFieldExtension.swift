@@ -10,9 +10,9 @@ import Cocoa
 
 extension NSTextField
 {
-    override public func mouseDown(with theEvent: NSEvent) {
+    override open func mouseDown(with theEvent: NSEvent) {
         if let target = target {
-            target.perform(action)
+            _ = target.perform(action, with: nil)
         }
     }
 }
