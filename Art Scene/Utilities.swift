@@ -82,6 +82,35 @@ func parent(_ node: SCNNode, ofType type: NodeType) -> SCNNode?
     return tmp
 }
 
+func picture(_ node: SCNNode)->SCNNode? {
+    return parent(node, ofType: .Picture)
+}
+
+func theImage(_ node: SCNNode)->SCNNode
+{
+    return node.childNode(withName: "Image", recursively: false)!
+}
+
+func theMatt(_ node: SCNNode)->SCNNode
+{
+    return node.childNode(withName: "Matt", recursively: false)!
+}
+
+func theFrame(_ node: SCNNode)->SCNNode
+{
+    return node.childNode(withName: "Frame", recursively: false)!
+}
+
+func thePlane(_ node: SCNNode)->SCNPlane
+{
+    return node.geometry as! SCNPlane
+}
+
+func theGeometry(_ node: SCNNode)->SCNGeometry
+{
+    return node.geometry!
+}
+
 func runOpenPanel() -> URL?
 {
     let panel = NSOpenPanel()
@@ -147,7 +176,7 @@ func distanceForPicture(_ node: SCNNode, axis: Axis, coordinate: CGFloat = 0.0) 
 }
 
 /// GetInfo properties for a wall.
-func wallInfo(_ wall: SCNNode, camera: SCNNode? = nil) -> (size: String, location: String, rotation: String, distance: String?) {
+func wallInfo(_ wall: SCNNode, camera: SCNNode? = nil, hitPosition: SCNVector3? = nil) -> (size: String, location: String, rotation: String, distance: String?) {
     let plane = wall.geometry as! SCNPlane
     let length = convertToFeetAndInches(plane.width)
     let height = convertToFeetAndInches(plane.height)
@@ -160,8 +189,9 @@ func wallInfo(_ wall: SCNNode, camera: SCNNode? = nil) -> (size: String, locatio
     let rotation = String(format: "%0.0f°", angle)
     var distance: String? = nil
     if let camera = camera {
-        let x = wall.position.x - camera.position.x
-        let z = wall.position.z - camera.position.z
+        let position = hitPosition != nil ? hitPosition! : wall.position
+        let x = position.x - camera.position.x
+        let z = position.z - camera.position.z
         distance =  convertToFeetAndInches(sqrt(x * x + z * z))
     }
     return (length + " x " + height, x + ", " + y, rotation, distance)
@@ -169,20 +199,29 @@ func wallInfo(_ wall: SCNNode, camera: SCNNode? = nil) -> (size: String, locatio
 }
 
 /// GetInfo properties for a picture.
-func pictureInfo(_ node: SCNNode) -> (size: String, location: String) {
+func pictureInfo(_ node: SCNNode, camera: SCNNode? = nil, hitPosition: SCNVector3? = nil) -> (size: String, location: String, hidden: Bool, distance: String) {
     let size = nodeSize(node)
     let wall = node.parent!
     let area = wall.geometry as! SCNPlane
+    var distance = ""
+    if camera != nil && hitPosition != nil {
+        let x = hitPosition!.x - camera!.position.x
+        let z = hitPosition!.z - camera!.position.z
+        distance =  convertToFeetAndInches(sqrt(x * x + z * z))
+    }
     return ("\(convertToFeetAndInches(size.width, units: .inches)) x \(convertToFeetAndInches(size.height, units: .inches))",
-            "\(convertToFeetAndInches(node.position.x + area.width / 2)), \(convertToFeetAndInches(node.position.y + area.height / 2))")
+            "\(convertToFeetAndInches(node.position.x + area.width / 2)), \(convertToFeetAndInches(node.position.y + area.height / 2))",
+            theFrame(node).isHidden, distance)
 }
 
 /// GetInfo properties for an image.
 func imageInfo(_ node: SCNNode) -> (size: String, name: String) {
-    let plane = node.geometry as! SCNPlane
-    let s = plane.name as NSString?
-    let name = s?.lastPathComponent as String? ?? "None"
-    let size = node.childNode(withName: "Image", recursively: false)!.size()!
+    // The node might be the picture or the image itself
+    let type = nodeType(node)
+    let plane = type == .Image ? thePlane(picture(node)!) : thePlane(node)
+    let s = plane.name! as NSString
+    let name = s.lastPathComponent as String? ?? "None"
+    let size = type == .Image ? node.size()! : theImage(node).size()!
     return ("\(convertToFeetAndInches(size.width, units: .inches)) x \(convertToFeetAndInches(size.height, units: .inches))", name)
 }
 
@@ -234,8 +273,8 @@ func convertToFeetAndInches(_ length: CGFloat, units:Units = .feet) -> String
     default:
         break
     }
-    let formattedInches = wholeInches == 0 ? "" : "\(Int(wholeInches))"
-    let formattedFeet = (xFeet == 0) ? "" : "\(xFeet)'"
+    let formattedInches = wholeInches == 0 ? "" : String(format:"%d", Int(wholeInches))
+    let formattedFeet = units == Units.inches ? "" : String(format: "%d'", xFeet)
     return formattedFeet + formattedInches + formattedFractionalInches
 }
 
@@ -243,15 +282,15 @@ func convertToFeetAndInches(_ length: CGFloat, units:Units = .feet) -> String
 func makeThumbnail(_ picture: SCNNode) -> (String, NSImage)? {
     let geometry = picture.geometry!
     if let name: String = geometry.name,
-        let original = NSImage(byReferencingFile: name),
-        let imageNode = picture.childNode(withName: "Image", recursively: true),
-        let imageSize = imageNode.geometry as? SCNPlane {
-            let thumbnail = NSImage(size: NSSize(width: imageSize.width * 100, height: imageSize.height * 100))
-            thumbnail.lockFocus()
-            let toRect = NSRect(x: 0, y: 0, width: thumbnail.size.width, height: thumbnail.size.height)
-            original.draw(in: toRect, from: NSRect(origin: CGPoint.zero, size: original.size), operation: NSCompositingOperation.copy, fraction: 1.0, respectFlipped: false, hints: nil)
-            thumbnail.unlockFocus()
-            return (name, thumbnail)
+        let original = NSImage(byReferencingFile: name) {
+        let imageNode = theImage(picture)
+        let plane = thePlane(imageNode)
+        let thumbnail = NSImage(size: NSSize(width: plane.width * 100, height: plane.height * 100))
+        thumbnail.lockFocus()
+        let toRect = NSRect(x: 0, y: 0, width: thumbnail.size.width, height: thumbnail.size.height)
+        original.draw(in: toRect, from: NSRect(origin: CGPoint.zero, size: original.size), operation: NSCompositingOperation.copy, fraction: 1.0, respectFlipped: false, hints: nil)
+        thumbnail.unlockFocus()
+        return (name, thumbnail)
     }
     return nil
 }

@@ -20,7 +20,9 @@ class ArtScenePrinter: NSView {
     weak var scene: SCNScene?
     weak var printInfo: NSPrintInfo?
     var currentPageNumber: Int = 0
-    var imageCache: [String: NSImage]? = nil
+    /// The list of walls to be printed. A wall may appear more than once if it is spread over
+    /// more than one page.
+    var walls: [(node: SCNNode, count: Int)]!
     
     override func knowsPageRange(_ range: NSRangePointer) -> Bool {
         range.pointee.location = pageRange.location
@@ -49,15 +51,30 @@ class ArtScenePrinter: NSView {
     func drawRectString(_ string: NSString, inRect rect: CGRect, withAttributes attribs: [NSAttributedStringKey: AnyObject]) {
         string.draw(in: rect, withAttributes: attribs)
     }
+    
+    func drawString(_ name: NSString, atPoint point: NSPoint, justification: NodeEdge, withAttributes attribs: [NSAttributedStringKey: AnyObject])
+    {
+        let size = name.size(withAttributes: attribs)
+        var p = point
+        if case justification = NodeEdge.right {
+            p.x -= size.width
+        }
+        p.y -= 1.0
+        var rect = NSZeroRect
+        rect.origin = p
+        rect.size = size
+        name.draw(in: rect, withAttributes: attribs)
+ }
 
     /// Draw an entire scene in some number of pages.
     func drawScene(_ dirtyRect: NSRect)
     {
         /// Draw the picture's image from the cache, if it is available. Otherwise, draw the
         /// name of the picture
-        func drawImage(_ name: NSString, rect: CGRect, attribs: [NSAttributedStringKey: AnyObject])
+        func drawImage(_ name: NSString, node: SCNNode, rect: CGRect, attribs: [NSAttributedStringKey: AnyObject])
         {
-            if let image = imageCache?[name as String] {
+            let data = node.geometry?.firstMaterial?.diffuse.contents as! Data
+            if let image = NSImage(data: data) {
                 image.draw(in: rect, from: NSRect(origin: CGPoint.zero, size: image.size),
                     operation: .copy, fraction: 1.0, respectFlipped: false, hints: nil)
                 
@@ -80,61 +97,70 @@ class ArtScenePrinter: NSView {
         func drawPicture(_ picture: SCNNode, referencex: CGFloat, attributes attribs: [NSAttributedStringKey: AnyObject])
         {
             let font = attribs[.font] as! NSFont
-            let fontHeight = font.capHeight
+            let hidden = theFrame(picture).isHidden
+            let savedSize = picture.size()!
+            if hidden {
+                picture.setSize(theImage(picture).size()!)
+            }
             let pictureSize = nodeSize(picture)
+            NSGraphicsContext.saveGraphicsState()
             let transform = NSAffineTransform()
             transform.translateX(by: picture.position.x, yBy: picture.position.y)
-            (transform as NSAffineTransform).concat()
+            transform.concat()
             let rect = NSRect(origin: NSPoint(x: -pictureSize.width / 2, y: -pictureSize.height / 2), size: pictureSize)
-            NSBezierPath.stroke(rect)
+            if !theFrame(picture).isHidden {
+                NSBezierPath.stroke(rect)
+            }
+
             let geometry: SCNGeometry! = picture.geometry
-            let tick = 5 * bounds.height / frame.height
+            
+            // Draw the image, if there is one
+            if let name = geometry.name as NSString? {
+                let imageNode = theImage(picture)
+                let geometry = thePlane(imageNode)
+                let r =  CGRect(x: -geometry.width / 2, y: -geometry.height / 2, width: geometry.width, height: geometry.height)
+                drawImage(name, node: imageNode, rect: r, attribs: attribs)
+            }
             
             // draw the distance from the left side of the wall
-            let fromLeft =  distanceForPicture(picture, axis: .x, coordinate: picture.position.x)
-            drawCenteredString(fromLeft as NSString, atPoint: NSPoint(x: 0, y: -pictureSize.height / 2.0 - 1 - fontHeight + font.descender), withAttributes: attribs)
+//            let fromLeft =  distanceForPicture(picture, axis: .x, coordinate: picture.leftEdge)
+//            drawCenteredString(fromLeft as NSString, atPoint: NSPoint(x: bottomLeft.x, y: bottomLeft.y - 1 - fontHeight + font.descender), withAttributes: attribs)
             
             // draw the distance from the center of the previous picture, or the left side of the wall
             // if there is no previous picture
-            let x = picture.position.x - referencex
-            drawCenteredString(convertToFeetAndInches(x, units: .feet) as NSString, atPoint: NSPoint(x: 0, y: -pictureSize.height / 2.0 - 1 - font.descender), withAttributes: attribs)
-            let tick1 = -pictureSize.height / 2.0 + fontHeight - font.descender
-            NSBezierPath.strokeLine(from: NSPoint(x: 0, y: tick1),
-                to: NSPoint(x: 0, y: tick1 + tick))
+            let x = picture.leftEdge - referencex
+            drawString(convertToFeetAndInches(x, units: .feet) as NSString,
+                       atPoint: NSPoint(x: -pictureSize.width / 2.0, y: -pictureSize.height / 2.0 - (font.ascender - font.descender)),
+                       justification: NodeEdge.left,
+                       withAttributes: attribs)
             
             // draw the distance from the floor
             let rotator = NSAffineTransform()
+//            rotator.translateX(by: bottomLeft.x, yBy: bottomLeft.y)
             rotator.rotate(byDegrees: 90.0)
-            rotator.translateX(by: 0, yBy: pictureSize.width / 2.0)
+            NSGraphicsContext.saveGraphicsState()
             rotator.concat()
-            let fromFloor = distanceForPicture(picture, axis: .y, coordinate: picture.position.y)
-            drawCenteredString(fromFloor as NSString, atPoint: NSPoint(x: 0, y: -1 - font.descender), withAttributes: attribs)
-            NSBezierPath.strokeLine(from: NSPoint.zero, to: NSPoint(x: 0, y: -tick))
-            rotator.invert()
-            (rotator as NSAffineTransform).concat()
-            
-            // Draw the image, if there is one
-            if let name = geometry.name as NSString?,
-                let imageNode = picture.childNode(withName: "Image", recursively: true),
-                let geometry = imageNode.geometry as? SCNPlane {
-                let r =  CGRect(x: -geometry.width / 2, y: -geometry.height / 2, width: geometry.width, height: geometry.height)
-                drawImage(name, rect: r, attribs: attribs)
+            let fromFloor = distanceForPicture(picture, axis: .y, coordinate: picture.bottomEdge)
+            drawString(fromFloor as NSString, atPoint: NSPoint(x: -pictureSize.height / 2.0, y: pictureSize.width / 2.0 - font.descender), justification: NodeEdge.left, withAttributes: attribs)
+//            NSBezierPath.strokeLine(from: NSPoint.zero, to: NSPoint(x: 0, y: -tick))
+            NSGraphicsContext.restoreGraphicsState()
+            NSGraphicsContext.restoreGraphicsState()
+            if hidden {
+                picture.setSize(savedSize)
             }
-            
-            transform.invert()
-            (transform as NSAffineTransform).concat()
-            
         }
         
         /// Draw a wall and its pictures.
         func drawWall(_ wall: SCNNode)
         {
             // Prepare the attributes for text
-            let font = NSFont.systemFont(ofSize: 8.0 * bounds.height / frame.height)
+            let fontSize: CGFloat = 8.0 * bounds.height / frame.height
+//           let font1 = NSFont(name: "LucidaGrande", size: fontSize)
+            let font = NSFont.systemFont(ofSize: fontSize)
+//            let font = NSFont.systemFont(ofSize: fontSize)
             let style = NSMutableParagraphStyle()
             style.lineBreakMode = NSParagraphStyle.LineBreakMode.byWordWrapping
             style.alignment = NSTextAlignment.center
-            style.maximumLineHeight = 9.0 * bounds.height / frame.height
             let attributes: [NSAttributedStringKey: AnyObject] = [.font: font, .paragraphStyle: style]
             
             // Stroke a rect the size of wall with its center at {0, 0}
@@ -147,49 +173,53 @@ class ArtScenePrinter: NSView {
             
             // Draw the pictures in x order, keeping track of the x coordinate of the previous picture
             // so that we can report its distance from the current picture.
-            var pictures = wall.childNodes
-            pictures.sort(by: { $0.position.x < $1.position.x })
-            var previousX = -wallSize.width / 2.0
-            var previousY: CGFloat?
+            var pictures = wall.childNodes.filter{ nodeType($0) == .Picture }
+            pictures.sort(by: { $0.leftEdge < $1.leftEdge })
+            var previous: CGPoint?
             for picture in pictures {
-                drawPicture(picture, referencex: previousX, attributes: attributes)
-                // Draw a line from the center of the previous picture to the center of the current one.
-                if let previousy = previousY {
-                    NSBezierPath.strokeLine(from: NSPoint(x: previousX, y: previousy),
-                        to: NSPoint(x: picture.position.x, y: picture.position.y))
+                // Draw a line from the left bottom of the previous picture to the left bottom of the current one.
+                let leftEdge = theFrame(picture).isHidden ? picture.position.x - theImage(picture).size()!.width / 2.0: picture.leftEdge
+                let bottomEdge = theFrame(picture).isHidden ? picture.position.y - theImage(picture).size()!.height / 2.0: picture.bottomEdge
+                if let previous = previous {
+                    NSBezierPath.strokeLine(from: NSPoint(x: previous.x, y: previous.y),
+                                            to: NSPoint(x: leftEdge, y: bottomEdge))
+                } else {
+                    previous = CGPoint(x: -wallSize.width / 2.0, y: 0.0)
                 }
-                previousX = picture.position.x
-                previousY = picture.position.y
+                drawPicture(picture, referencex: previous!.x, attributes: attributes)
+                previous!.x = leftEdge
+                previous!.y = bottomEdge
             }
         }
         
         // DrawScene begins.
-        let walls = scene!.rootNode.childNodes(passingTest: { x, yes in x.name == "Wall"})
         if walls.isEmpty { return }
+        // bounds dimensions are feet, same as node dimensions
         let pageHeight: CGFloat = bounds.height / CGFloat(pageRange.length)
+        let pageWidth: CGFloat = bounds.width
         NSBezierPath.defaultLineWidth = 0.01
         NSColor.black.setStroke()
         
         // `dTransform` is the transform delta, which prepares `transform` to print the next page.
         let dTransform = NSAffineTransform()
         dTransform.translateX(by: 0, yBy: pageHeight)
-
-        // `transform` puts {0, 0} at the center of the page.
-        let transform = NSAffineTransform()
-        transform.translateX(by: bounds.width / 2.0, yBy: pageHeight / 2.0)
-        transform.concat()
-        for (i, wall) in walls.enumerated() {
-            if i == currentPageNumber - 1 {
+        var center: NSPoint = NSMakePoint(0.0, pageHeight / 2.0)
+        for (wall, count) in walls {
+            let totalWidth = pageWidth * CGFloat(count)
+            center.x = totalWidth / 2.0
+            NSGraphicsContext.saveGraphicsState()
+            let t = NSAffineTransform()
+            t.translateX(by: center.x, yBy: center.y)
+            t.concat()
+            for _ in 0...count - 1 {
                 drawWall(wall)
+                let t = NSAffineTransform()
+                t.translateX(by: -pageWidth, yBy: pageHeight)
+                t.concat()
+                center.y += pageHeight
             }
-            let inverse: NSAffineTransform = transform.copy() as! NSAffineTransform
-            inverse.invert()
-            inverse.concat()
-            transform.append(dTransform as AffineTransform)
-            transform.concat()
+            NSGraphicsContext.restoreGraphicsState()
         }
-        transform.invert()
-        (transform as NSAffineTransform).concat()
     }
 
     override func draw(_ dirtyRect: NSRect) {

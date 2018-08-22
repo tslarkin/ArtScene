@@ -14,23 +14,6 @@ Extension for support of contextual menus and their actions.
 */
 extension ArtSceneView {
     
-    @IBAction func addWall(_ sender: AnyObject?) {
-        let undoer = document!.undoManager!
-        undoer.setActionName("Add Wall")
-        let wallNode = makeWall(at: mouseClickLocation!)
-        changeParent(wallNode, from: nil, to: scene!.rootNode)
-     }
-    
-    @IBAction func pickWallColor(_ sender: AnyObject?)
-    {
-        let picker = NSColorPanel.shared
-        picker.setTarget(self)
-        picker.setAction(#selector(ArtSceneView.setColorOfWalls(_:)))
-        picker.color = wallColor
-        picker.isContinuous = true
-        picker.orderFront(nil)
-    }
-    
     /// Set `editMode` and the cursor image based on modifier keys.
     override func flagsChanged(with theEvent: NSEvent) {
         if inDrag { return }
@@ -44,23 +27,17 @@ extension ArtSceneView {
             if commandAlone {
                 NSCursor.pointingHand.set()
                 editMode = .selecting
+                mouseNode = nil
             } else {
-                let altAlone = theEvent.modifierFlags.rawValue & NSEvent.ModifierFlags.option.rawValue != 0
-                if altAlone {
-                    let p = theEvent.locationInWindow
-                    let hitResults = self.hitTest(p, options: [SCNHitTestOption.searchMode: NSNumber(value: 1)])
-                    if let hit = hitOfType(hitResults, type: .Image) {
-                        mouseNode = hit.node.parent
-                    }
-                    editMode = .resizing(.Image, .none)
+                let theFlags = theEvent.modifierFlags.intersection(.deviceIndependentFlagsMask).subtracting([.numericPad, .function])
+                let optionDown =  theFlags.contains(.option) && theFlags.subtracting([.option]).isEmpty
+                if optionDown && nodeType(mouseNode) == .Image {
                     resizeCursor.set()
-                } else {
-                    NSCursor.arrow.set()
-                    editMode = .none
                 }
-            }
+                NSCursor.arrow.set()
+                editMode = .none
+           }
         }
-//        super.flagsChanged(with: theEvent)
     }
     
     func makePictureMenu() -> NSMenu
@@ -112,7 +89,7 @@ extension ArtSceneView {
                 menu.addItem(withTitle: "Rotate Wall CCW", action: #selector(ArtSceneViewController.rotateWallCCW), keyEquivalent: "")
                 menu.addItem(NSMenuItem.separator())
             }
-            menu.addItem(withTitle: "Wall Color", action: #selector(ArtSceneView.pickWallColor(_:)), keyEquivalent: "")
+            menu.addItem(withTitle: "Wall Color", action: #selector(ArtSceneViewController.pickWallColor(_:)), keyEquivalent: "")
             menu.addItem(withTitle: "Add Picture", action: #selector(ArtSceneViewController.addPicture(_:)), keyEquivalent: "")
             if controller.wallsLocked == false {
                 menu.addItem(NSMenuItem.separator())
@@ -124,7 +101,7 @@ extension ArtSceneView {
             let menu = NSMenu()
             menu.autoenablesItems = true
             if controller.wallsLocked == false {
-                menu.addItem(withTitle: "Add Wall", action: #selector(ArtSceneView.addWall(_:)), keyEquivalent: "")
+                menu.addItem(withTitle: "Add Wall", action: #selector(ArtSceneViewController.addWall(_:)), keyEquivalent: "")
             }
             if grid().isHidden {
                 menu.addItem(withTitle: "Show Grid", action: #selector(ArtSceneView.showGrid(_:)), keyEquivalent: "")
@@ -142,13 +119,6 @@ extension ArtSceneView {
             return nil
         }
      }
-    
-    @objc func setColorOfWalls(_ sender: AnyObject?) {
-        if let sender = sender as? NSColorPanel {
-            let color = sender.color
-            self.wallColor = color
-        }
-    }
     
     @objc func equalizeCenterDistances(_ sender: AnyObject?)
     {
@@ -174,7 +144,7 @@ extension ArtSceneView {
         let gap = whiteSpace / CGFloat(pictures.count + 1)
         var positionx = gap - wallWidth / 2.0
         for picture in pictures {
-            let plane = picture.geometry as! SCNPlane
+            let plane = thePlane(picture)
             picture.position.x = positionx + plane.width / 2.0
             positionx += plane.width + gap
         }
@@ -182,37 +152,32 @@ extension ArtSceneView {
     }
     
     @objc func alignTops(_ sender: AnyObject?) {
+        guard let masterNode = masterNode else { return }
         SCNTransaction.animationDuration = 0.5
-        let frame = masterNode!.childNode(withName: "Frame", recursively: false)!
-        let image = masterNode!.childNode(withName: "Image", recursively: false)!
-        let masterPlane = frame.isHidden ? image.geometry as! SCNPlane : masterNode!.geometry as! SCNPlane
-        let masterTop = masterNode!.position.y + masterPlane.height / 2
+        let masterPlane = theFrame(masterNode).isHidden ? thePlane(theImage(masterNode)) : thePlane(masterNode)
+        let masterTop = masterNode.position.y + masterPlane.height / 2
         for picture in selection {
-            let frame = picture.childNode(withName: "Frame", recursively: false)!
-            let image = picture.childNode(withName: "Image", recursively: false)!
-            let plane = frame.isHidden ? image.geometry as! SCNPlane : picture.geometry as! SCNPlane
+            let plane = theFrame(picture).isHidden ? thePlane(theImage(picture)) : thePlane(picture)
             picture.position.y = masterTop - plane.height / 2
         }
     }
     
     @objc func alignBottoms(_ sender: AnyObject?) {
-        SCNTransaction.animationDuration = 0.5
-        let frame = masterNode!.childNode(withName: "Frame", recursively: false)!
-        let image = masterNode!.childNode(withName: "Image", recursively: false)!
-        let masterPlane = frame.isHidden ? image.geometry as! SCNPlane : masterNode!.geometry as! SCNPlane
-        let masterBottom = masterNode!.position.y - masterPlane.height / 2
+        guard let masterNode = masterNode else { return }
+       SCNTransaction.animationDuration = 0.5
+        let masterPlane = theFrame(masterNode).isHidden ? thePlane(theImage(masterNode)) : thePlane(masterNode)
+        let masterBottom = masterNode.position.y - masterPlane.height / 2
         for picture in selection {
-            let frame = picture.childNode(withName: "Frame", recursively: false)!
-            let image = picture.childNode(withName: "Image", recursively: false)!
-            let plane = frame.isHidden ? image.geometry as! SCNPlane : picture.geometry as! SCNPlane
+            let plane = theFrame(picture).isHidden ? thePlane(theImage(picture)) : thePlane(picture)
             picture.position.y = masterBottom + plane.height / 2
         }
         
     }
     
     @objc func alignHCenters(_ sender: AnyObject?) {
+        guard let masterNode = masterNode else { return }
         SCNTransaction.animationDuration = 0.5
-        let masterCenter = masterNode!.position.y
+        let masterCenter = masterNode.position.y
         for picture in selection {
             picture.position.y = masterCenter
         }
@@ -220,7 +185,8 @@ extension ArtSceneView {
     }
     
     @objc func alignVCenters(_ sender: AnyObject?) {
-        let masterCenter = masterNode!.position.x
+        guard let masterNode = masterNode else { return }
+        let masterCenter = masterNode.position.x
         for picture in selection {
             picture.position.x = masterCenter
         }

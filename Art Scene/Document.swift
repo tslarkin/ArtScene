@@ -80,7 +80,7 @@ class Document: NSDocument {
         let floorNode = makeGrayFloor()
         scene.rootNode.addChildNode(floorNode)
         
-        let wallNode = sceneView.makeWall(at: SCNVector3(x: 0.0, y: 6.0, z: 0.0))
+        let wallNode = sceneView.controller.makeWall(at: SCNVector3(x: 0.0, y: 6.0, z: 0.0))
         scene.rootNode.addChildNode(wallNode)
         
         return scene
@@ -191,12 +191,6 @@ class Document: NSDocument {
         return op
     }
     
-    override func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
-        if menuItem.title == "Print…" {
-            return sceneView.imageCacheForPrint?.count > 0
-        }
-        return true
-    }
     
 
 }

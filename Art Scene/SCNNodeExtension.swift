@@ -27,30 +27,21 @@ extension SCNNode
         }
     }
     
-    @objc func setChildNodes(_ nodes: [SCNNode]) {
-        for node in childNodes {
-            node.removeFromParentNode()
+    var leftEdge: CGFloat {
+        return position.x - size()!.width / 2.0
+    }
+    
+    var bottomEdge: CGFloat {
+        return position.y - size()!.height / 2.0
+    }
+    
+    var yRotation: CGFloat {
+        get {
+            return eulerAngles.y
         }
-        for node in nodes {
-            addChildNode(node)
+        set {
+            eulerAngles.y = newValue
         }
     }
     
-    @objc func replaceChildNode(_ args:[SCNNode])
-    {
-        replaceChildNode(args[0], with: args[1])
-    }
-    
-    @objc func setCoordinates(_ newPosition: [CGFloat])
-    {
-        position = SCNVector3Make(newPosition[0], newPosition[1], newPosition[2])
-    }
-    
-    func yRotation()->CGFloat {
-        return eulerAngles.y
-    }
-    
-    @objc func setYRotation(_ y: CGFloat) {
-        eulerAngles.y = y
-    }
 }

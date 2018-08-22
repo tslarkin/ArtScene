@@ -33,6 +33,8 @@
 		129BCF301BE29D5200F6B8F3 /* rotate-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 129BCF2F1BE29D5200F6B8F3 /* rotate-icon.png */; };
 		12E95BB221246D1500F025B6 /* Back.png in Resources */ = {isa = PBXBuildFile; fileRef = 12E95BB121246D1500F025B6 /* Back.png */; };
 		12E95BB42126A68900F025B6 /* SCNNodeExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB32126A68900F025B6 /* SCNNodeExtension.swift */; };
+		12E95BB6212825B100F025B6 /* ArtSceneMouse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB5212825B100F025B6 /* ArtSceneMouse.swift */; };
+		12E95BB82128269900F025B6 /* ArtSceneViewControllerKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -64,6 +66,9 @@
 		129BCF2F1BE29D5200F6B8F3 /* rotate-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "rotate-icon.png"; sourceTree = "<group>"; };
 		12E95BB121246D1500F025B6 /* Back.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Back.png; sourceTree = "<group>"; };
 		12E95BB32126A68900F025B6 /* SCNNodeExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCNNodeExtension.swift; sourceTree = "<group>"; };
+		12E95BB5212825B100F025B6 /* ArtSceneMouse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtSceneMouse.swift; sourceTree = "<group>"; };
+		12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtSceneViewControllerKeyboard.swift; sourceTree = "<group>"; };
+		12E95BBC212A5FCE00F025B6 /* ArtScenePrinter old.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ArtScenePrinter old.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,8 +108,11 @@
 				127CF8B21BD1810A00F571D9 /* Document.swift */,
 				127CF8CC1BD1821000F571D9 /* ArtSceneView.swift */,
 				127CF8CE1BD1823300F571D9 /* ArtSceneViewMenu.swift */,
+				12E95BB5212825B100F025B6 /* ArtSceneMouse.swift */,
 				1254A8051BDAB9910056A0C8 /* ArtScenePrinter.swift */,
+				12E95BBC212A5FCE00F025B6 /* ArtScenePrinter old.swift */,
 				127CF8CF1BD1823300F571D9 /* ArtSceneViewController.swift */,
+				12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */,
 				1200F71C1BD690FE003E4F24 /* Gestures.swift */,
 				127CF8D01BD1823300F571D9 /* Framer.swift */,
 				1254A7FF1BD82B100056A0C8 /* Utilities.swift */,
@@ -158,7 +166,9 @@
 				TargetAttributes = {
 					127CF8AC1BD1810A00F571D9 = {
 						CreatedOnToolsVersion = 7.0.1;
+						DevelopmentTeam = P5AAYT7AT4;
 						LastSwiftMigration = 0940;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -213,11 +223,13 @@
 				1232CBCD2121FA00006F9A64 /* NSImage+File.swift in Sources */,
 				125A067B1BE909F200D145AC /* Undo.swift in Sources */,
 				127CF8B31BD1810A00F571D9 /* Document.swift in Sources */,
+				12E95BB82128269900F025B6 /* ArtSceneViewControllerKeyboard.swift in Sources */,
 				127CF8D31BD1823300F571D9 /* Framer.swift in Sources */,
 				127CF8CD1BD1821000F571D9 /* ArtSceneView.swift in Sources */,
 				127CF8B11BD1810A00F571D9 /* AppDelegate.swift in Sources */,
 				12E95BB42126A68900F025B6 /* SCNNodeExtension.swift in Sources */,
 				1200F71D1BD690FE003E4F24 /* Gestures.swift in Sources */,
+				12E95BB6212825B100F025B6 /* ArtSceneMouse.swift in Sources */,
 				1254A8041BDA9C1F0056A0C8 /* Print.swift in Sources */,
 				1254A8001BD82B100056A0C8 /* Utilities.swift in Sources */,
 				127CF8D11BD1823300F571D9 /* ArtSceneViewMenu.swift in Sources */,
@@ -351,12 +363,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = P5AAYT7AT4;
 				INFOPLIST_FILE = "Art Scene/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.abstracttools.Art-Scene";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 4.0;
 			};
@@ -366,12 +382,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = P5AAYT7AT4;
 				INFOPLIST_FILE = "Art Scene/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.abstracttools.Art-Scene";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 4.0;
 			};

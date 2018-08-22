@@ -30,7 +30,7 @@ import Cocoa
 protocol Undo : AnyObject
 {
     /// The scene document
-    var document: Document? { get }
+    var document: Document! { get }
     /// The edit mode of the adopting class
     var editMode: EditMode { get }
     /// The set of selected pictures, needed by `SetPosition`
@@ -45,20 +45,21 @@ extension Undo
     {
         let undoer = document!.undoManager!
         undoer.registerUndo(withTarget: self, handler: { $0.changePivot(node, from: to, to: from) })
-        if node.yRotation() != to {
-            node.setYRotation(to)
+        if node.yRotation != to {
+            node.yRotation = to
         }
     }
     
     func changePosition(_ node: SCNNode, from: SCNVector3, to: SCNVector3)
     {
         let undoer = document!.undoManager!
+//        undoer.setActionName(actionName(node, editMode)!)
         undoer.registerUndo(withTarget: self, handler: { $0.changePosition(node, from: to, to: from) })
         if node.position != to {
             node.position = to
         }
     }
-    
+        
     func changeSize(_ node: SCNNode, from: CGSize, to: CGSize)
     {
         let undoer = document!.undoManager!
@@ -100,36 +101,52 @@ extension Undo
 
     }
     
+    func actionName(_ node: SCNNode, _ editMode: EditMode)->String?
+    {
+        var name: String?
+        switch editMode {
+        case .none: name = "No Action"
+        case .resizing(_, .pivot):
+            name = "Wall Rotation"
+        case .resizing(.Image, _):
+            name = "Resizing Image"
+        case .resizing(.Picture, _):
+            name = "Resizing Frame of \(String(describing: node.name!))"
+        case .resizing(.Wall, _):
+            name = "Resizing \(String(describing: node.name!))"
+        case .moving(.Picture):
+            name = "Moving \(String(describing: node.name!))"
+        case .moving(.Wall):
+            name = "Moving \(String(describing: node.name!))"
+        default: ()
+        }
+        return name
+    }
+    
     func prepareForUndo(_ node: SCNNode)
     {
-        if let undoer = document?.undoManager {
-            undoer.beginUndoGrouping()
-            switch editMode {
-            case .resizing(_, .pivot):
-                undoer.setActionName("Wall Rotation")
-                saved = node.eulerAngles.y
-            case .resizing(.Image, _):
-                undoer.setActionName("Resizing Image of \(String(describing: node.name!))")
-                saved = node.childNode(withName: "Image", recursively: false)!.size()!
-            case .resizing(.Picture, _):
-                undoer.setActionName("Resizing Frame of \(String(describing: node.name!))")
-                saved = node.size()!
-            case .resizing(.Wall, _):
-                undoer.setActionName("Resizing \(String(describing: node.name!))")
-                saved = (node.size()!, node.position)
-            case .moving(.Picture):
-                undoer.setActionName("Moving \(String(describing: node.name!))")
-                if selection.contains(node) {
-                    saved = selection.map{ ($0, $0.position, $0.parent!) }
-                } else {
-                    saved = [(node, node.position, node.parent!)]
-                }
-            case .moving(.Wall):
-                undoer.setActionName("Moving \(String(describing: node.name!))")
-                saved = node.position
-            default:
-                ()
+//        let undoer = document!.undoManager!
+//        undoer.setActionName(actionName(node, editMode)!)
+        switch editMode {
+        case .resizing(_, .pivot):
+            saved = node.eulerAngles.y
+        case .resizing(.Image, _):
+            saved = theImage(node).size()!
+        case .resizing(.Picture, _):
+            saved = node.size()!
+        case .resizing(.Wall, _):
+            saved = (node.size()!, node.position,
+                     node.childNodes.filter({ nodeType($0) == .Picture}).map{ $0.position })
+        case .moving(.Picture):
+            if selection.contains(node) {
+                saved = selection.map{ ($0, $0.position, $0.parent!) }
+            } else {
+                saved = [(node, node.position, node.parent!)]
             }
+        case .moving(.Wall):
+            saved = node.position
+        default:
+            ()
         }
     }
     

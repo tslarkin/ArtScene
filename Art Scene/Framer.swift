@@ -115,9 +115,9 @@ extension ArtSceneViewController {
         pictureNode.addChildNode(frameNode)
         pictureNode.addChildNode(mattNode)
         pictureNode.addChildNode(imageNode)
-        if let (name, thumbnail) = makeThumbnail(pictureNode) {
-            artSceneView.imageCacheForPrint?[name] = thumbnail
-        }
+//        if let (name, thumbnail) = makeThumbnail(pictureNode) {
+//            artSceneView.imageCacheForPrint?[name] = thumbnail
+//        }
         return pictureNode
 
     }
@@ -154,8 +154,8 @@ extension ArtSceneViewController {
     /// Reframe a picture to a new size. The size cannot be smaller than the image.
     func reframePictureWithSize(_ picture: SCNNode, newsize: CGSize)
     {
-        let image = picture.childNode(withName: "Image", recursively: true)!
-        let oldPlane = image.geometry as! SCNPlane
+        let image = theImage(picture)
+        let oldPlane = thePlane(image)
         var size = newsize
         if size.width < oldPlane.width {
             size.width =  oldPlane.width
@@ -164,55 +164,55 @@ extension ArtSceneViewController {
             size.height = oldPlane.height
         }
         size = snapToGrid(size)
-        let oldMatt = picture.childNode(withName: "Matt", recursively: true)
-        if let geometry = oldMatt?.geometry as? SCNPlane {
-            geometry.width = size.width - 0.02
-            geometry.height = size.height - 0.02
-        }
-        let oldFrame = picture.childNode(withName: "Frame", recursively: true)
-        let frameIsHidden = oldFrame!.isHidden
-        picture.replaceChildNode(oldFrame!, with: makeFrame(size))
-        if frameIsHidden {
+        let oldMatt = theMatt(picture)
+        let newMatt = makeMatt(CGSize(width: size.width - 0.02, height: size.height - 0.02))
+        newMatt.position.z = oldMatt.position.z
+        
+        let oldFrame = theFrame(picture)
+        let newFrame = makeFrame(size)
+        newFrame.position.z = oldFrame.position.z
+        picture.replaceChildNode(oldFrame, with: newFrame)
+        if oldFrame.isHidden {
             _hideFrame(picture)
         }
         let glass = makeGlass(size)
-        glass.name = picture.geometry?.name
+        glass.name = picture.geometry!.name
         picture.geometry = glass
     }
     
     /// Resize an image and its frame
-    func reframeImageWithSize(_ picture: SCNNode, newsize: CGSize)
+    func reframeImageWithSize(_ pic: SCNNode, newsize: CGSize)
     {
-        let image = picture.childNode(withName: "Image", recursively: true)!
+        let image = theImage(pic)
         let oldSize = image.size()!
         let scale = CGSize(width: newsize.width / oldSize.width,
                            height: newsize.height / oldSize.height)
-        let newImage: NSImage
-        let data1 = image.geometry!.materials[0].diffuse.contents! as? NSImage
-        if data1 != nil {
-            newImage = data1!
+        var newImage: NSImage!
+        let data = image.geometry?.firstMaterial?.diffuse.contents
+        if let data = data as? Data {
+            newImage = NSImage(data: data)
         } else {
-            let data2 = image.geometry!.materials[0].diffuse.contents! as! Data
-            newImage = NSImage(data: data2)!
+            newImage = data as! NSImage
         }
         newImage.size = newsize
-        let isHidden = picture.childNode(withName: "Frame", recursively: false)!.isHidden
-        let oldName = picture.geometry!.name!
-        let oldPictureSize = picture.size()!
+        let isHidden = theFrame(pic).isHidden
+        let oldName = pic.geometry!.name!
+        let oldPictureSize = pic.size()!
         let newPictureSize = CGSize(width: oldPictureSize.width * scale.width,
                                     height: oldPictureSize.height * scale.height)
-        for child in picture.childNodes {
-            child.removeFromParentNode()
-        }
         let newPicture = makePicture(thumbnail: newImage, size: newPictureSize)
         newPicture.geometry!.name = oldName
         if isHidden {
             _hideFrame(newPicture)
         }
-        for child in newPicture.childNodes {
-            picture.addChildNode(child)
+        for child in pic.childNodes {
+            child.removeFromParentNode()
         }
-        picture.geometry = newPicture.geometry
+        
+        for child in newPicture.childNodes {
+            pic.addChildNode(child)
+        }
+        pic.geometry = newPicture.geometry
     }
     
 }
