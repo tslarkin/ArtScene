@@ -68,7 +68,6 @@
 		12E95BB32126A68900F025B6 /* SCNNodeExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCNNodeExtension.swift; sourceTree = "<group>"; };
 		12E95BB5212825B100F025B6 /* ArtSceneMouse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtSceneMouse.swift; sourceTree = "<group>"; };
 		12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtSceneViewControllerKeyboard.swift; sourceTree = "<group>"; };
-		12E95BBC212A5FCE00F025B6 /* ArtScenePrinter old.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ArtScenePrinter old.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,7 +109,6 @@
 				127CF8CE1BD1823300F571D9 /* ArtSceneViewMenu.swift */,
 				12E95BB5212825B100F025B6 /* ArtSceneMouse.swift */,
 				1254A8051BDAB9910056A0C8 /* ArtScenePrinter.swift */,
-				12E95BBC212A5FCE00F025B6 /* ArtScenePrinter old.swift */,
 				127CF8CF1BD1823300F571D9 /* ArtSceneViewController.swift */,
 				12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */,
 				1200F71C1BD690FE003E4F24 /* Gestures.swift */,
