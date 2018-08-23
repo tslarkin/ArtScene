@@ -161,6 +161,7 @@ extension ArtSceneViewController
     {
         guard let keyString = theEvent.charactersIgnoringModifiers?.utf16 else { return }
         var size = theImage(theNode!).size()!
+        let oldSize = size
         let ratio = size.width / size.height
         let shift = checkModifierFlags(theEvent, flag: .shift)
         let jump: CGFloat = shift ? 1.0 / 48.0 : 1.0 / 12.0 // ¼" or 1"
@@ -175,6 +176,7 @@ extension ArtSceneViewController
         }
         size.width = size.height * ratio
         reframeImageWithSize(theNode!, newsize: size)
+        changeImageSize(theNode!, from: oldSize, to: size)
         let (newsize, name) = imageInfo(theNode!)
         status = "\(name): \(newsize)"
     }
@@ -210,25 +212,29 @@ extension ArtSceneViewController
             dx = jump
         case NSLeftArrowFunctionKey:
             newsize.width -= jump
-//            if wallContainsPictures(theNode, withNewSize: newsize) {
+            if wallContainsPictures(theNode, withNewSize: newsize) {
                 dx = -jump
-//            }
+            }
         default:
             super.keyDown(with: theEvent)
         }
         size.width += dx
         size.height += dy
-        theNode.setSize(size)
+        changeSize(theNode, from: theNode.size()!, to: size)
         // In the default case, the wall shortens at the right side, and the left side
         // is fixed. The option key reverses this.
-        let factor: Float = theEvent.modifierFlags.contains(.option) ? -1.0 : 1.0
-        let translate = simd_make_float3(factor * Float(dx / 2.0), Float(dy / 2.0), 0.0)
-        theNode.simdLocalTranslate(by: translate)
+        let factor: CGFloat = theEvent.modifierFlags.contains(.option) ? -1.0 : 1.0
+        var newPosition = theNode.position
+        newPosition.x += factor * dx / 2.0
+        newPosition.y += dy / 2.0
+        changePosition(theNode, from: theNode.position, to: newPosition)
         for child in theNode.childNodes.filter({ nodeType($0) == .Picture }) {
-            child.position.y -= dy / 2.0
-            child.position.x -= dx / 2.0
+            var newPosition = child.position
+            newPosition.y -= dy / 2.0
+            newPosition.x -= dx / 2.0
+            changePosition(child, from: child.position, to: newPosition)
         }
-       defaultWallSize.height = size.height
+        defaultWallSize.height = size.height
         let info = wallInfo(theNode)
         status = "Wall Size: \(info.size)"
     }
@@ -298,10 +304,6 @@ extension ArtSceneViewController
             omniLight.position = position
         }
         updateCameraStatus()
-    }
-    
-    @objc func beep(_ sender: AnyObject) {
-        NSSound.beep()
     }
     
     override func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {

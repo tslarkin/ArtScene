@@ -194,13 +194,13 @@ class ArtSceneViewController: NSViewController, Undo {
         NotificationCenter.default.addObserver(self, selector: #selector(ArtSceneViewController.menuBarClicked(_:)),
                                                name: NSMenu.didBeginTrackingNotification, object: NSApp.mainMenu)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(ArtSceneViewController.undoStarted(_:)), name: NSNotification.Name.NSUndoManagerDidOpenUndoGroup, object: nil)
+//        NotificationCenter.default.addObserver(self, selector: #selector(ArtSceneViewController.undoStarted(_:)), name: NSNotification.Name.NSUndoManagerDidOpenUndoGroup, object: nil)
     }
     
-    @objc func undoStarted(_ note: NSNotification)
-    {
-        Swift.print("Undo Started")
-    }
+//    @objc func undoStarted(_ note: NSNotification)
+//    {
+//        Swift.print("Undo Started")
+//    }
     
     func doChangeImageSize(_ node: SCNNode, from: CGSize, to: CGSize)
     {
