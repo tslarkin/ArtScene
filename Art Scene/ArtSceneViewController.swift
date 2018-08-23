@@ -86,7 +86,7 @@ class ArtSceneViewController: NSViewController, Undo {
         "24x24":  CGSize(width: 24, height: 24)]
     
     /// Required by the Undo protocol. Use the view's selection.
-    var selection: Set<SCNNode> {
+    var selection: Array<SCNNode> {
         get { return artSceneView.selection }
         set { artSceneView.selection = newValue }
     }
@@ -193,13 +193,13 @@ class ArtSceneViewController: NSViewController, Undo {
         NotificationCenter.default.addObserver(self, selector: #selector(ArtSceneViewController.menuBarClicked(_:)),
                                                name: NSMenu.didBeginTrackingNotification, object: NSApp.mainMenu)
         
-//        NotificationCenter.default.addObserver(self, selector: #selector(ArtSceneViewController.undoStarted(_:)), name: NSNotification.Name.NSUndoManagerDidOpenUndoGroup, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(ArtSceneViewController.undoStarted(_:)), name: NSNotification.Name.NSUndoManagerDidOpenUndoGroup, object: nil)
     }
     
-//    @objc func undoStarted(_ note: NSNotification)
-//    {
-//        Swift.print("Undo Started")
-//    }
+    @objc func undoStarted(_ note: NSNotification)
+    {
+        Swift.print("Undo Started")
+    }
     
     func doChangeImageSize(_ node: SCNNode, from: CGSize, to: CGSize)
     {

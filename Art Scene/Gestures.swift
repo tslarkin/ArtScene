@@ -16,7 +16,7 @@ extension ArtSceneViewController
 {
     /// Change the camera's field of view with the magnify gesture.
     override func magnify(with event: NSEvent) {
-        SCNTransaction.animationDuration = 0.1
+        SCNTransaction.animationDuration = 0.0
         let cameraNode = artSceneView.camera()
         let mag = CGFloat(event.magnification) * 4
         cameraNode.camera?.fieldOfView += mag
@@ -55,7 +55,7 @@ extension ArtSceneViewController
     
     /// Move the camera according to the scroll wheel.
     override func scrollWheel(with event: NSEvent) {
-        SCNTransaction.animationDuration = 0.3
+        SCNTransaction.animationDuration = 0.0
         let cameraNode = artSceneView.camera()
         let size = snapToGrid(CGSize(width: event.deltaX / 20, height: event.deltaY / 20))
         moveNode(size.height, deltaRight: -size.width, node: cameraNode, angle: cameraNode.eulerAngles.y)

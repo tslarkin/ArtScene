@@ -95,8 +95,7 @@ extension ArtSceneView
                 mouseNode = hit.node.parent!.parent!
                 NSCursor.resizeUpDown.set()
             case .Image:
-                let theFlags = theEvent.modifierFlags.intersection(.deviceIndependentFlagsMask)
-                let optionDown = theFlags.contains(.option) && theFlags.subtracting([.option]).isEmpty
+                let optionDown = checkModifierFlags(theEvent, flag: .option)
                 if optionDown {
                     editMode = .resizing(.Image, .none)
                     resizeCursor.set()
@@ -273,8 +272,8 @@ extension ArtSceneView
             if wallsLocked {
                 break
             }
-            SCNTransaction.animationDuration = 0.2
-            let shift = theEvent.modifierFlags.contains(.shift)
+            SCNTransaction.animationDuration = 0.0
+            let shift = checkModifierFlags(theEvent, flag: .shift)
             let scale: CGFloat = shift ? 80.0 : 20.0
             let size = CGSize(width: theEvent.deltaX / scale, height: theEvent.deltaY / scale)
             moveNode(size.height, deltaRight: -size.width, node: mouseNode, angle: camera().eulerAngles.y)
@@ -347,7 +346,7 @@ extension ArtSceneView
             if nodeType(mouseNode) == .Matt {
                 getInfo(picture(mouseNode)!)
             } else {
-                let option = theEvent.modifierFlags.contains(.option)
+                let option = checkModifierFlags(theEvent, flag: .option)
                 getInfo(mouseNode, option: option, hitPosition: hitResults[0].worldCoordinates)
             }
         case .moving(.Wall):
@@ -361,26 +360,24 @@ extension ArtSceneView
             inDrag = true
             NSCursor.closedHand.set()
         case .selecting:
-            let pictureNodes = Set([mouseNode])
-            let selectedSet = Set<SCNNode>(selection)
-            let hitSet = Set<SCNNode>(pictureNodes)
-            let oldSelection = Set(selection)
-            if theEvent.modifierFlags.contains(.command) {
-                selection = selectedSet.symmetricDifference(hitSet)
+            let hitNode = Set([mouseNode])
+            var selectionSet = Set(selection)
+            let oldSelection = selectionSet
+            // if mouse node is already in the selection, this removes it, otherwise adds it
+            selectionSet = selectionSet.symmetricDifference(hitNode)
+            if selectionSet.contains(mouseNode) {
+                selection.append(mouseNode)
             } else {
-                if selectedSet.intersection(hitSet).count == 0 {
-                    selection = pictureNodes
-                }
+                selection.remove(at: selection.index(of: mouseNode)!)
             }
-            if selection.count == 1 {
-                masterNode = Array(selection)[0]
+           if selection.count > 0 {
+                masterNode = selection.count == 0 ? mouseNode : selection[0]
                 setNodeEmission(masterNode!, color: NSColor.red)
-            } else {
-                for node in Set(selection).intersection(pictureNodes) {
+                for node in selectionSet.subtracting(Set([masterNode!])).intersection(hitNode) {
                     setNodeEmission(node, color: NSColor.blue)
                 }
             }
-            for node in oldSelection.subtracting(selection) {
+            for node in oldSelection.subtracting(selectionSet) {
                 setNodeEmission(node, color: NSColor.black)
             }
         case .resizing(.Wall, _):
@@ -420,6 +417,8 @@ extension ArtSceneView
                 controller.status = "Image size: \(newsize)"
                 editMode = .none
                 NSCursor.arrow.set()
+            case .resizing(.Wall, .pivot):
+                changePivot(mouseNode, from: saved as! CGFloat, to: mouseNode.yRotation)
             case .resizing(.Wall, let edge):
                 if wallsLocked {
                     break

@@ -228,21 +228,23 @@ func imageInfo(_ node: SCNNode) -> (size: String, name: String) {
 /// Determine if a wall with `newSize` contains all its pictures.
 func wallContainsPictures(_ wall: SCNNode, withNewSize newSize: CGSize) -> Bool
 {
-    let pictures = wall.childNodes( passingTest: { x, yes in x.name == "Picture"} )
-    if pictures.isEmpty {
-        return true
-    } else {
-        let rect = CGRect(x: -newSize.width / 2, y: -newSize.height / 2, width: newSize.width, height: newSize.height)
-        for picture in pictures {
-            let frame = picture.geometry as! SCNPlane
-            let r = CGRect(x: picture.position.x - frame.width / 2, y: picture.position.y - frame.height / 2,
-                width: frame.width, height: frame.height)
-            if !rect.contains(r) {
-                return false
-            }
-        }
-        return true
-    }
+    return true
+    
+//    let pictures = wall.childNodes( passingTest: { x, yes in x.name == "Picture"} )
+//    if pictures.isEmpty {
+//        return true
+//    } else {
+//        let rect = CGRect(x: -newSize.width / 2, y: -newSize.height / 2, width: newSize.width, height: newSize.height)
+//        for picture in pictures {
+//            let frame = picture.geometry as! SCNPlane
+//            let r = CGRect(x: picture.position.x - frame.width / 2, y: picture.position.y - frame.height / 2,
+//                width: frame.width, height: frame.height)
+//            if !rect.contains(r) {
+//                return false
+//            }
+//        }
+//        return true
+//    }
 }
 
 func convertToFeetAndInches(_ length: CGFloat, units:Units = .feet) -> String

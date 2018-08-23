@@ -18,26 +18,27 @@ extension ArtSceneView {
     override func flagsChanged(with theEvent: NSEvent) {
         if inDrag { return }
         if case .getInfo = editMode { return }
-        let controlAlone = theEvent.modifierFlags.rawValue & NSEvent.ModifierFlags.control.rawValue != 0
+        let controlAlone = checkModifierFlags(theEvent, flag: .control)
         if controlAlone {
             NSCursor.contextualMenu.set()
             editMode = .contextualMenu
         } else {
-            let commandAlone = theEvent.modifierFlags.rawValue & NSEvent.ModifierFlags.command.rawValue != 0
+            let commandAlone = checkModifierFlags(theEvent, flag: .command)
             if commandAlone {
                 NSCursor.pointingHand.set()
                 editMode = .selecting
                 mouseNode = nil
             } else {
-                let theFlags = theEvent.modifierFlags.intersection(.deviceIndependentFlagsMask).subtracting([.numericPad, .function])
-                let optionDown =  theFlags.contains(.option) && theFlags.subtracting([.option]).isEmpty
+                let optionDown =  checkModifierFlags(theEvent, flag: .option)
                 if optionDown && nodeType(mouseNode) == .Image {
                     resizeCursor.set()
                 }
                 NSCursor.arrow.set()
                 editMode = .none
+                mouseMoved(with: theEvent)
            }
         }
+        
     }
     
     func makePictureMenu() -> NSMenu

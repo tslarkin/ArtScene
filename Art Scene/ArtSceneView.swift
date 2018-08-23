@@ -32,15 +32,7 @@ class ArtSceneView: SCNView, Undo {
     }
     
     /// The set of selected pictures. The first picture selected is always the `masterNode`.
-    var selection: Set<SCNNode>  = [] {
-        didSet {
-            if selection.count == 0 {
-                masterNode = nil
-            } else if selection.count == 1 {
-                masterNode = Array(selection)[0]
-            }
-        }
-    }
+    var selection: Array<SCNNode>  = []
     
     /// The last mouse position as determined during `mouseMoved`.
     var lastMousePosition: SCNVector3? = nil

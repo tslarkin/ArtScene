@@ -34,12 +34,18 @@ protocol Undo : AnyObject
     /// The edit mode of the adopting class
     var editMode: EditMode { get }
     /// The set of selected pictures, needed by `SetPosition`
-    var selection: Set<SCNNode> { get set }
+    var selection: Array<SCNNode> { get set }
     var saved: Any { get set }
 }
 
 extension Undo
 {
+    func checkModifierFlags(_ event: NSEvent, flag: NSEvent.ModifierFlags.Element, exclusive: Bool = true)->Bool
+    {
+        let theFlags = event.modifierFlags.intersection(.deviceIndependentFlagsMask).subtracting([.numericPad, .function])
+        let flagDown =  exclusive ? (theFlags.contains(flag) && theFlags.subtracting([flag]).isEmpty) : theFlags.contains(flag)
+        return flagDown
+    }
     
     func changePivot(_ node: SCNNode, from: CGFloat, to: CGFloat)
     {

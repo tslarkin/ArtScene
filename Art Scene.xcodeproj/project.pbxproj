@@ -68,6 +68,7 @@
 		12E95BB32126A68900F025B6 /* SCNNodeExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCNNodeExtension.swift; sourceTree = "<group>"; };
 		12E95BB5212825B100F025B6 /* ArtSceneMouse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtSceneMouse.swift; sourceTree = "<group>"; };
 		12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtSceneViewControllerKeyboard.swift; sourceTree = "<group>"; };
+		12E95BBD212E308000F025B6 /* Art Scene.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Art Scene.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,6 +101,7 @@
 		127CF8AF1BD1810A00F571D9 /* Art Scene */ = {
 			isa = PBXGroup;
 			children = (
+				12E95BBD212E308000F025B6 /* Art Scene.entitlements */,
 				125A067A1BE909F200D145AC /* Undo.swift */,
 				120C61451BF92F3E00D1F49D /* SCNVector Extensions.swift */,
 				12E95BB32126A68900F025B6 /* SCNNodeExtension.swift */,
@@ -167,6 +169,11 @@
 						DevelopmentTeam = P5AAYT7AT4;
 						LastSwiftMigration = 0940;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.Sandbox = {
+								enabled = 0;
+							};
+						};
 					};
 				};
 			};

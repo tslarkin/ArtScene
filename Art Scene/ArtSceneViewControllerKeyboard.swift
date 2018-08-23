@@ -58,8 +58,7 @@ extension ArtSceneViewController
     {
         guard let keyString = theEvent.charactersIgnoringModifiers?.utf16,
             let theNode = theNode else { return }
-        let modifiers = theEvent.modifierFlags
-        let shift = modifiers.contains(.shift)
+        let shift = checkModifierFlags(theEvent, flag: .shift)
         let jump: CGFloat = shift ? 1.0 / 48.0 : 1.0 / 12.0 // ¼" or 1"
         var dx: CGFloat = 0, dy: CGFloat = 0
         let keyChar = Int(keyString[keyString.startIndex])
@@ -93,13 +92,12 @@ extension ArtSceneViewController
     {
         guard let keyString = theEvent.charactersIgnoringModifiers?.utf16,
             let theNode = theNode else { return }
-        let modifiers = theEvent.modifierFlags
-        let shift = modifiers.contains(.shift)
+        let shift = checkModifierFlags(theEvent, flag: .shift)
         let jump: CGFloat = shift ? 1.0 / 48.0 : 1.0 / 6.0
         let rotation: CGFloat = 5.01 / r2d
         let keyChar = Int(keyString[keyString.startIndex])
         SCNTransaction.animationDuration = 0.5
-        if modifiers.contains(.command) {
+        if checkModifierFlags(theEvent, flag: .command) {
             var angle = theNode.yRotation
             switch keyChar {
             case NSLeftArrowFunctionKey:
@@ -139,8 +137,7 @@ extension ArtSceneViewController
         guard let keyString = theEvent.charactersIgnoringModifiers?.utf16,
             let theNode = theNode else { return }
         var size = theNode.size()!
-        let modifiers = theEvent.modifierFlags
-        let shift = modifiers.contains(.shift)
+        let shift = checkModifierFlags(theEvent, flag: .shift)
         let jump: CGFloat = shift ? 1.0 / 48.0 : 1.0 / 12.0 // ¼" or 3"
         let keyChar = Int(keyString[keyString.startIndex])
         switch keyChar {
@@ -165,8 +162,7 @@ extension ArtSceneViewController
         guard let keyString = theEvent.charactersIgnoringModifiers?.utf16 else { return }
         var size = theImage(theNode!).size()!
         let ratio = size.width / size.height
-        let modifiers = theEvent.modifierFlags
-        let shift = modifiers.contains(.shift)
+        let shift = checkModifierFlags(theEvent, flag: .shift)
         let jump: CGFloat = shift ? 1.0 / 48.0 : 1.0 / 12.0 // ¼" or 1"
         let keyChar = Int(keyString[keyString.startIndex])
         switch keyChar {
@@ -195,8 +191,7 @@ extension ArtSceneViewController
     {
         guard let theNode = theNode,
             let keyString = theEvent.charactersIgnoringModifiers?.utf16 else { return }
-        let modifiers = theEvent.modifierFlags
-        let shift = modifiers.contains(.shift)
+        let shift = checkModifierFlags(theEvent, flag: .shift)
         let jump: CGFloat = shift ? 1 / 48.0 : 0.25 // ¼" or 3"
         let keyChar = Int(keyString[keyString.startIndex])
         var size = theNode.size()!
@@ -226,7 +221,7 @@ extension ArtSceneViewController
         theNode.setSize(size)
         // In the default case, the wall shortens at the right side, and the left side
         // is fixed. The option key reverses this.
-        let factor: Float = modifiers.contains(.option) ? -1.0 : 1.0
+        let factor: Float = theEvent.modifierFlags.contains(.option) ? -1.0 : 1.0
         let translate = simd_make_float3(factor * Float(dx / 2.0), Float(dy / 2.0), 0.0)
         theNode.simdLocalTranslate(by: translate)
         for child in theNode.childNodes.filter({ nodeType($0) == .Picture }) {
@@ -242,9 +237,8 @@ extension ArtSceneViewController
     /// is changed if the command key is down.
     func doCameraEdit(_ theEvent: NSEvent) {
         guard let keyString = theEvent.charactersIgnoringModifiers?.utf16 else { return }
-        let modifiers = theEvent.modifierFlags
         let charCode = Int(keyString[keyString.startIndex])
-        let shift = modifiers.contains(.shift)
+        let shift = checkModifierFlags(theEvent, flag: .shift)
         let jump: CGFloat = shift ? 0.1 : 1.0
         let rotation: CGFloat = (shift ? 1.0 : 5.0) / r2d
         let cameraNode = artSceneView.camera()
