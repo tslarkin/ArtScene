@@ -14,8 +14,8 @@ extension ArtSceneViewController
     // MARK: Edit node position
     func registerUndos()
     {
-        if (preparedForUndo == false ) { return }
-        preparedForUndo = false
+//        if (preparedForUndo == false ) { return }
+//        preparedForUndo = false
         guard let mouseNode = theNode else { return }
         document!.undoManager!.setActionName(actionName(mouseNode, editMode)!)
         switch editMode {
@@ -57,7 +57,7 @@ extension ArtSceneViewController
     func doFrameEditPosition(_ theEvent: NSEvent)
     {
         guard let keyString = theEvent.charactersIgnoringModifiers?.utf16,
-            let theNode = theNode else { return }
+        let theNode = theNode else { return }
         let shift = checkModifierFlags(theEvent, flag: .shift)
         let jump: CGFloat = shift ? 1.0 / 48.0 : 1.0 / 12.0 // ¼" or 1"
         var dx: CGFloat = 0, dy: CGFloat = 0
@@ -76,10 +76,10 @@ extension ArtSceneViewController
         }
         let group = selection.contains(theNode) ? selection : [theNode]
         for picture in group {
-            var position = picture.position
-            position.x += dx
-            position.y += dy
-            picture.position = position
+            var newPosition = picture.position
+            newPosition.x += dx
+            newPosition.y += dy
+            changePosition(picture, from: picture.position, to: newPosition)
         }
         let (_, location, _, _) = pictureInfo(theNode)
         status = "Location: \(location)"
@@ -315,13 +315,12 @@ extension ArtSceneViewController
             return false
         }
     }
-    
+
     @IBAction func undo(_ sender: AnyObject) {
-        if preparedForUndo {
-            NSSound.beep()
-        } else {
-            document!.undoManager!.undo()
-        }
+        if undoer.groupingLevel == 1 {
+            undoer.endUndoGrouping()
+       }
+        document!.undoManager!.undo()
     }
     
     /// Dispatch the key down event on `editMode`.
@@ -345,10 +344,9 @@ extension ArtSceneViewController
                     status = "No object!"
                     return
                 }
-                if !preparedForUndo {
-                    prepareForUndo(theNode)
-                    preparedForUndo = true
-//                    setUndoMenuState(false)
+                if undoer.groupingLevel == 0 {
+                    undoer.beginUndoGrouping()
+                    undoer.setActionName(actionName(theNode, editMode)!)
                 }
                 
                 switch editMode {
@@ -366,7 +364,7 @@ extension ArtSceneViewController
                 }
             }
         } else {
-            registerUndos()
+            editMode = .none
         }
     }
 }

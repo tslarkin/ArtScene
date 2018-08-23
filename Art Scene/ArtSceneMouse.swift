@@ -149,14 +149,8 @@ extension ArtSceneView
                     }
                 }
             default: ()
-//                mouseNode = nil
-//                editMode = .none
-//                NSCursor.arrow.set()
             }
         }
-//        if mouseNode == nil {
-//            Swift.print("Lost the mouse node after mouse moved")
-//        }
     }
     
     /// Based on `editMode` and `mouseNode`, perform a drag operation, either resizing,

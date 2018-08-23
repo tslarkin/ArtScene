@@ -30,13 +30,14 @@ class ArtSceneViewController: NSViewController, Undo {
     
     /// `true` if the controller is prepared for undo. The controller opens an undo grouping
     /// when key based editing begins. A change in `editMode` triggers an end to that grouping.
-    var preparedForUndo: Bool = false
+//    var preparedForUndo: Bool = false
     
     var editMode = EditMode.none {
         willSet(newMode) {
-            if case EditMode.none = newMode, preparedForUndo {
-                registerUndos()
-                preparedForUndo = false
+            if case EditMode.none = newMode {
+                if undoer.groupingLevel == 1 {
+                    undoer.endUndoGrouping()
+                }
             }
         }
     }
@@ -346,6 +347,7 @@ class ArtSceneViewController: NSViewController, Undo {
     /// A menu action to put the controller in `.Moving(.Picture)` mode.
     @IBAction func editFramePosition(_ sender: AnyObject?)
     {
+        undoer.groupsByEvent = false
         editMode = .moving(.Picture)
         if let theNode = theNode {
             let (_, location, _, _) = pictureInfo(theNode)
@@ -383,7 +385,7 @@ class ArtSceneViewController: NSViewController, Undo {
     
     @objc func menuBarClicked(_ info: AnyObject)
     {
-        editMode = .none
+//        editMode = .none
     }
     
 }
