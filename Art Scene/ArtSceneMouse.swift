@@ -11,6 +11,30 @@ import Cocoa
 
 extension ArtSceneView
 {
+    
+    func snapToGrid(d1: CGFloat, d2: CGFloat, snap: CGFloat)->(CGFloat, CGFloat) {
+        if !snapToGridP {
+            return (d1, d2)
+        } else {
+            var out1: CGFloat = 0.0
+            var out2: CGFloat = 0.0
+            deltaSum.x += d1
+            deltaSum.y += d2
+            let step = 1.0 / snap
+            if abs(deltaSum.x) >= step {
+                let times = Int(deltaSum.x * snap)
+                out1 = CGFloat(times) / snap
+                deltaSum.x -= out1
+            }
+            if abs(deltaSum.y) >= step {
+                let times = Int(deltaSum.y * snap)
+                out2 = CGFloat(times) / snap
+                deltaSum.y -= out2
+            }
+            return (out1, out2)
+        }
+    }
+    
     /// Sets `mouseNode`, `editMode`, and the cursor image based on the the the first node in the
     /// sorted list of hits returned from `hitTest`.
     override func mouseMoved(with theEvent: NSEvent) {
@@ -46,7 +70,7 @@ extension ArtSceneView
         
         lastYLocation = p.y
         
-        var hitResults = self.hitTest(p, options: [SCNHitTestOption.searchMode: NSNumber(value: 1)])
+        var hitResults = self.hitTest(p, options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
         hitResults = hitResults.filter({ nodeType($0.node) != .Back})
         guard hitResults.count > 0  else /* no hits */ {
             if case EditMode.moving(_) = editMode {
@@ -164,9 +188,11 @@ extension ArtSceneView
         // Handle the rotate operation separately, since there may not be a hit node, which is
         // not required to rotate.
         if case .resizing(.Wall, .pivot) = editMode {
-            let dy = p.y - lastYLocation
+            var dy = (p.y - lastYLocation) / 10.0
             lastYLocation = p.y
-            let newAngle = mouseNode.eulerAngles.y + dy / 10
+            (dy, _) = snapToGrid(d1: dy, d2: 0.0, snap: rotationFactor)
+            if (dy == 0) { return }
+            let newAngle = mouseNode.eulerAngles.y + dy
             changePivot(mouseNode, from: mouseNode.yRotation, to: newAngle)
             let (_, _, rotation, _) = wallInfo(mouseNode)
             controller.status = "Wall Rotation: \(rotation)"
@@ -174,7 +200,7 @@ extension ArtSceneView
         }
         
         // Find a hit node or bail.
-        let hitResults = self.hitTest(p, options: [SCNHitTestOption.searchMode: NSNumber(value: 1)])
+        let hitResults = self.hitTest(p, options: [SCNHitTestOption.searchMode: NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
         SCNTransaction.animationDuration = 0.0
         
         var wallHit = hitOfType(hitResults, type: .Wall)
@@ -204,7 +230,6 @@ extension ArtSceneView
         } else {
             wall1 = wallHit!.node
         }
-        
         if wallHit == nil {
             return
         }
@@ -225,9 +250,11 @@ extension ArtSceneView
         case .moving(.Picture):
             let dragged = selection.contains(mouseNode) ? selection : [mouseNode]
             for node in dragged {
+                let (dx, dy) = snapToGrid(d1: delta.x, d2: delta.y, snap: gridFactor)
+                if dx == 0.0 && dy == 0.0 { break }
                 var newPosition = node.position
-                newPosition.x += delta.x
-                newPosition.y += delta.y
+                newPosition.x += dx
+                newPosition.y += dy
                 // The drag may have gone from one wall to another
                 if wall !== node.parent {
                     changeParent(node, from: node.parent, to: wall)
@@ -255,14 +282,18 @@ extension ArtSceneView
             case .left: dx = -delta.x
             default: ()
             }
+            (dx, dy) = snapToGrid(d1: dx, d2: dy, snap: gridFactor)
+            if dx == 0.0 && dy == 0.0 { break }
             size = CGSize(width: size.width + dx, height: size.height + dy)
             controller.doChangePictureSize(mouseNode, from: mouseNode.size()!, to: size)
             let (newsize, _, _, _) = pictureInfo(mouseNode)
             controller.status = "Picture Size: \(newsize)"
         case .resizing(.Image, _):
             var size = theImage(mouseNode).size()!
-            let dy = delta.y / 2.0
-            let dx = dy * size.width / size.height
+            var dy = delta.y
+            var dx = dy * size.width / size.height
+            (dx, dy) = snapToGrid(d1: dx, d2: dy, snap: gridFactor)
+            if dx == 0.0 && dy == 0.0 { break }
             size = CGSize(width: size.width + dx, height: size.height + dy)
             controller.doChangeImageSize(mouseNode, from: theImage(mouseNode).size()!, to: size)
             let (newsize, _) = imageInfo(mouseNode)
@@ -272,10 +303,16 @@ extension ArtSceneView
                 SCNTransaction.animationDuration = 0.0
                 let shift = checkModifierFlags(theEvent, flag: .shift)
                 let scale: CGFloat = shift ? 80.0 : 20.0
-                let newPosition = newPositionFromAngle( mouseNode.position,
+                var newPosition = newPositionFromAngle( mouseNode.position,
                                                         deltaAway: theEvent.deltaY / scale,
                                                         deltaRight: -theEvent.deltaX / scale,
                                                         angle: camera().yRotation)
+                var dx = newPosition.x - mouseNode.position.x
+                var dz = newPosition.z - mouseNode.position.z
+                (dx, dz) = snapToGrid(d1: dx, d2: dz, snap: gridFactor)
+                if dx == 0.0 && dz == 0.0 { break }
+                newPosition.x = mouseNode.position.x + dx
+                newPosition.z = mouseNode.position.z + dz
                 changePosition(mouseNode, from: mouseNode.position, to: newPosition)
                 let (_, location, _, distance) = wallInfo(wall, camera: camera())
                 controller.status = "Wall Location: \(location); \(distance!) feet away"
@@ -296,6 +333,8 @@ extension ArtSceneView
                     dx = -delta.x
                 default: ()
                 }
+                (dx, dy) = snapToGrid(d1: dx, d2: dy, snap: 2.0 * gridFactor)
+                if dx == 0.0 && dy == 0.0 { break }
                 let newSize = CGSize(width: geometry.width + dx, height: geometry.height + dy)
                 // The wall must enclose all the pictures
                 if newSize.width >= 0.5 && newSize.height >= 0.5
@@ -326,6 +365,7 @@ extension ArtSceneView
     override func mouseDown(with theEvent: NSEvent) {
         /* Called when a mouse click occurs */
         controller.editMode = .none
+        deltaSum = CGPoint.zero
         if case EditMode.selecting = editMode,
             mouseNode == nil {
             for node in selection {
@@ -335,7 +375,7 @@ extension ArtSceneView
             return
         }
         let p = theEvent.locationInWindow
-        let hitResults = self.hitTest(p, options: [SCNHitTestOption.searchMode: NSNumber(value: 1)])
+        let hitResults = self.hitTest(p, options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
         guard hitResults.count > 0 else {
             return
         }

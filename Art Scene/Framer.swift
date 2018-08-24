@@ -163,10 +163,11 @@ extension ArtSceneViewController {
         if size.height < oldPlane.height {
             size.height = oldPlane.height
         }
-        size = snapToGrid(size)
+//        size = snapToGrid(size)
         let oldMatt = theMatt(picture)
         let newMatt = makeMatt(CGSize(width: size.width - 0.02, height: size.height - 0.02))
         newMatt.position.z = oldMatt.position.z
+        picture.replaceChildNode(oldMatt, with: newMatt)
         
         let oldFrame = theFrame(picture)
         let newFrame = makeFrame(size)

@@ -12,46 +12,7 @@ import Cocoa
 extension ArtSceneViewController
 {
     // MARK: Edit node position
-//    func registerUndos()
-//    {
-////        if (preparedForUndo == false ) { return }
-////        preparedForUndo = false
-//        guard let mouseNode = theNode else { return }
-//        document!.undoManager!.setActionName(actionName(mouseNode, editMode)!)
-//        switch editMode {
-//        case .resizing(.Picture, _):
-//            changePictureSize(mouseNode, from: saved as! CGSize, to: mouseNode.size()!)
-//        case .resizing(.Image, _):
-//            changeImageSize(mouseNode, from: saved as! CGSize, to: theImage(mouseNode).size()!)
-//        case .resizing(.Wall, _):
-//            let (oldSize, oldPosition, oldChildPositions) = saved as! (CGSize, SCNVector3, [SCNVector3])
-//            undoer.beginUndoGrouping()
-//            changeSize(mouseNode, from: oldSize, to: mouseNode.size()!)
-//            changePosition(mouseNode, from: oldPosition, to: mouseNode.position)
-//            let childen = mouseNode.childNodes.filter({ nodeType($0) == .Picture })
-//            let zipped = zip(childen, oldChildPositions)
-//            for (child, oldPosition) in zipped {
-//                let position = child.position
-//                changePosition(child, from: oldPosition, to: position)
-//            }
-//            undoer.endUndoGrouping()
-//        case .moving(.Picture):
-//            undoer.beginUndoGrouping()
-//           for (node, oldPosition, parent) in saved as! [(SCNNode, SCNVector3, SCNNode)] {
-//                let position = snapToGrid(node.position)
-//                changePosition(node, from: oldPosition, to: position)
-//                changeParent(node, from: parent, to: node.parent!)
-//            }
-//            undoer.endUndoGrouping()
-//       case .moving(.Wall):
-//            if !wallsLocked {
-//                let position = snapToGrid(mouseNode.position)
-//                changePosition(mouseNode, from: saved as! SCNVector3, to: position)
-//            }
-//        default:
-//            ()
-//        }
-//    }
+
     
     /// Edit the position of a picture or the selection using the arrow keys.
     func doFrameEditPosition(_ theEvent: NSEvent)

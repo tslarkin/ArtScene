@@ -39,6 +39,8 @@ class ArtSceneView: SCNView, Undo {
     /// Used while dragging to rotate a wall. The mouse y coordinate is used since
     /// the mouse may not be over a wall or picture during the drag.
     var lastYLocation: CGFloat = 0.0
+    /// Accumulate deltas here.
+    var deltaSum: CGPoint!
     
     /// Set during `mouseMoved` based on which node the mouse is over, as determined by
     /// `hitTest`.
@@ -212,7 +214,7 @@ class ArtSceneView: SCNView, Undo {
     }
     
     override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation {
-        let hits = hitTest(sender.draggingLocation(), options: [SCNHitTestOption.searchMode: NSNumber(value: 1)])
+        let hits = hitTest(sender.draggingLocation(), options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
         guard let wallHit = hitOfType(hits, type: .Wall) else {
             controller.status = "No Wall Under Mouse"
             return NSDragOperation()
@@ -245,7 +247,7 @@ class ArtSceneView: SCNView, Undo {
                 let path = plist[0] as! String
                 var point = sender.draggingLocation()
                 point = convert(point, from: nil)
-                let hitResults = self.hitTest(point, options: [SCNHitTestOption.searchMode: NSNumber(value: 1)])
+                let hitResults = self.hitTest(point, options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
                 if hitResults.count > 0 {
                     if let pictureHit = hitOfType(hitResults, type: .Picture) {
                         result = true

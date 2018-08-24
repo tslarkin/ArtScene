@@ -352,7 +352,7 @@ func isPrime(_ num: Int)->Bool {
 
 let snapToGridP = true
 let gridFactor:CGFloat = 48.0
-let rotationFactor: CGFloat = 5.0
+let rotationFactor: CGFloat = 1.0 / (.pi / 180.0 * 5)
 
 func snapToGrid(_ position: SCNVector3)->SCNVector3 {
     if !snapToGridP {

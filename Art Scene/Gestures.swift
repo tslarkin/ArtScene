@@ -35,29 +35,13 @@ extension ArtSceneViewController
         let rot1 = String(format: "%.0f°", rot < 0 ? rot + 360 : rot)
         status = "Camera Rotation: \(rot1)"
 
-//        switch editMode {
-//        case .none:
-//            let rotation = CGFloat(event.rotation)
-//            cameraNode.eulerAngles.y = cameraNode.eulerAngles.y + rotation * 1 / r2d
-//            omni.eulerAngles.y = cameraNode.eulerAngles.y
-//            let rot = (cameraNode.eulerAngles.y * r2d).truncatingRemainder(dividingBy: 360.0)
-//            let rot1 = String(format: "%.0f°", rot < 0 ? rot + 360 : rot)
-//            status = "Camera Rotation: \(rot1)"
-//       case .resizing(.Wall, .pivot):
-//            theNode?.eulerAngles.y += snapToGrid(CGFloat(event.rotation)) / r2d / 10
-//            let angle = (theNode!.eulerAngles.y * r2d).truncatingRemainder(dividingBy: 360.0)
-//            let rotation = String(format: "%0.0f°", angle)
-//            status = "Wall Rotation: \(rotation)"
-//        default:
-//            break
-//        }
     }
     
     /// Move the camera according to the scroll wheel.
     override func scrollWheel(with event: NSEvent) {
         SCNTransaction.animationDuration = 0.0
         let cameraNode = artSceneView.camera()
-        let size = snapToGrid(CGSize(width: event.deltaX / 20, height: event.deltaY / 20))
+        let size = CGSize(width: event.deltaX / 20, height: event.deltaY / 20)
         let newPosition = newPositionFromAngle(cameraNode.position, deltaAway: size.height, deltaRight: -size.width, angle: cameraNode.yRotation)
         cameraNode.position = newPosition
         let omni = artSceneView.omniLight()
