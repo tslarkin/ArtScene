@@ -221,8 +221,10 @@ class ArtSceneView: SCNView, Undo {
         }
         let target = wallHit.localCoordinates
         let plane = wallHit.node.geometry as! SCNPlane
-        let x = convertToFeetAndInches(target.x + plane.width / 2)
-        let y = convertToFeetAndInches(target.y + plane.height / 2)
+        deltaSum = CGPoint.zero
+        let (x1, y1) = snapToGrid(d1: target.x + plane.width / 2, d2: target.y + plane.height / 2, snap: gridFactor)
+        let x = convertToFeetAndInches(x1)
+        let y = convertToFeetAndInches(y1)
         controller.status = "Drop at {\(x), \(y)}"
         return NSDragOperation.copy
     }
@@ -254,7 +256,12 @@ class ArtSceneView: SCNView, Undo {
                         controller.replacePicture(pictureHit.node, path: path)
                     } else if let wallHit = hitOfType(hitResults, type: .Wall) {
                         result = true
-                        controller.addPicture(wallHit.node, path: path, point: wallHit.localCoordinates)
+                        deltaSum = CGPoint.zero
+                        var coordinates = wallHit.localCoordinates
+                        let (x, y) = snapToGrid(d1: coordinates.x, d2: coordinates.y, snap: gridFactor)
+                        coordinates.x = x
+                        coordinates.y = y
+                        controller.addPicture(wallHit.node, path: path, point: coordinates)
                     }
                 
                 }

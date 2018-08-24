@@ -253,10 +253,12 @@ class ArtSceneViewController: NSViewController, Undo {
                                        point: SCNVector3,
                                        size: CGSize = CGSize.zero) -> SCNNode? {
         if let node = makePicture(path, size: size) {
+            undoer.beginUndoGrouping()
             undoer.setActionName("Add Picture")
             node.position = point
             node.position.z += 0.05
             changeParent(node, from: nil, to: wall)
+            undoer.endUndoGrouping()
             return node
         } else {
             return nil
@@ -273,9 +275,11 @@ class ArtSceneViewController: NSViewController, Undo {
     
     func replacePicture(_ picture: SCNNode, with: SCNNode)
     {
+        undoer.beginUndoGrouping()
         undoer.setActionName("Replace Picture")
         undoer.registerUndo(withTarget: self, handler: { $0.replacePicture(with, with: picture)})
         picture.parent!.replaceChildNode(picture, with: with)
+        undoer.endUndoGrouping()
     }
     
     /// Replace a picture with a new one from `path`.
