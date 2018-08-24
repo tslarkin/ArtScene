@@ -166,7 +166,8 @@ extension ArtSceneView
         if case .resizing(.Wall, .pivot) = editMode {
             let dy = p.y - lastYLocation
             lastYLocation = p.y
-            mouseNode.eulerAngles.y = mouseNode.eulerAngles.y + dy / 10
+            let newAngle = mouseNode.eulerAngles.y + dy / 10
+            changePivot(mouseNode, from: mouseNode.yRotation, to: newAngle)
             let (_, _, rotation, _) = wallInfo(mouseNode)
             controller.status = "Wall Rotation: \(rotation)"
             return
@@ -224,13 +225,17 @@ extension ArtSceneView
         case .moving(.Picture):
             let dragged = selection.contains(mouseNode) ? selection : [mouseNode]
             for node in dragged {
-                node.position.x += delta.x
-                node.position.y += delta.y
+                var newPosition = node.position
+                newPosition.x += delta.x
+                newPosition.y += delta.y
                 // The drag may have gone from one wall to another
                 if wall !== node.parent {
+                    changeParent(node, from: node.parent, to: wall)
                     node.removeFromParentNode()
                     wall.addChildNode(node)
-                    node.position = currentMousePosition
+                    changePosition(node, from: node.position, to: currentMousePosition)
+                } else {
+                    changePosition(node, from: node.position, to: newPosition)
                 }
                 if node === mouseNode {
                     showNodePosition(node)
@@ -251,7 +256,7 @@ extension ArtSceneView
             default: ()
             }
             size = CGSize(width: size.width + dx, height: size.height + dy)
-            controller.reframePictureWithSize(mouseNode, newsize: size)
+            controller.doChangePictureSize(mouseNode, from: mouseNode.size()!, to: size)
             let (newsize, _, _, _) = pictureInfo(mouseNode)
             controller.status = "Picture Size: \(newsize)"
         case .resizing(.Image, _):
@@ -259,25 +264,27 @@ extension ArtSceneView
             let dy = delta.y / 2.0
             let dx = dy * size.width / size.height
             size = CGSize(width: size.width + dx, height: size.height + dy)
-            controller.reframeImageWithSize(mouseNode, newsize: size)
+            controller.doChangeImageSize(mouseNode, from: theImage(mouseNode).size()!, to: size)
             let (newsize, _) = imageInfo(mouseNode)
             controller.status = "Image size: \(newsize)"
         case .moving(.Wall):
-            if wallsLocked {
-                break
+            if !wallsLocked {
+                SCNTransaction.animationDuration = 0.0
+                let shift = checkModifierFlags(theEvent, flag: .shift)
+                let scale: CGFloat = shift ? 80.0 : 20.0
+                let newPosition = newPositionFromAngle( mouseNode.position,
+                                                        deltaAway: theEvent.deltaY / scale,
+                                                        deltaRight: -theEvent.deltaX / scale,
+                                                        angle: camera().yRotation)
+                changePosition(mouseNode, from: mouseNode.position, to: newPosition)
+                let (_, location, _, distance) = wallInfo(wall, camera: camera())
+                controller.status = "Wall Location: \(location); \(distance!) feet away"
             }
-            SCNTransaction.animationDuration = 0.0
-            let shift = checkModifierFlags(theEvent, flag: .shift)
-            let scale: CGFloat = shift ? 80.0 : 20.0
-            let size = CGSize(width: theEvent.deltaX / scale, height: theEvent.deltaY / scale)
-            moveNode(size.height, deltaRight: -size.width, node: mouseNode, angle: camera().eulerAngles.y)
-            let (_, location, _, distance) = wallInfo(wall, camera: camera())
-            controller.status = "Wall Location: \(location); \(distance!) feet away"
         case .resizing(.Wall, let edge):
             if !wallsLocked {
                 let geometry = thePlane(mouseNode)
                 SCNTransaction.animationDuration = 0.0
-                var factor: Float = 1.0
+                var factor: CGFloat = 1.0
                 var dy: CGFloat = 0.0
                 var dx: CGFloat = 0.0
                 switch edge {
@@ -295,12 +302,16 @@ extension ArtSceneView
                     && wallContainsPictures(mouseNode, withNewSize: newSize)
                 {
                     mouseNode.setSize(newSize)
-//                    mouseNode.pivot = SCNMatrix4Translate(mouseNode.pivot, -dx / 2.0, 0.0, -dy)
-                    let translate = simd_make_float3(factor * Float(dx / 2.0), factor * Float(dy / 2.0), 0.0)
-                    mouseNode.simdLocalTranslate(by: translate)
+                    changeSize(mouseNode, from: mouseNode.size()!, to: newSize)
+                    var newPosition = mouseNode.position
+                    newPosition.x += factor * dx / 2.0
+                    newPosition.y += factor * dy / 2.0
+                    changePosition(mouseNode, from: mouseNode.position, to: newPosition)
                     for child in mouseNode.childNodes.filter({ nodeType($0) == .Picture }) {
-                        child.position.y -= dy / 2
-                        child.position.x -= dx / 2.0
+                        newPosition = child.position
+                        newPosition.y -= dy / 2
+                        newPosition.x -= dx / 2.0
+                        changePosition(child, from: child.position, to: newPosition)
                     }
                     let (newsize, _, _, _) = wallInfo(mouseNode)
                     controller.status = "Wall Size: \(newsize)"
@@ -396,67 +407,7 @@ extension ArtSceneView
     
     override func mouseUp(with theEvent: NSEvent) {
         if inDrag == true {
-            guard let mouseNode = mouseNode else { return }
-            undoer.setActionName(actionName(mouseNode, editMode)!)
-            switch editMode {
-            case .resizing(.Picture, _):
-                let size = snapToGrid(mouseNode.size()!)
-                controller.doChangePictureSize(mouseNode, from: saved as! CGSize, to: size)
-                let (newsize, _, _, _) = pictureInfo(mouseNode)
-                controller.status = "Picture Size: \(newsize)"
-            case .resizing(.Image, _):
-                let size = theImage(mouseNode).size()!
-                controller.doChangeImageSize(mouseNode, from: saved as! CGSize, to: size)
-                let (newsize, _) = imageInfo(mouseNode)
-                controller.status = "Image size: \(newsize)"
-                editMode = .none
-                NSCursor.arrow.set()
-            case .resizing(.Wall, .pivot):
-                changePivot(mouseNode, from: saved as! CGFloat, to: mouseNode.yRotation)
-            case .resizing(.Wall, let edge):
-                if wallsLocked {
-                    break
-                }
-                let (oldSize, oldPosition, oldChildPositions) = saved as! (CGSize, SCNVector3, [SCNVector3])
-                let currentSize = mouseNode.size()!
-                let newSize = snapToGrid(mouseNode.size()!)
-                undoer.beginUndoGrouping()
-                changeSize(mouseNode, from: oldSize, to: newSize)
-                let delta = CGSize(width: newSize.width - currentSize.width,
-                                   height: newSize.height - currentSize.height)
-                let translate = simd_make_float3(Float(delta.width / 2.0),
-                                                 Float(delta.height / 2.0),
-                                                 0.0)
-                mouseNode.simdLocalTranslate(by: translate)
-                changePosition(mouseNode, from: oldPosition, to: mouseNode.position)
-                let childen = mouseNode.childNodes.filter({ nodeType($0) == .Picture })
-                let zipped = zip(childen, oldChildPositions)
-                for (child, oldPosition) in zipped {
-                    let factor: CGFloat = edge == .right ? 1.0 : -1.0
-                    var position = child.position
-                    position.y -= delta.height / 2.0
-                    position.x += factor * delta.width / 2.0
-                    changePosition(child, from: oldPosition, to: position)
-                }
-                undoer.endUndoGrouping()
-                let (newsize, _, _, _) = wallInfo(mouseNode)
-                controller.status = "Wall Size: \(newsize)"
-            case .moving(.Picture):
-                undoer.beginUndoGrouping()
-                for (node, oldPosition, parent) in saved as! [(SCNNode, SCNVector3, SCNNode)] {
-                    let position = snapToGrid(node.position)
-                    changePosition(node, from: oldPosition, to: position)
-                    changeParent(node, from: parent, to: node.parent!)
-                }
-                undoer.endUndoGrouping()
-                showNodePosition(mouseNode)
-            case .moving(.Wall):
-                if !wallsLocked {
-                    let position = snapToGrid(mouseNode.position)
-                    changePosition(mouseNode, from: saved as! SCNVector3, to: position)
-                }
-            default: ()
-            }
+            undoer.endUndoGrouping()
         }
         
         inDrag = false
@@ -464,10 +415,7 @@ extension ArtSceneView
         if let child = mouseNode?.childNode(withName: "Fake", recursively: false) {
             child.removeFromParentNode()
         }
-//        if !(case .selecting = editMode) {
-//            mouseNode = nil
-//        }
-//        flagsChanged(with: theEvent)
+        mouseMoved(with: theEvent)
     }
     
 

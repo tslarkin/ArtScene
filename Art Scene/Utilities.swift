@@ -303,13 +303,15 @@ func crossProduct(_ a: SCNVector3, b: SCNVector3) -> SCNVector3
     return SCNVector3(x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x)
 }
 
-func moveNode(_ deltaUp: CGFloat, deltaRight: CGFloat, node: SCNNode, angle: CGFloat)
+func newPositionFromAngle(_ oldPosition: SCNVector3, deltaAway: CGFloat, deltaRight: CGFloat, angle: CGFloat)->SCNVector3
 {
+    var newPosition = oldPosition
     let v = SCNVector3(x: sin(angle), y: 0.0, z: cos(angle))
-//    let u = crossProduct(v, b: SCNVector3(0, 1, 0))
+    //    let u = crossProduct(v, b: SCNVector3(0, 1, 0))
     let u = v × SCNVector3(0, 1, 0)
-    node.position.x += v.x * deltaUp + u.x * deltaRight
-    node.position.z += v.z * deltaUp + u.z * deltaRight
+    newPosition.x += v.x * deltaAway + u.x * deltaRight
+    newPosition.z += v.z * deltaAway + u.z * deltaRight
+    return newPosition
 }
 
 func primeFactors(_ numToCheck:Int) -> [(factor: Int, power: Int)] {

@@ -138,6 +138,8 @@ class Document: NSDocument {
     override func windowControllerDidLoadNib(_ aController: NSWindowController) {
         super.windowControllerDidLoadNib(aController)
         // Add any code here that needs to be executed once the windowController has loaded the document's window.
+        undoManager!.groupsByEvent = false
+
         if scene == nil {
             scene = createDefaultScene()
         }

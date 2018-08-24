@@ -35,7 +35,6 @@ protocol Undo : AnyObject
     var editMode: EditMode { get }
     /// The set of selected pictures, needed by `SetPosition`
     var selection: Array<SCNNode> { get set }
-    var saved: Any { get set }
 }
 
 extension Undo
@@ -107,6 +106,18 @@ extension Undo
 
     }
     
+    func changeParent(_ node: SCNNode, from: SCNNode, to: SCNNode)
+    {
+        let undoer = document!.undoManager!
+        undoer.registerUndo(withTarget: self,
+                            handler: { $0.changeParent(node, from: to, to: from) })
+        if from != to {
+            node.removeFromParentNode()
+            to.addChildNode(node)
+        }
+
+    }
+    
     func actionName(_ node: SCNNode, _ editMode: EditMode)->String?
     {
         var name: String?
@@ -131,29 +142,9 @@ extension Undo
     
     func prepareForUndo(_ node: SCNNode)
     {
-//        let undoer = document!.undoManager!
-//        undoer.setActionName(actionName(node, editMode)!)
-        switch editMode {
-        case .resizing(_, .pivot):
-            saved = node.eulerAngles.y
-        case .resizing(.Image, _):
-            saved = theImage(node).size()!
-        case .resizing(.Picture, _):
-            saved = node.size()!
-        case .resizing(.Wall, _):
-            saved = (node.size()!, node.position,
-                     node.childNodes.filter({ nodeType($0) == .Picture}).map{ $0.position })
-        case .moving(.Picture):
-            if selection.contains(node) {
-                saved = selection.map{ ($0, $0.position, $0.parent!) }
-            } else {
-                saved = [(node, node.position, node.parent!)]
-            }
-        case .moving(.Wall):
-            saved = node.position
-        default:
-            ()
-        }
+        let undoer = document!.undoManager!
+        undoer.beginUndoGrouping()
+        undoer.setActionName(actionName(node, editMode)!)
     }
     
 }

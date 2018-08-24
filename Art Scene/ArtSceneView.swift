@@ -57,9 +57,7 @@ class ArtSceneView: SCNView, Undo {
     var wallsLocked: Bool {
         return controller.wallsLocked
     }
-    
-    var saved: Any = ""
-    
+        
     /// Makes the `questionCursor` and `rotateCursor`, then calls `super.init()`
     required init?(coder: NSCoder) {
         var size: CGFloat = 24

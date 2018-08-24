@@ -58,7 +58,8 @@ extension ArtSceneViewController
         SCNTransaction.animationDuration = 0.0
         let cameraNode = artSceneView.camera()
         let size = snapToGrid(CGSize(width: event.deltaX / 20, height: event.deltaY / 20))
-        moveNode(size.height, deltaRight: -size.width, node: cameraNode, angle: cameraNode.eulerAngles.y)
+        let newPosition = newPositionFromAngle(cameraNode.position, deltaAway: size.height, deltaRight: -size.width, angle: cameraNode.yRotation)
+        cameraNode.position = newPosition
         let omni = artSceneView.omniLight()
         omni.position = cameraNode.position
         updateCameraStatus()

@@ -12,46 +12,46 @@ import Cocoa
 extension ArtSceneViewController
 {
     // MARK: Edit node position
-    func registerUndos()
-    {
-//        if (preparedForUndo == false ) { return }
-//        preparedForUndo = false
-        guard let mouseNode = theNode else { return }
-        document!.undoManager!.setActionName(actionName(mouseNode, editMode)!)
-        switch editMode {
-        case .resizing(.Picture, _):
-            changePictureSize(mouseNode, from: saved as! CGSize, to: mouseNode.size()!)
-        case .resizing(.Image, _):
-            changeImageSize(mouseNode, from: saved as! CGSize, to: theImage(mouseNode).size()!)
-        case .resizing(.Wall, _):
-            let (oldSize, oldPosition, oldChildPositions) = saved as! (CGSize, SCNVector3, [SCNVector3])
-            undoer.beginUndoGrouping()
-            changeSize(mouseNode, from: oldSize, to: mouseNode.size()!)
-            changePosition(mouseNode, from: oldPosition, to: mouseNode.position)
-            let childen = mouseNode.childNodes.filter({ nodeType($0) == .Picture })
-            let zipped = zip(childen, oldChildPositions)
-            for (child, oldPosition) in zipped {
-                let position = child.position
-                changePosition(child, from: oldPosition, to: position)
-            }
-            undoer.endUndoGrouping()
-        case .moving(.Picture):
-            undoer.beginUndoGrouping()
-           for (node, oldPosition, parent) in saved as! [(SCNNode, SCNVector3, SCNNode)] {
-                let position = snapToGrid(node.position)
-                changePosition(node, from: oldPosition, to: position)
-                changeParent(node, from: parent, to: node.parent!)
-            }
-            undoer.endUndoGrouping()
-       case .moving(.Wall):
-            if !wallsLocked {
-                let position = snapToGrid(mouseNode.position)
-                changePosition(mouseNode, from: saved as! SCNVector3, to: position)
-            }
-        default:
-            ()
-        }
-    }
+//    func registerUndos()
+//    {
+////        if (preparedForUndo == false ) { return }
+////        preparedForUndo = false
+//        guard let mouseNode = theNode else { return }
+//        document!.undoManager!.setActionName(actionName(mouseNode, editMode)!)
+//        switch editMode {
+//        case .resizing(.Picture, _):
+//            changePictureSize(mouseNode, from: saved as! CGSize, to: mouseNode.size()!)
+//        case .resizing(.Image, _):
+//            changeImageSize(mouseNode, from: saved as! CGSize, to: theImage(mouseNode).size()!)
+//        case .resizing(.Wall, _):
+//            let (oldSize, oldPosition, oldChildPositions) = saved as! (CGSize, SCNVector3, [SCNVector3])
+//            undoer.beginUndoGrouping()
+//            changeSize(mouseNode, from: oldSize, to: mouseNode.size()!)
+//            changePosition(mouseNode, from: oldPosition, to: mouseNode.position)
+//            let childen = mouseNode.childNodes.filter({ nodeType($0) == .Picture })
+//            let zipped = zip(childen, oldChildPositions)
+//            for (child, oldPosition) in zipped {
+//                let position = child.position
+//                changePosition(child, from: oldPosition, to: position)
+//            }
+//            undoer.endUndoGrouping()
+//        case .moving(.Picture):
+//            undoer.beginUndoGrouping()
+//           for (node, oldPosition, parent) in saved as! [(SCNNode, SCNVector3, SCNNode)] {
+//                let position = snapToGrid(node.position)
+//                changePosition(node, from: oldPosition, to: position)
+//                changeParent(node, from: parent, to: node.parent!)
+//            }
+//            undoer.endUndoGrouping()
+//       case .moving(.Wall):
+//            if !wallsLocked {
+//                let position = snapToGrid(mouseNode.position)
+//                changePosition(mouseNode, from: saved as! SCNVector3, to: position)
+//            }
+//        default:
+//            ()
+//        }
+//    }
     
     /// Edit the position of a picture or the selection using the arrow keys.
     func doFrameEditPosition(_ theEvent: NSEvent)
@@ -97,7 +97,7 @@ extension ArtSceneViewController
         let rotation: CGFloat = 5.01 / r2d
         let keyChar = Int(keyString[keyString.startIndex])
         SCNTransaction.animationDuration = 0.5
-        if checkModifierFlags(theEvent, flag: .command) {
+        if checkModifierFlags(theEvent, flag: .option) {
             var angle = theNode.yRotation
             switch keyChar {
             case NSLeftArrowFunctionKey:
@@ -109,7 +109,7 @@ extension ArtSceneViewController
             default:
                 super.keyDown(with: theEvent)
             }
-            theNode.yRotation = angle
+            changePivot(theNode, from: theNode.yRotation, to: angle)
         } else {
             var dz: CGFloat = 0.0
             var dx: CGFloat = 0.0
@@ -124,8 +124,10 @@ extension ArtSceneViewController
                 dx = -jump
             default: break
             }
-            let translate = simd_make_float3(Float(-dx), 0.0, Float(dz))
-            theNode.simdLocalTranslate(by: translate)
+            var newPosition = theNode.position
+            newPosition.x -= dx
+            newPosition.z += dz
+            changePosition(theNode, from: theNode.position, to: newPosition)
         }
         let (_, location, rot, distance) = wallInfo(theNode, camera: artSceneView.camera())
         status = "Wall Position: \(location); Distance: \(distance!); Rotation: \(rot)"
@@ -152,7 +154,7 @@ extension ArtSceneViewController
         default:
             return
         }
-        reframePictureWithSize(theNode, newsize: size)
+        changePictureSize(theNode, from: theNode.size()!, to: size)
         let (newsize, _, _, _) = pictureInfo(theNode)
         status = "Picture: \(newsize)"
     }
@@ -175,7 +177,6 @@ extension ArtSceneViewController
             return
         }
         size.width = size.height * ratio
-        reframeImageWithSize(theNode!, newsize: size)
         changeImageSize(theNode!, from: oldSize, to: size)
         let (newsize, name) = imageInfo(theNode!)
         status = "\(name): \(newsize)"

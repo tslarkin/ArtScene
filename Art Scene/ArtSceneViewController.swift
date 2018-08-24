@@ -93,7 +93,6 @@ class ArtSceneViewController: NSViewController, Undo {
     }
     
     var wallsLocked = false
-    var saved: Any = ""
     
     var scene:SCNScene {
         return artSceneView.scene!
@@ -347,7 +346,6 @@ class ArtSceneViewController: NSViewController, Undo {
     /// A menu action to put the controller in `.Moving(.Picture)` mode.
     @IBAction func editFramePosition(_ sender: AnyObject?)
     {
-        undoer.groupsByEvent = false
         editMode = .moving(.Picture)
         if let theNode = theNode {
             let (_, location, _, _) = pictureInfo(theNode)
