@@ -64,6 +64,17 @@ extension ArtSceneView {
         return menu
     }
     
+    @objc func addGrid(_ sender: AnyObject)
+    {
+        mouseNode?.setGrid()
+        controller.hideGrids(condition: 6.0)
+    }
+    
+    @objc func removeGrid(_ sender: AnyObject)
+    {
+        mouseNode!.removeGrid()
+    }
+    
     /// Main logic for returning a menu appropriate to the context.
     override func menu(for event: NSEvent) -> NSMenu? {
         controller.editMode = .none
@@ -91,6 +102,11 @@ extension ArtSceneView {
                 menu.addItem(NSMenuItem.separator())
             }
             menu.addItem(withTitle: "Wall Color", action: #selector(ArtSceneViewController.pickWallColor(_:)), keyEquivalent: "")
+            if mouseNode!.hasGrid() {
+                menu.addItem(withTitle: "Hide Grid", action: #selector(ArtSceneView.removeGrid(_:)), keyEquivalent: "")
+            } else {
+                menu.addItem(withTitle: "Show Grid", action: #selector(ArtSceneView.addGrid(_:)), keyEquivalent: "")
+            }
             menu.addItem(withTitle: "Add Picture", action: #selector(ArtSceneViewController.addPicture(_:)), keyEquivalent: "")
             if controller.wallsLocked == false {
                 menu.addItem(NSMenuItem.separator())

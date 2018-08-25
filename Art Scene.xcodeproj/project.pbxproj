@@ -35,6 +35,7 @@
 		12E95BB42126A68900F025B6 /* SCNNodeExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB32126A68900F025B6 /* SCNNodeExtension.swift */; };
 		12E95BB6212825B100F025B6 /* ArtSceneMouse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB5212825B100F025B6 /* ArtSceneMouse.swift */; };
 		12E95BB82128269900F025B6 /* ArtSceneViewControllerKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */; };
+		12E95BBF21317BF900F025B6 /* SceneRendererDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BBE21317BF900F025B6 /* SceneRendererDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -69,6 +70,7 @@
 		12E95BB5212825B100F025B6 /* ArtSceneMouse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtSceneMouse.swift; sourceTree = "<group>"; };
 		12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtSceneViewControllerKeyboard.swift; sourceTree = "<group>"; };
 		12E95BBD212E308000F025B6 /* Art Scene.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Art Scene.entitlements"; sourceTree = "<group>"; };
+		12E95BBE21317BF900F025B6 /* SceneRendererDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneRendererDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,6 +110,7 @@
 				127CF8B01BD1810A00F571D9 /* AppDelegate.swift */,
 				127CF8B21BD1810A00F571D9 /* Document.swift */,
 				127CF8CC1BD1821000F571D9 /* ArtSceneView.swift */,
+				12E95BBE21317BF900F025B6 /* SceneRendererDelegate.swift */,
 				127CF8CE1BD1823300F571D9 /* ArtSceneViewMenu.swift */,
 				12E95BB5212825B100F025B6 /* ArtSceneMouse.swift */,
 				1254A8051BDAB9910056A0C8 /* ArtScenePrinter.swift */,
@@ -231,6 +234,7 @@
 				12E95BB82128269900F025B6 /* ArtSceneViewControllerKeyboard.swift in Sources */,
 				127CF8D31BD1823300F571D9 /* Framer.swift in Sources */,
 				127CF8CD1BD1821000F571D9 /* ArtSceneView.swift in Sources */,
+				12E95BBF21317BF900F025B6 /* SceneRendererDelegate.swift in Sources */,
 				127CF8B11BD1810A00F571D9 /* AppDelegate.swift in Sources */,
 				12E95BB42126A68900F025B6 /* SCNNodeExtension.swift in Sources */,
 				1200F71D1BD690FE003E4F24 /* Gestures.swift in Sources */,

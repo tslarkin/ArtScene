@@ -36,6 +36,7 @@ enum NodeType: String {
     case Floor
     case Fake
     case Back
+    case Grid
 }
 
 enum EditMode {

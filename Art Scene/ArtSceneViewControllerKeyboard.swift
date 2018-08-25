@@ -90,6 +90,7 @@ extension ArtSceneViewController
             newPosition.z += dz
             changePosition(theNode, from: theNode.position, to: newPosition)
         }
+        hideGrids(condition: 3.0)
         let (_, location, rot, distance) = wallInfo(theNode, camera: artSceneView.camera())
         status = "Wall Position: \(location); Distance: \(distance!); Rotation: \(rot)"
     }
@@ -199,6 +200,7 @@ extension ArtSceneViewController
         defaultWallSize.height = size.height
         let info = wallInfo(theNode)
         status = "Wall Size: \(info.size)"
+        hideGrids(condition: 3.0)
     }
     
     /// Change the location and rotation of the camera with the arrow keys. The rotation
@@ -266,6 +268,25 @@ extension ArtSceneViewController
             omniLight.position = position
         }
         updateCameraStatus()
+        hideGrids(condition: 3.0)
+    }
+    
+    func hideGrids(condition: CGFloat = 3.0)
+    {
+        let cameraNode = artSceneView.camera()
+        let walls = artSceneView.nodesInsideFrustum(of: cameraNode).filter({ nodeType($0) == .Wall})
+        for wall in walls {
+            if let grid = wall.grid() {
+               let position = wall.convertPosition(cameraNode.position, from: nil)
+                let distance = position.z
+               if distance <= condition * 2.0 {
+                    grid.isHidden = false
+                    grid.opacity = min(0.7, (condition * 2.0 - distance) / condition)
+                } else {
+                    grid.isHidden = true
+                }
+            }
+        }
     }
     
     override func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {

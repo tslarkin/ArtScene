@@ -39,7 +39,7 @@ extension ArtSceneViewController
     
     /// Move the camera according to the scroll wheel.
     override func scrollWheel(with event: NSEvent) {
-        SCNTransaction.animationDuration = 0.0
+        SCNTransaction.animationDuration = 0.2
         let cameraNode = artSceneView.camera()
         let size = CGSize(width: event.deltaX / 20, height: event.deltaY / 20)
         let newPosition = newPositionFromAngle(cameraNode.position, deltaAway: size.height, deltaRight: -size.width, angle: cameraNode.yRotation)
@@ -47,5 +47,6 @@ extension ArtSceneViewController
         let omni = artSceneView.omniLight()
         omni.position = cameraNode.position
         updateCameraStatus()
+        hideGrids()
     }
 }

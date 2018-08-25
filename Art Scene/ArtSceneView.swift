@@ -7,7 +7,6 @@
 //
 
 import SceneKit
-import SpriteKit
 
 /**
 Hosts the Art Scene. It also handles mouse events (including keeping track of the selection),
@@ -99,6 +98,7 @@ class ArtSceneView: SCNView, Undo {
     /// Register for drags of file names.
     override func awakeFromNib() {
         registerForDraggedTypes([NSPasteboard.PasteboardType(rawValue: "NSFilenamesPboardType")])
+        delegate = SceneRendererDelegate()
         //acceptsTouchEvents = true
     }
     
@@ -183,6 +183,7 @@ class ArtSceneView: SCNView, Undo {
     /// Otherwise delete only the `mouseNode`.
     @IBAction func deletePictures(_ sender: AnyObject?)
     {
+        undoer.beginUndoGrouping()
         if selection.count > 0 {
             undoer.setActionName("Delete Pictures")
             for picture in selection {
@@ -193,6 +194,7 @@ class ArtSceneView: SCNView, Undo {
             undoer.setActionName("Delete Picture")
             changeParent(node, from: node.parent!, to: nil)
         }
+        undoer.endUndoGrouping()
     }
     
     /// Sets the status line from the position of `node`.

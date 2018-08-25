@@ -71,7 +71,7 @@ extension ArtSceneView
         lastYLocation = p.y
         
         var hitResults = self.hitTest(p, options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
-        hitResults = hitResults.filter({ nodeType($0.node) != .Back})
+        hitResults = hitResults.filter({ nodeType($0.node) != .Back && nodeType($0.node) != .Grid})
         guard hitResults.count > 0  else /* no hits */ {
             if case EditMode.moving(_) = editMode {
                 NSCursor.arrow.set()
@@ -194,13 +194,15 @@ extension ArtSceneView
             if (dy == 0) { return }
             let newAngle = mouseNode.eulerAngles.y + dy
             changePivot(mouseNode, from: mouseNode.yRotation, to: newAngle)
+            controller.hideGrids(condition: 3.0)
             let (_, _, rotation, _) = wallInfo(mouseNode)
             controller.status = "Wall Rotation: \(rotation)"
             return
         }
         
         // Find a hit node or bail.
-        let hitResults = self.hitTest(p, options: [SCNHitTestOption.searchMode: NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
+        var hitResults = self.hitTest(p, options: [SCNHitTestOption.searchMode: NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
+        hitResults = hitResults.filter({ nodeType($0.node) != .Back && nodeType($0.node) != .Grid})
         SCNTransaction.animationDuration = 0.0
         
         var wallHit = hitOfType(hitResults, type: .Wall)
@@ -314,6 +316,7 @@ extension ArtSceneView
                 newPosition.x = mouseNode.position.x + dx
                 newPosition.z = mouseNode.position.z + dz
                 changePosition(mouseNode, from: mouseNode.position, to: newPosition)
+                controller.hideGrids(condition: 3.0)
                 let (_, location, _, distance) = wallInfo(wall, camera: camera())
                 controller.status = "Wall Location: \(location); \(distance!) feet away"
             }
@@ -352,6 +355,7 @@ extension ArtSceneView
                         newPosition.x -= dx / 2.0
                         changePosition(child, from: child.position, to: newPosition)
                     }
+                    controller.hideGrids(condition: 3.0)
                     let (newsize, _, _, _) = wallInfo(mouseNode)
                     controller.status = "Wall Size: \(newsize)"
                 }
@@ -375,11 +379,9 @@ extension ArtSceneView
             return
         }
         let p = theEvent.locationInWindow
-        let hitResults = self.hitTest(p, options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
+        var hitResults = self.hitTest(p, options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
+        hitResults = hitResults.filter({ nodeType($0.node) != .Back && nodeType($0.node) != .Grid})
         guard hitResults.count > 0 else {
-            return
-        }
-        if nodeType(hitResults[0].node) == .Back {
             return
         }
         if case EditMode.getInfo = editMode {
