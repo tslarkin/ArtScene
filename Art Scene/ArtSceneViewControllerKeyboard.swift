@@ -80,20 +80,20 @@ extension ArtSceneViewController
             case NSDownArrowFunctionKey:
                 dz = jump
             case NSLeftArrowFunctionKey:
-                dx = jump
-            case NSRightArrowFunctionKey:
                 dx = -jump
+            case NSRightArrowFunctionKey:
+                dx = jump
             default: break
             }
-             var newPosition = newPositionFromAngle( theNode.position,
-                                                    deltaAway: dz,
-                                                    deltaRight: dx,
-                                                    angle: artSceneView.camera().yRotation)
-//            newPosition.x -= dx
+//             var newPosition = newPositionFromAngle( theNode.position,
+//                                                    deltaAway: dz,
+//                                                    deltaRight: dx,
+//                                                    angle: artSceneView.camera().yRotation)
+            var newPosition = theNode.position
+//            newPosition.x += dx
 //            newPosition.z += dz
-//            let length = dx
-//            newPosition.x += length * cos(theNode.yRotation)
-//            newPosition.z += length * sin(theNode.yRotation)
+            newPosition.x += dx * cos(theNode.yRotation) - dz * sin(theNode.yRotation)
+            newPosition.z -= dx * sin(theNode.yRotation) + dz * cos(theNode.yRotation)
 
             changePosition(theNode, from: theNode.position, to: newPosition)
         }
