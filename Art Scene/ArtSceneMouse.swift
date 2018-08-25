@@ -346,7 +346,9 @@ extension ArtSceneView
                     mouseNode.setSize(newSize)
                     changeSize(mouseNode, from: mouseNode.size()!, to: newSize)
                     var newPosition = mouseNode.position
-                    newPosition.x += factor * dx / 2.0
+                    let length = factor * dx / 2.0
+                    newPosition.x += length * cos(mouseNode.yRotation)
+                    newPosition.z += -length * sin(mouseNode.yRotation)
                     newPosition.y += factor * dy / 2.0
                     changePosition(mouseNode, from: mouseNode.position, to: newPosition)
                     for child in mouseNode.childNodes.filter({ nodeType($0) == .Picture }) {

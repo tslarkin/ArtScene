@@ -28,7 +28,7 @@ extension ArtSceneViewController
         SCNTransaction.animationDuration = 0.0
         let cameraNode = artSceneView.camera()
         let omni = artSceneView.omniLight()
-        let rotation = CGFloat(event.rotation)
+        let rotation = CGFloat(event.rotation) / 4.0
         cameraNode.eulerAngles.y = cameraNode.eulerAngles.y + rotation * 1 / r2d
         omni.eulerAngles.y = cameraNode.eulerAngles.y
         let rot = (cameraNode.eulerAngles.y * r2d).truncatingRemainder(dividingBy: 360.0)

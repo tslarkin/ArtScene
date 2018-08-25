@@ -85,9 +85,16 @@ extension ArtSceneViewController
                 dx = -jump
             default: break
             }
-            var newPosition = theNode.position
-            newPosition.x -= dx
-            newPosition.z += dz
+             var newPosition = newPositionFromAngle( theNode.position,
+                                                    deltaAway: dz,
+                                                    deltaRight: dx,
+                                                    angle: artSceneView.camera().yRotation)
+//            newPosition.x -= dx
+//            newPosition.z += dz
+//            let length = dx
+//            newPosition.x += length * cos(theNode.yRotation)
+//            newPosition.z += length * sin(theNode.yRotation)
+
             changePosition(theNode, from: theNode.position, to: newPosition)
         }
         hideGrids(condition: 3.0)
@@ -188,7 +195,9 @@ extension ArtSceneViewController
         // is fixed. The option key reverses this.
         let factor: CGFloat = theEvent.modifierFlags.contains(.option) ? -1.0 : 1.0
         var newPosition = theNode.position
-        newPosition.x += factor * dx / 2.0
+        let length = factor * dx / 2.0
+        newPosition.x += length * cos(theNode.yRotation)
+        newPosition.z += length * sin(theNode.yRotation)
         newPosition.y += dy / 2.0
         changePosition(theNode, from: theNode.position, to: newPosition)
         for child in theNode.childNodes.filter({ nodeType($0) == .Picture }) {

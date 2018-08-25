@@ -307,9 +307,11 @@ class ArtSceneViewController: NSViewController, Undo {
     }
     
     @IBAction func addWall(_ sender: AnyObject?) {
+        undoer.beginUndoGrouping()
         undoer.setActionName("Add Wall")
         let wallNode = makeWall(at: artSceneView.mouseClickLocation!)
         changeParent(wallNode, from: nil, to: scene.rootNode)
+        undoer.endUndoGrouping()
     }
 
     
