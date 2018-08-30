@@ -219,7 +219,12 @@ class ArtSceneViewController: NSViewController, Undo {
             defaultFrameSize = frameSizes[title]!
             defaultFrameSize.width /= 12
             defaultFrameSize.height /= 12
-            reframePictureWithSize(theNode!, newsize: defaultFrameSize)
+            undoer.beginUndoGrouping()
+            undoer.setActionName("Change Picture Size")
+            let node = theNode!
+            let size = theNode!.size()!
+            changePictureSize(node, from: size, to: defaultFrameSize)
+            undoer.endUndoGrouping()
         }
     }
     
@@ -301,9 +306,11 @@ class ArtSceneViewController: NSViewController, Undo {
     
     @objc func deleteWall(_ sender: AnyObject?) {
         editMode = .none
+        undoer.beginUndoGrouping()
         undoer.setActionName("Delete Wall")
         changeParent(theNode!, from: theNode!.parent!, to: nil)
-       theNode = nil
+        undoer.endUndoGrouping()
+        theNode = nil
     }
     
     @IBAction func addWall(_ sender: AnyObject?) {
@@ -363,13 +370,19 @@ class ArtSceneViewController: NSViewController, Undo {
     
     @objc func rotateWallCW()
     {
-        theNode?.eulerAngles.y -= .pi / 2.0
+        undoer.beginUndoGrouping()
+        undoer.setActionName("Rotate Wall CW")
+        changePivot(theNode!, delta: -.pi / 2.0)
+        undoer.endUndoGrouping()
         artSceneView.getInfo(theNode!)
     }
     
     @objc func rotateWallCCW()
     {
-        theNode?.eulerAngles.y += .pi / 2.0
+        undoer.beginUndoGrouping()
+        undoer.setActionName("Rotate Wall CCW")
+        changePivot(theNode!, delta: .pi / 2.0)
+        undoer.endUndoGrouping()
         artSceneView.getInfo(theNode!)
    }
 

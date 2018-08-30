@@ -55,6 +55,13 @@ extension Undo
         }
     }
     
+    func changePivot(_ node: SCNNode, delta: CGFloat)
+    {
+        let undoer = document!.undoManager!
+        undoer.registerUndo(withTarget: self, handler: { $0.changePivot(node, delta: -delta) })
+        node.yRotation += delta
+    }
+    
     func changePosition(_ node: SCNNode, from: SCNVector3, to: SCNVector3)
     {
         let undoer = document!.undoManager!

@@ -82,10 +82,10 @@ extension ArtSceneView {
         let hitResults = self.hitTest(p, options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
         let pictureHit = hitOfType(hitResults, type: .Picture)
         if let picture = pictureHit?.node {
+            controller.theNode = picture
             if selection.contains(picture) && selection.count > 1 {
                 return super.menu(for: event)
             } else {
-                controller.theNode = picture
                 mouseNode = picture
                 return makePictureMenu()
             }

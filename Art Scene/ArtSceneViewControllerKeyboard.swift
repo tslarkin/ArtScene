@@ -36,11 +36,9 @@ extension ArtSceneViewController
             return
         }
         let group = selection.contains(theNode) ? selection : [theNode]
+        let translation = SCNVector3Make(dx, dy, 0.0)
         for picture in group {
-            var newPosition = picture.position
-            newPosition.x += dx
-            newPosition.y += dy
-            changePosition(picture, from: picture.position, to: newPosition)
+            changePosition(picture, delta: translation)
         }
         let (_, location, _, _) = pictureInfo(theNode)
         status = "Location: \(location)"
@@ -85,17 +83,7 @@ extension ArtSceneViewController
                 dx = jump
             default: break
             }
-//             var newPosition = newPositionFromAngle( theNode.position,
-//                                                    deltaAway: dz,
-//                                                    deltaRight: dx,
-//                                                    angle: artSceneView.camera().yRotation)
-            var newPosition = theNode.position
-//            newPosition.x += dx
-//            newPosition.z += dz
-            newPosition.x += dx * cos(theNode.yRotation) - dz * sin(theNode.yRotation)
-            newPosition.z -= dx * sin(theNode.yRotation) + dz * cos(theNode.yRotation)
-
-            changePosition(theNode, from: theNode.position, to: newPosition)
+            changePosition(theNode, delta: SCNVector3Make(dx, 0.0, dz))
         }
         hideGrids(condition: 3.0)
         let (_, location, rot, distance) = wallInfo(theNode, camera: artSceneView.camera())
@@ -194,17 +182,10 @@ extension ArtSceneViewController
         // In the default case, the wall shortens at the right side, and the left side
         // is fixed. The option key reverses this.
         let factor: CGFloat = theEvent.modifierFlags.contains(.option) ? -1.0 : 1.0
-        var newPosition = theNode.position
-        let length = factor * dx / 2.0
-        newPosition.x += length * cos(theNode.yRotation)
-        newPosition.z += length * sin(theNode.yRotation)
-        newPosition.y += dy / 2.0
-        changePosition(theNode, from: theNode.position, to: newPosition)
+        changePosition(theNode, delta: SCNVector3Make(factor * dx / 2.0, dy / 2.0, 0.0))
+        let translation = SCNVector3Make(-dx / 2.0, -dy / 2.0, 0.0)
         for child in theNode.childNodes.filter({ nodeType($0) == .Picture }) {
-            var newPosition = child.position
-            newPosition.y -= dy / 2.0
-            newPosition.x -= dx / 2.0
-            changePosition(child, from: child.position, to: newPosition)
+            changePosition(child, delta: translation)
         }
         defaultWallSize.height = size.height
         let info = wallInfo(theNode)
