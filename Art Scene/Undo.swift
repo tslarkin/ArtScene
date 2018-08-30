@@ -58,11 +58,17 @@ extension Undo
     func changePosition(_ node: SCNNode, from: SCNVector3, to: SCNVector3)
     {
         let undoer = document!.undoManager!
-//        undoer.setActionName(actionName(node, editMode)!)
         undoer.registerUndo(withTarget: self, handler: { $0.changePosition(node, from: to, to: from) })
         if node.position != to {
             node.position = to
         }
+    }
+    
+    func changePosition(_ node: SCNNode, delta: SCNVector3)
+    {
+        let undoer = document!.undoManager!
+        undoer.registerUndo(withTarget: self, handler: { $0.changePosition(node, delta: SCNVector3Make(-delta.x, -delta.y, -delta.z))})
+        node.localTranslate(by: delta)
     }
         
     func changeSize(_ node: SCNNode, from: CGSize, to: CGSize)

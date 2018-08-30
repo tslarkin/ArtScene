@@ -183,88 +183,32 @@ extension ArtSceneView
         guard let mouseNode = mouseNode else {
             return
         }
-        let p = theEvent.locationInWindow
         
-        // Handle the rotate operation separately, since there may not be a hit node, which is
-        // not required to rotate.
-        if case .resizing(.Wall, .pivot) = editMode {
-            var dy = (p.y - lastYLocation) / 10.0
-            lastYLocation = p.y
-            (dy, _) = snapToGrid(d1: dy, d2: 0.0, snap: rotationFactor)
-            if (dy == 0) { return }
-            let newAngle = mouseNode.eulerAngles.y + dy
-            changePivot(mouseNode, from: mouseNode.yRotation, to: newAngle)
-            controller.hideGrids(condition: 3.0)
-            let (_, _, rotation, _) = wallInfo(mouseNode)
-            controller.status = "Wall Rotation: \(rotation)"
-            return
-        }
-        
-        // Find a hit node or bail.
-        var hitResults = self.hitTest(p, options: [SCNHitTestOption.searchMode: NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
-        hitResults = hitResults.filter({ nodeType($0.node) != .Back && nodeType($0.node) != .Grid})
-        SCNTransaction.animationDuration = 0.0
-        
-        var wallHit = hitOfType(hitResults, type: .Wall)
-
-        if mouseNode != wallHit?.node {
-            switch editMode {
-            case .resizing(.Wall, _), .moving(.Wall):
-                let filter = hitResults.filter({$0.node === mouseNode})
-                if filter.count > 0 {
-                    wallHit = filter[0]
-                } else {
-                    wallHit = nil
-                }
-            default:
-                ()
-            }
-        }
-        
-        let wall1: SCNNode?
-        if wallHit == nil {
-            if let fake = hitOfType(hitResults, type: .Fake) {
-                wallHit = fake
-                wall1 = fake.node.parent!
-            } else {
-                wall1 = nil
-            }
-        } else {
-            wall1 = wallHit!.node
-        }
-        if wallHit == nil {
-            return
-        }
-        
-        guard let wall = wall1 else { return }
-        
-        let currentMousePosition = wallHit!.localCoordinates
-        if lastMousePosition == nil {
-            lastMousePosition = currentMousePosition
-            return
-        }
-        // delta is the change in the mouse position.
-        let delta = CGPoint(x: currentMousePosition.x - lastMousePosition!.x,
-                            y: currentMousePosition.y - lastMousePosition!.y)
+        let shift = checkModifierFlags(theEvent, flag: .shift)
+        let scale: CGFloat = shift ? 80.0 : 20.0
+        let dx = theEvent.deltaX / scale
+        let dy = theEvent.deltaY / scale 
+        let delta = CGPoint(x: dx, y: dy)
         
         // Switch on editMode
         switch editMode {
         case .moving(.Picture):
             let dragged = selection.contains(mouseNode) ? selection : [mouseNode]
             for node in dragged {
-                let (dx, dy) = snapToGrid(d1: delta.x, d2: delta.y, snap: gridFactor)
+                let (dx, dy) = snapToGrid(d1: delta.x / 2.0, d2: -delta.y / 2.0, snap: gridFactor)
                 if dx == 0.0 && dy == 0.0 { break }
-                var newPosition = node.position
-                newPosition.x += dx
-                newPosition.y += dy
-                // The drag may have gone from one wall to another
-                if wall !== node.parent {
-                    changeParent(node, from: node.parent, to: wall)
-                    node.removeFromParentNode()
-                    wall.addChildNode(node)
-                    changePosition(node, from: node.position, to: currentMousePosition)
-                } else {
-                    changePosition(node, from: node.position, to: newPosition)
+                let translation = SCNVector3Make(dx, dy, 0.0)
+                if #available(OSX 10.13, *) {
+                    let hitResults = hitTest(theEvent.locationInWindow, options: [SCNHitTestOption.searchMode: SCNHitTestSearchMode.all.rawValue as NSNumber])
+                    let wallHit = hitOfType(hitResults, type: .Wall)
+                    if let wall = wallHit?.node, wall != node.parent {
+                        changeParent(node, from: node.parent, to: wall)
+                        node.removeFromParentNode()
+                        wall.addChildNode(node)
+                        changePosition(node, from: node.position, to: wallHit!.localCoordinates)
+                    } else {
+                        changePosition(node, delta: translation)
+                    }
                 }
                 if node === mouseNode {
                     showNodePosition(node)
@@ -274,8 +218,8 @@ extension ArtSceneView
             var size = mouseNode.size()!
             var dy: CGFloat = 0.0
             switch edge {
-            case .top: dy = delta.y
-            case .bottom: dy = -delta.y
+            case .top: dy = -delta.y
+            case .bottom: dy = delta.y
             default: ()
             }
             var dx: CGFloat = 0.0
@@ -292,7 +236,7 @@ extension ArtSceneView
             controller.status = "Picture Size: \(newsize)"
         case .resizing(.Image, _):
             var size = theImage(mouseNode).size()!
-            var dy = delta.y
+            var dy = -delta.y
             var dx = dy * size.width / size.height
             (dx, dy) = snapToGrid(d1: dx, d2: dy, snap: gridFactor)
             if dx == 0.0 && dy == 0.0 { break }
@@ -303,59 +247,50 @@ extension ArtSceneView
         case .moving(.Wall):
             if !wallsLocked {
                 SCNTransaction.animationDuration = 0.0
-                let shift = checkModifierFlags(theEvent, flag: .shift)
-                let scale: CGFloat = shift ? 80.0 : 20.0
-                var newPosition = newPositionFromAngle( mouseNode.position,
-                                                        deltaAway: theEvent.deltaY / scale,
-                                                        deltaRight: -theEvent.deltaX / scale,
-                                                        angle: camera().yRotation)
-                var dx = newPosition.x - mouseNode.position.x
-                var dz = newPosition.z - mouseNode.position.z
-                (dx, dz) = snapToGrid(d1: dx, d2: dz, snap: gridFactor)
+                let (dx, dz) = snapToGrid(d1: delta.x, d2: delta.y, snap: gridFactor)
                 if dx == 0.0 && dz == 0.0 { break }
-                newPosition.x = mouseNode.position.x + dx
-                newPosition.z = mouseNode.position.z + dz
-                changePosition(mouseNode, from: mouseNode.position, to: newPosition)
+                let translation = SCNVector3Make(dx, 0.0, dz)
+                changePosition(mouseNode, delta: translation)
                 controller.hideGrids(condition: 3.0)
-                let (_, location, _, distance) = wallInfo(wall, camera: camera())
+                let (_, location, _, distance) = wallInfo(mouseNode, camera: camera())
                 controller.status = "Wall Location: \(location); \(distance!) feet away"
             }
+        case .resizing(.Wall, .pivot):
+            var dy = delta.y / 10.0
+            (dy, _) = snapToGrid(d1: dy, d2: 0.0, snap: rotationFactor)
+            if (dy == 0) { return }
+            let newAngle = mouseNode.eulerAngles.y + dy
+            changePivot(mouseNode, from: mouseNode.yRotation, to: newAngle)
+            controller.hideGrids(condition: 3.0)
+            let (_, _, rotation, _) = wallInfo(mouseNode)
+            controller.status = "Wall Rotation: \(rotation)"
         case .resizing(.Wall, let edge):
             if !wallsLocked {
                 let geometry = thePlane(mouseNode)
                 SCNTransaction.animationDuration = 0.0
-                var factor: CGFloat = 1.0
                 var dy: CGFloat = 0.0
                 var dx: CGFloat = 0.0
                 switch edge {
-                case .top: dy = delta.y
-                case .bottom: dy = -delta.y
+                case .top: dy = -delta.y
+                case .bottom: dy = delta.y
                 case .right: dx = delta.x
-                case .left:
-                    factor = -1.0
-                    dx = -delta.x
+                case .left: dx = -delta.x
                 default: ()
                 }
-                (dx, dy) = snapToGrid(d1: dx, d2: dy, snap: 2.0 * gridFactor)
+                (dx, dy) = snapToGrid(d1: dx / 2.0, d2: dy / 2.0, snap: 2.0 * gridFactor)
                 if dx == 0.0 && dy == 0.0 { break }
                 let newSize = CGSize(width: geometry.width + dx, height: geometry.height + dy)
                 // The wall must enclose all the pictures
                 if newSize.width >= 0.5 && newSize.height >= 0.5
                     && wallContainsPictures(mouseNode, withNewSize: newSize)
                 {
-                    mouseNode.setSize(newSize)
                     changeSize(mouseNode, from: mouseNode.size()!, to: newSize)
-                    var newPosition = mouseNode.position
-                    let length = factor * dx / 2.0
-                    newPosition.x += length * cos(mouseNode.yRotation)
-                    newPosition.z += -length * sin(mouseNode.yRotation)
-                    newPosition.y += factor * dy / 2.0
-                    changePosition(mouseNode, from: mouseNode.position, to: newPosition)
+                    var translation = SCNVector3Make(dx / 2.0, dy / 2.0, 0.0)
+                    changePosition(mouseNode, delta: translation)
+                    translation.x = -dx / 2.0
+                    translation.y = -dy / 2.0
                     for child in mouseNode.childNodes.filter({ nodeType($0) == .Picture }) {
-                        newPosition = child.position
-                        newPosition.y -= dy / 2
-                        newPosition.x -= dx / 2.0
-                        changePosition(child, from: child.position, to: newPosition)
+                        changePosition(child, delta: translation)
                     }
                     controller.hideGrids(condition: 3.0)
                     let (newsize, _, _, _) = wallInfo(mouseNode)
@@ -364,7 +299,6 @@ extension ArtSceneView
             }
         default: ()
         }
-        lastMousePosition = currentMousePosition
     }
     
     /// Switches according to `editMode`.
@@ -381,7 +315,9 @@ extension ArtSceneView
             return
         }
         let p = theEvent.locationInWindow
-        var hitResults = self.hitTest(p, options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
+        var hitResults = hitTest(p, options: nil)
+            //, options: [SCNHitTestOption.firstFoundOnly:  searchMode:  NSNumber(value: 1),
+                                           //   SCNHitTestOption.ignoreHiddenNodes: NSNumber(value: true)])
         hitResults = hitResults.filter({ nodeType($0.node) != .Back && nodeType($0.node) != .Grid})
         guard hitResults.count > 0 else {
             return
@@ -435,8 +371,8 @@ extension ArtSceneView
                 // the wall while dragging it larger.
                 prepareForUndo(mouseNode)
                 inDrag = true
-                let fakeWall = controller.makeFakeWall()
-                mouseNode.addChildNode(fakeWall)
+//                let fakeWall = controller.makeFakeWall()
+//                mouseNode.addChildNode(fakeWall)
             }
         case .resizing(.Picture, _):
             prepareForUndo(mouseNode)
