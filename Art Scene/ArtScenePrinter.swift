@@ -73,24 +73,15 @@ class ArtScenePrinter: NSView {
         /// name of the picture
         func drawImage(_ name: NSString, node: SCNNode, rect: CGRect, attribs: [NSAttributedStringKey: AnyObject])
         {
-            let data = node.geometry?.firstMaterial?.diffuse.contents as! Data
-            if let image = NSImage(data: data) {
-                image.draw(in: rect, from: NSRect(origin: CGPoint.zero, size: image.size),
-                    operation: .copy, fraction: 1.0, respectFlipped: false, hints: nil)
-                
+            var newImage: NSImage!
+            let data = node.geometry?.firstMaterial?.diffuse.contents
+            if let data = data as? Data {
+                newImage = NSImage(data: data)
             } else {
-                let font = NSFont.systemFont(ofSize: 6.0 * bounds.height / frame.height)
-                let style = attribs[.paragraphStyle]! as! NSMutableParagraphStyle
-                style.maximumLineHeight = 7.0 * bounds.height / frame.height
-                var fileName: NSString = name.lastPathComponent as NSString
-                fileName = fileName.deletingPathExtension as NSString
-                var rect1 = rect
-                rect1.origin.y -= 1.0
-                drawRectString(fileName,
-                    inRect: rect1,
-                    withAttributes: [.font: font, .paragraphStyle: style])
+                newImage = data as! NSImage
             }
-
+            newImage.draw(in: rect, from: NSRect(origin: CGPoint.zero, size: newImage.size),
+                          operation: .copy, fraction: 1.0, respectFlipped: false, hints: nil)
         }
         
         /// Draw the picture's frame, image, and distances.

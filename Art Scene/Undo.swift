@@ -75,7 +75,10 @@ extension Undo
     {
         let undoer = document!.undoManager!
         undoer.registerUndo(withTarget: self, handler: { $0.changePosition(node, delta: SCNVector3Make(-delta.x, -delta.y, -delta.z))})
-        node.localTranslate(by: delta)
+        var transform = node.transform
+        let translation = SCNMatrix4MakeTranslation(delta.x, delta.y, delta.z)
+        transform = SCNMatrix4Mult(translation, transform)
+        node.transform = transform
     }
         
     func changeSize(_ node: SCNNode, from: CGSize, to: CGSize)

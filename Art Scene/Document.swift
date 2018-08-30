@@ -48,7 +48,13 @@ class Document: NSDocument {
         let scene = SCNScene()
         
         let camera = SCNCamera()
-        camera.fieldOfView = 60
+        if #available(OSX 10.13, *) {
+            camera.fieldOfView = 60
+        } else {
+            camera.xFov = 60
+            camera.yFov = 60
+        }
+        
         let cameraNode = SCNNode()
         cameraNode.camera = camera
         cameraNode.name = "Camera"

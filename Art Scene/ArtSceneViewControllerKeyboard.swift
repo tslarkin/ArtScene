@@ -55,15 +55,15 @@ extension ArtSceneViewController
         let jump: CGFloat = shift ? 1.0 / 48.0 : 1.0 / 6.0
         let rotation: CGFloat = 5.01 / r2d
         let keyChar = Int(keyString[keyString.startIndex])
-        SCNTransaction.animationDuration = 0.5
+        SCNTransaction.animationDuration = 0.0
         if checkModifierFlags(theEvent, flag: .option) {
             var angle = theNode.yRotation
             switch keyChar {
             case NSLeftArrowFunctionKey:
-                SCNTransaction.animationDuration = 0.2
+                SCNTransaction.animationDuration = 0.0
                 angle += rotation
             case NSRightArrowFunctionKey:
-                SCNTransaction.animationDuration = 0.2
+                SCNTransaction.animationDuration = 0.0
                 angle -= rotation
             default:
                 super.keyDown(with: theEvent)
@@ -198,15 +198,14 @@ extension ArtSceneViewController
     func doCameraEdit(_ theEvent: NSEvent) {
         guard let keyString = theEvent.charactersIgnoringModifiers?.utf16 else { return }
         let charCode = Int(keyString[keyString.startIndex])
-        let shift = checkModifierFlags(theEvent, flag: .shift)
+        let shift = checkModifierFlags(theEvent, flag: .shift, exclusive: false)
         let jump: CGFloat = shift ? 0.1 : 1.0
         let rotation: CGFloat = (shift ? 1.0 : 5.0) / r2d
         let cameraNode = artSceneView.camera()
         let omniLight = artSceneView.omniLight()
-        SCNTransaction.animationDuration = 0.5
-        let theFlags = theEvent.modifierFlags.intersection(.deviceIndependentFlagsMask).subtracting([.numericPad, .function])
-        let optionDown =  theFlags.contains(.option) && theFlags.subtracting([.option]).isEmpty
-        let commandDown =  theFlags.contains(.command) && theFlags.subtracting([.command]).isEmpty
+        SCNTransaction.animationDuration = 0.0
+        let optionDown =  checkModifierFlags(theEvent, flag: .option, exclusive: false)
+        let commandDown =  checkModifierFlags(theEvent, flag: .command)
         if commandDown {
             var up: CGFloat = 0.0
             switch charCode {
@@ -304,11 +303,22 @@ extension ArtSceneViewController
         let pad = theEvent.modifierFlags.contains(.numericPad)
         guard let keyString = theEvent.charactersIgnoringModifiers else { return }
         if keyString == "+" {
-            camera.fieldOfView += 2.0
+            if #available(OSX 10.13, *)
+            {
+                camera.fieldOfView += 2.0
+            } else {
+                camera.xFov += 2.0
+                camera.yFov += 2.0
+            }
             updateCameraStatus()
             return
         } else if keyString == "-" {
-            camera.fieldOfView -= 2.0
+            if #available(OSX 10.13, *) {
+                camera.fieldOfView -= 2.0
+            }else {
+                camera.xFov -= 2.0
+                camera.yFov -= 2.0
+            }
             updateCameraStatus()
             return
         } else if pad {

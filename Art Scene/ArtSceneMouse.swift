@@ -67,10 +67,14 @@ extension ArtSceneView
             mouseNode = nil
             editMode = .none
         }
-        
-        lastYLocation = p.y
-        
-        var hitResults = self.hitTest(p, options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
+                
+        var hitResults: [SCNHitTestResult]
+        if #available(OSX 10.13, *) {
+            hitResults = hitTest(theEvent.locationInWindow, options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
+        } else {
+            hitResults = hitTest(theEvent.locationInWindow, options: nil)
+        }
+
         hitResults = hitResults.filter({ nodeType($0.node) != .Back && nodeType($0.node) != .Grid})
         guard hitResults.count > 0  else /* no hits */ {
             if case EditMode.moving(_) = editMode {
@@ -104,9 +108,9 @@ extension ArtSceneView
             break
         }
         
-        if let wallHit = hitOfType(hitResults, type: .Wall) {
-            lastMousePosition = wallHit.localCoordinates
-        }
+//        if let wallHit = hitOfType(hitResults, type: .Wall) {
+//            lastMousePosition = wallHit.localCoordinates
+//        }
         if let type = nodeType(hit.node) {
             switch type {
             case .Left, .Right:
@@ -198,17 +202,20 @@ extension ArtSceneView
                 let (dx, dy) = snapToGrid(d1: delta.x / 2.0, d2: -delta.y / 2.0, snap: gridFactor)
                 if dx == 0.0 && dy == 0.0 { break }
                 let translation = SCNVector3Make(dx, dy, 0.0)
+                let hitResults: [SCNHitTestResult]
                 if #available(OSX 10.13, *) {
-                    let hitResults = hitTest(theEvent.locationInWindow, options: [SCNHitTestOption.searchMode: SCNHitTestSearchMode.all.rawValue as NSNumber])
-                    let wallHit = hitOfType(hitResults, type: .Wall)
-                    if let wall = wallHit?.node, wall != node.parent {
-                        changeParent(node, from: node.parent, to: wall)
-                        node.removeFromParentNode()
-                        wall.addChildNode(node)
-                        changePosition(node, from: node.position, to: wallHit!.localCoordinates)
-                    } else {
-                        changePosition(node, delta: translation)
-                    }
+                    hitResults = hitTest(theEvent.locationInWindow, options: [SCNHitTestOption.searchMode: SCNHitTestSearchMode.all.rawValue as NSNumber])
+                } else {
+                    hitResults = hitTest(theEvent.locationInWindow, options: nil)
+                }
+                let wallHit = hitOfType(hitResults, type: .Wall)
+                if let wall = wallHit?.node, wall != node.parent {
+                    changeParent(node, from: node.parent, to: wall)
+                    node.removeFromParentNode()
+                    wall.addChildNode(node)
+                    changePosition(node, from: node.position, to: wallHit!.localCoordinates)
+                } else {
+                    changePosition(node, delta: translation)
                 }
                 if node === mouseNode {
                     showNodePosition(node)
@@ -270,11 +277,13 @@ extension ArtSceneView
                 SCNTransaction.animationDuration = 0.0
                 var dy: CGFloat = 0.0
                 var dx: CGFloat = 0.0
+                var direction: CGFloat = 1.0
                 switch edge {
                 case .top: dy = -delta.y
                 case .bottom: dy = delta.y
                 case .right: dx = delta.x
                 case .left: dx = -delta.x
+                    direction = -1.0
                 default: ()
                 }
                 (dx, dy) = snapToGrid(d1: dx / 2.0, d2: dy / 2.0, snap: 2.0 * gridFactor)
@@ -285,6 +294,7 @@ extension ArtSceneView
                     && wallContainsPictures(mouseNode, withNewSize: newSize)
                 {
                     changeSize(mouseNode, from: mouseNode.size()!, to: newSize)
+                    dx *= direction
                     var translation = SCNVector3Make(dx / 2.0, dy / 2.0, 0.0)
                     changePosition(mouseNode, delta: translation)
                     translation.x = -dx / 2.0
@@ -367,12 +377,8 @@ extension ArtSceneView
             }
         case .resizing(.Wall, _):
             if !wallsLocked {
-                // Make a gigantic transparent wall coplanar with `mouseNode` so that the mouse can be off
-                // the wall while dragging it larger.
                 prepareForUndo(mouseNode)
                 inDrag = true
-//                let fakeWall = controller.makeFakeWall()
-//                mouseNode.addChildNode(fakeWall)
             }
         case .resizing(.Picture, _):
             prepareForUndo(mouseNode)
@@ -391,10 +397,6 @@ extension ArtSceneView
         }
         
         inDrag = false
-        // Remove the false wall.
-        if let child = mouseNode?.childNode(withName: "Fake", recursively: false) {
-            child.removeFromParentNode()
-        }
         mouseMoved(with: theEvent)
     }
     

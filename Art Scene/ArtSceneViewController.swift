@@ -98,18 +98,6 @@ class ArtSceneViewController: NSViewController, Undo {
         return artSceneView.scene!
     }
     
-    func makeFakeWall()->SCNNode {
-        let wall = SCNPlane(width: 100, height: 100)
-        let paint = SCNMaterial()
-        paint.diffuse.contents = NSColor.clear
-        paint.isDoubleSided = true
-        wall.materials = [paint]
-        let wallNode = SCNNode(geometry: wall)
-        wallNode.name = "Fake"
-        wallNode.castsShadow = false
-        return wallNode
-    }
-    
     func makeWall(at: SCNVector3)->SCNNode {
         let wall = SCNPlane(width: defaultWallSize.width, height: defaultWallSize.height)
         let paint = SCNMaterial()
@@ -396,7 +384,12 @@ class ArtSceneViewController: NSViewController, Undo {
         let rotX = (camera.eulerAngles.x * r2d).truncatingRemainder(dividingBy: 360.0)
         let rot2 = String(format: "%.0f°", rotX < 0 ? rotX + 360 : rotX)
         let rots = rotX == 0.0 ? rot1 : "(\(rot1), \(rot2))"
-       let fov = Int(camera.camera!.fieldOfView)
+        let fov: Int
+        if #available(OSX 10.13, *) {
+            fov = Int(camera.camera!.fieldOfView)
+        } else {
+            fov = Int(camera.camera!.xFov)
+        }
         status = "Camera: " + "(\(x), \(y), \(z)), \(rots), \(fov)"
     }
     

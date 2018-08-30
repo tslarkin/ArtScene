@@ -79,7 +79,12 @@ extension ArtSceneView {
     override func menu(for event: NSEvent) -> NSMenu? {
         controller.editMode = .none
         let p = self.convert(event.locationInWindow, from: nil)
-        let hitResults = self.hitTest(p, options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
+        var hitResults: [SCNHitTestResult]
+        if #available(OSX 10.13, *) {
+            hitResults = hitTest(p, options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
+        } else {
+            hitResults = hitTest(p, options: nil)
+        }
         let pictureHit = hitOfType(hitResults, type: .Picture)
         if let picture = pictureHit?.node {
             controller.theNode = picture

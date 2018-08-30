@@ -34,7 +34,6 @@ enum NodeType: String {
     case Picture
     case Image
     case Floor
-    case Fake
     case Back
     case Grid
 }

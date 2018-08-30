@@ -34,10 +34,7 @@ class ArtSceneView: SCNView, Undo {
     var selection: Array<SCNNode>  = []
     
     /// The last mouse position as determined during `mouseMoved`.
-    var lastMousePosition: SCNVector3? = nil
-    /// Used while dragging to rotate a wall. The mouse y coordinate is used since
-    /// the mouse may not be over a wall or picture during the drag.
-    var lastYLocation: CGFloat = 0.0
+//    var lastMousePosition: SCNVector3? = nil
     /// Accumulate deltas here.
     var deltaSum: CGPoint!
     
@@ -98,8 +95,6 @@ class ArtSceneView: SCNView, Undo {
     /// Register for drags of file names.
     override func awakeFromNib() {
         registerForDraggedTypes([NSPasteboard.PasteboardType(rawValue: "NSFilenamesPboardType")])
-        delegate = SceneRendererDelegate()
-        //acceptsTouchEvents = true
     }
     
     /// Returns the single scene camera node.
@@ -216,7 +211,13 @@ class ArtSceneView: SCNView, Undo {
     }
     
     override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation {
-        let hits = hitTest(sender.draggingLocation(), options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
+        let hits: [SCNHitTestResult]
+        if #available(OSX 10.13, *) {
+            hits = hitTest(sender.draggingLocation(), options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
+        } else {
+            hits = hitTest(sender.draggingLocation(), options: nil)
+        }
+        
         guard let wallHit = hitOfType(hits, type: .Wall) else {
             controller.status = "No Wall Under Mouse"
             return NSDragOperation()
@@ -251,7 +252,12 @@ class ArtSceneView: SCNView, Undo {
                 let path = plist[0] as! String
                 var point = sender.draggingLocation()
                 point = convert(point, from: nil)
-                let hitResults = self.hitTest(point, options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
+                let hitResults: [SCNHitTestResult]
+                if #available(OSX 10.13, *) {
+                    hitResults = hitTest(point, options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
+                } else {
+                    hitResults = hitTest(point, options: nil)
+                }
                 if hitResults.count > 0 {
                     if let pictureHit = hitOfType(hitResults, type: .Picture) {
                         result = true
