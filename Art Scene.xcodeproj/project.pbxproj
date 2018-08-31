@@ -31,7 +31,6 @@
 		127CF8D21BD1823300F571D9 /* ArtSceneViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127CF8CF1BD1823300F571D9 /* ArtSceneViewController.swift */; };
 		127CF8D31BD1823300F571D9 /* Framer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127CF8D01BD1823300F571D9 /* Framer.swift */; };
 		129BCF301BE29D5200F6B8F3 /* rotate-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 129BCF2F1BE29D5200F6B8F3 /* rotate-icon.png */; };
-		12E95BB221246D1500F025B6 /* Back.png in Resources */ = {isa = PBXBuildFile; fileRef = 12E95BB121246D1500F025B6 /* Back.png */; };
 		12E95BB42126A68900F025B6 /* SCNNodeExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB32126A68900F025B6 /* SCNNodeExtension.swift */; };
 		12E95BB6212825B100F025B6 /* ArtSceneMouse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB5212825B100F025B6 /* ArtSceneMouse.swift */; };
 		12E95BB82128269900F025B6 /* ArtSceneViewControllerKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */; };
@@ -64,7 +63,6 @@
 		127CF8CF1BD1823300F571D9 /* ArtSceneViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArtSceneViewController.swift; sourceTree = "<group>"; };
 		127CF8D01BD1823300F571D9 /* Framer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Framer.swift; sourceTree = "<group>"; };
 		129BCF2F1BE29D5200F6B8F3 /* rotate-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "rotate-icon.png"; sourceTree = "<group>"; };
-		12E95BB121246D1500F025B6 /* Back.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Back.png; sourceTree = "<group>"; };
 		12E95BB32126A68900F025B6 /* SCNNodeExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCNNodeExtension.swift; sourceTree = "<group>"; };
 		12E95BB5212825B100F025B6 /* ArtSceneMouse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtSceneMouse.swift; sourceTree = "<group>"; };
 		12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtSceneViewControllerKeyboard.swift; sourceTree = "<group>"; };
@@ -123,7 +121,6 @@
 				127CF8B91BD1810A00F571D9 /* MainMenu.xib */,
 				127CF8BC1BD1810A00F571D9 /* Info.plist */,
 				127CF8C21BD181FA00F571D9 /* ActionMenu.xib */,
-				12E95BB121246D1500F025B6 /* Back.png */,
 				129BCF2F1BE29D5200F6B8F3 /* rotate-icon.png */,
 				1232CBCE212328A4006F9A64 /* 4way-arrow.png */,
 				127CF8C31BD181FA00F571D9 /* aligntop.png */,
@@ -209,7 +206,6 @@
 				127CF8CB1BD181FA00F571D9 /* alignvcenter.png in Resources */,
 				127CF8BB1BD1810A00F571D9 /* MainMenu.xib in Resources */,
 				1232CBCF212328A4006F9A64 /* 4way-arrow.png in Resources */,
-				12E95BB221246D1500F025B6 /* Back.png in Resources */,
 				127CF8CA1BD181FA00F571D9 /* alignhcenter.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

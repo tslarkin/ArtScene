@@ -109,13 +109,19 @@ class ArtSceneViewController: NSViewController, Undo {
         wallNode.position = at
         wallNode.position.y = defaultWallSize.height / 2.0
         wallNode.castsShadow = true
-        let image = NSImage(named: ("Back.png" as NSString) as NSImage.Name)!
-        let ratio = image.size.height / image.size.width
-        image.size.width = 3.0
-        image.size.height = image.size.width * ratio
-        let back = makeImage(image.copy() as! NSImage)
-        back.name = "Back"
-        back.position = SCNVector3(x: 0.0, y: 0.0, z: -0.1)
+        
+        let font = NSFont(name: "Lucida Grande", size: 0.75)!
+        let attributes = [NSAttributedStringKey.font: font]
+        let string = NSAttributedString(string: "Back", attributes: attributes)
+        let size = string.size()
+        let text = SCNText(string: string, extrusionDepth: 0.0)
+        let material = SCNMaterial()
+        material.diffuse.contents = NSColor.black
+        text.materials = [material]
+        let back = SCNNode(geometry: text)
+        back.position = SCNVector3Make(size.width / 2.0, -size.height / 2.0, -0.1)
+        back.yRotation = .pi
+        wallNode.yRotation = artSceneView.camera().yRotation
         wallNode.addChildNode(back)
         return wallNode
     }

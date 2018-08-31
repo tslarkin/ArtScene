@@ -350,7 +350,7 @@ func isPrime(_ num: Int)->Bool {
     return factors.count == 1 && factors[0].power == 1
 }
 
-let snapToGridP = true
+var snapToGridP = true
 let gridFactor:CGFloat = 48.0
 let rotationFactor: CGFloat = 1.0 / (.pi / 180.0 * 5)
 

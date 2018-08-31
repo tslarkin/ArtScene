@@ -46,7 +46,7 @@ class Document: NSDocument {
     
     func createDefaultScene() -> SCNScene {
         let scene = SCNScene()
-        
+        sceneView.scene = scene
         let camera = SCNCamera()
         if #available(OSX 10.13, *) {
             camera.fieldOfView = 60
@@ -148,8 +148,9 @@ class Document: NSDocument {
 
         if scene == nil {
             scene = createDefaultScene()
+        } else {
+            sceneView.scene = scene
         }
-        sceneView.scene = scene
         if (scene?.rootNode.childNode(withName: "Lock", recursively: false)) != nil {
             sceneView.controller.wallsLocked = true
         }

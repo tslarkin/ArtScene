@@ -263,7 +263,7 @@ extension ArtSceneView
                 controller.status = "Wall Location: \(location); \(distance!) feet away"
             }
         case .resizing(.Wall, .pivot):
-            var dy = delta.y / 10.0
+            var dy = delta.y / 2.0
             (dy, _) = snapToGrid(d1: dy, d2: 0.0, snap: rotationFactor)
             if (dy == 0) { return }
             let newAngle = mouseNode.eulerAngles.y + dy
