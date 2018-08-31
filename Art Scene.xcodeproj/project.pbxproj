@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		1200F71D1BD690FE003E4F24 /* Gestures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1200F71C1BD690FE003E4F24 /* Gestures.swift */; };
 		120C61461BF92F3E00D1F49D /* SCNVector Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120C61451BF92F3E00D1F49D /* SCNVector Extensions.swift */; };
+		120CF8322139321700ED0546 /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 120CF8312139321700ED0546 /* Sparkle.framework */; };
+		120CF834213937E500ED0546 /* Sparkle.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 120CF8312139321700ED0546 /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		120CF83821393B0D00ED0546 /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = 120CF83721393B0D00ED0546 /* dsa_pub.pem */; };
+		120CF83A2139500F00ED0546 /* Notes.txt in Resources */ = {isa = PBXBuildFile; fileRef = 120CF8392139500F00ED0546 /* Notes.txt */; };
 		1232CBCD2121FA00006F9A64 /* NSImage+File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1232CBCC2121FA00006F9A64 /* NSImage+File.swift */; };
 		1232CBCF212328A4006F9A64 /* 4way-arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 1232CBCE212328A4006F9A64 /* 4way-arrow.png */; };
 		1254A8001BD82B100056A0C8 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1254A7FF1BD82B100056A0C8 /* Utilities.swift */; };
@@ -36,9 +40,25 @@
 		12E95BB82128269900F025B6 /* ArtSceneViewControllerKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		120CF833213937CE00ED0546 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				120CF834213937E500ED0546 /* Sparkle.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		1200F71C1BD690FE003E4F24 /* Gestures.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Gestures.swift; sourceTree = "<group>"; };
 		120C61451BF92F3E00D1F49D /* SCNVector Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SCNVector Extensions.swift"; sourceTree = "<group>"; };
+		120CF8312139321700ED0546 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Sparkle.framework; sourceTree = "<group>"; };
+		120CF83721393B0D00ED0546 /* dsa_pub.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dsa_pub.pem; sourceTree = "<group>"; };
+		120CF8392139500F00ED0546 /* Notes.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = Notes.txt; path = "Art Scene/Notes.txt"; sourceTree = SOURCE_ROOT; };
 		1232CBCC2121FA00006F9A64 /* NSImage+File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSImage+File.swift"; sourceTree = "<group>"; };
 		1232CBCE212328A4006F9A64 /* 4way-arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "4way-arrow.png"; sourceTree = "<group>"; };
 		1254A7FF1BD82B100056A0C8 /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Utilities.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -74,12 +94,22 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				120CF8322139321700ED0546 /* Sparkle.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		120CF83621393AA400ED0546 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				120CF83721393B0D00ED0546 /* dsa_pub.pem */,
+				120CF8392139500F00ED0546 /* Notes.txt */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		127CF8A41BD1810900F571D9 = {
 			isa = PBXGroup;
 			children = (
@@ -99,6 +129,7 @@
 		127CF8AF1BD1810A00F571D9 /* Art Scene */ = {
 			isa = PBXGroup;
 			children = (
+				120CF83621393AA400ED0546 /* Resources */,
 				12E95BBD212E308000F025B6 /* Art Scene.entitlements */,
 				125A067A1BE909F200D145AC /* Undo.swift */,
 				120C61451BF92F3E00D1F49D /* SCNVector Extensions.swift */,
@@ -128,6 +159,7 @@
 				127CF8C51BD181FA00F571D9 /* alignhcenter.png */,
 				127CF8C61BD181FA00F571D9 /* alignvcenter.png */,
 				1232CBCC2121FA00006F9A64 /* NSImage+File.swift */,
+				120CF8312139321700ED0546 /* Sparkle.framework */,
 			);
 			path = "Art Scene";
 			sourceTree = "<group>";
@@ -142,6 +174,7 @@
 				127CF8A91BD1810A00F571D9 /* Sources */,
 				127CF8AA1BD1810A00F571D9 /* Frameworks */,
 				127CF8AB1BD1810A00F571D9 /* Resources */,
+				120CF833213937CE00ED0546 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -201,10 +234,12 @@
 				127CF8B61BD1810A00F571D9 /* Document.xib in Resources */,
 				129BCF301BE29D5200F6B8F3 /* rotate-icon.png in Resources */,
 				127CF8C71BD181FA00F571D9 /* ActionMenu.xib in Resources */,
+				120CF83A2139500F00ED0546 /* Notes.txt in Resources */,
 				127CF8C81BD181FA00F571D9 /* aligntop.png in Resources */,
 				127CF8C91BD181FA00F571D9 /* alignbottom.png in Resources */,
 				127CF8CB1BD181FA00F571D9 /* alignvcenter.png in Resources */,
 				127CF8BB1BD1810A00F571D9 /* MainMenu.xib in Resources */,
+				120CF83821393B0D00ED0546 /* dsa_pub.pem in Resources */,
 				1232CBCF212328A4006F9A64 /* 4way-arrow.png in Resources */,
 				127CF8CA1BD181FA00F571D9 /* alignhcenter.png in Resources */,
 			);
@@ -368,8 +403,12 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = P5AAYT7AT4;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Art\\ Scene",
+				);
 				INFOPLIST_FILE = "Art Scene/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.abstracttools.Art-Scene";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -387,8 +426,12 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = P5AAYT7AT4;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Art\\ Scene",
+				);
 				INFOPLIST_FILE = "Art Scene/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.abstracttools.Art-Scene";
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -76,6 +76,7 @@ extension ArtSceneView
         }
 
         hitResults = hitResults.filter({ nodeType($0.node) != .Back && nodeType($0.node) != .Grid})
+        hitResults = hitResults.filter({ nodeType($0.node) != .Picture || !theFrame($0.node).isHidden})
         guard hitResults.count > 0  else /* no hits */ {
             if case EditMode.moving(_) = editMode {
                 NSCursor.arrow.set()
