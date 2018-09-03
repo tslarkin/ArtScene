@@ -111,6 +111,7 @@ extension ArtSceneViewController
         default:
             return
         }
+        if size.width < minimumPictureSize || size.height < minimumPictureSize { return }
         changePictureSize(theNode, from: theNode.size()!, to: size)
         let (newsize, _, _, _) = pictureInfo(theNode)
         status = "Picture: \(newsize)"
@@ -134,6 +135,7 @@ extension ArtSceneViewController
             return
         }
         size.width = size.height * ratio
+        if size.height < minimumImageSize || size.width < minimumImageSize { return }
         changeImageSize(theNode!, from: oldSize, to: size)
         let (newsize, name) = imageInfo(theNode!)
         status = "\(name): \(newsize)"

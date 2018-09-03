@@ -238,13 +238,14 @@ extension ArtSceneView
             }
             (dx, dy) = snapToGrid(d1: dx, d2: dy, snap: gridFactor)
             if dx == 0.0 && dy == 0.0 { break }
-            size = CGSize(width: size.width + dx, height: size.height + dy)
+            size = CGSize(width: max(size.width + dx, 1.0 / 3.0), height: max(size.height + dy, 1.0 / 3.0)) // minimum size for picture is 4"
             controller.doChangePictureSize(mouseNode, from: mouseNode.size()!, to: size)
             let (newsize, _, _, _) = pictureInfo(mouseNode)
             controller.status = "Picture Size: \(newsize)"
         case .resizing(.Image, _):
             var size = theImage(mouseNode).size()!
-            var dy = -delta.y
+            var dy = shift ? -delta.y / 4.0 : -delta.y
+            if dy + size.height < minimumImageSize { break }
             var dx = dy * size.width / size.height
             (dx, dy) = snapToGrid(d1: dx, d2: dy, snap: gridFactor)
             if dx == 0.0 && dy == 0.0 { break }

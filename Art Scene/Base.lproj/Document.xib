@@ -19,15 +19,15 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowCollectionBehavior key="collectionBehavior" fullScreenPrimary="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="453" y="317" width="507" height="413"/>
+            <rect key="contentRect" x="453" y="317" width="1143" height="614"/>
             <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
             <value key="minSize" type="size" width="94" height="86"/>
             <view key="contentView" id="gIp-Ho-8D9">
-                <rect key="frame" x="0.0" y="0.0" width="507" height="413"/>
+                <rect key="frame" x="0.0" y="0.0" width="1143" height="614"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <sceneView translatesAutoresizingMaskIntoConstraints="NO" id="aAp-gS-prI" customClass="ArtSceneView" customModule="Art_Scene" customModuleProvider="target">
-                        <rect key="frame" x="0.0" y="0.0" width="507" height="380"/>
+                        <rect key="frame" x="0.0" y="0.0" width="1143" height="581"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <connections>
                             <outlet property="controller" destination="bVB-bI-cVA" id="k5d-3j-SbI"/>
@@ -35,7 +35,7 @@
                         </connections>
                     </sceneView>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ekZ-od-wn4">
-                        <rect key="frame" x="0.0" y="380" width="509" height="33"/>
+                        <rect key="frame" x="0.0" y="581" width="1145" height="33"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="33" id="KIc-tt-JVU"/>
                         </constraints>
@@ -68,7 +68,7 @@
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-x8E"/>
             </connections>
-            <point key="canvasLocation" x="236" y="258"/>
+            <point key="canvasLocation" x="116.5" y="174"/>
         </window>
         <customObject id="bVB-bI-cVA" userLabel="View Controller" customClass="ArtSceneViewController" customModule="Art_Scene" customModuleProvider="target">
             <connections>

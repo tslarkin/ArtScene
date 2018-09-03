@@ -38,6 +38,7 @@
 		12E95BB42126A68900F025B6 /* SCNNodeExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB32126A68900F025B6 /* SCNNodeExtension.swift */; };
 		12E95BB6212825B100F025B6 /* ArtSceneMouse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB5212825B100F025B6 /* ArtSceneMouse.swift */; };
 		12E95BB82128269900F025B6 /* ArtSceneViewControllerKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */; };
+		12EBCA6F213C966B00881DC7 /* ReleaseNotes.html in Resources */ = {isa = PBXBuildFile; fileRef = 12EBCA6E213C966B00881DC7 /* ReleaseNotes.html */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -87,6 +88,7 @@
 		12E95BB5212825B100F025B6 /* ArtSceneMouse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtSceneMouse.swift; sourceTree = "<group>"; };
 		12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtSceneViewControllerKeyboard.swift; sourceTree = "<group>"; };
 		12E95BBD212E308000F025B6 /* Art Scene.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Art Scene.entitlements"; sourceTree = "<group>"; };
+		12EBCA6E213C966B00881DC7 /* ReleaseNotes.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ReleaseNotes.html; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -145,6 +147,7 @@
 				1200F71C1BD690FE003E4F24 /* Gestures.swift */,
 				127CF8D01BD1823300F571D9 /* Framer.swift */,
 				1254A7FF1BD82B100056A0C8 /* Utilities.swift */,
+				12EBCA6E213C966B00881DC7 /* ReleaseNotes.html */,
 				1254A8031BDA9C1F0056A0C8 /* Print.swift */,
 				127CF8B41BD1810A00F571D9 /* Document.xib */,
 				1254A8011BD96EE40056A0C8 /* TextFieldExtension.swift */,
@@ -236,6 +239,7 @@
 				127CF8C71BD181FA00F571D9 /* ActionMenu.xib in Resources */,
 				120CF83A2139500F00ED0546 /* Notes.txt in Resources */,
 				127CF8C81BD181FA00F571D9 /* aligntop.png in Resources */,
+				12EBCA6F213C966B00881DC7 /* ReleaseNotes.html in Resources */,
 				127CF8C91BD181FA00F571D9 /* alignbottom.png in Resources */,
 				127CF8CB1BD181FA00F571D9 /* alignvcenter.png in Resources */,
 				127CF8BB1BD1810A00F571D9 /* MainMenu.xib in Resources */,

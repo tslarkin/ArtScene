@@ -9,6 +9,8 @@
 import Cocoa
 import SceneKit
 
+let minimumPictureSize: CGFloat = 1.0 / 3.0
+let minimumImageSize: CGFloat = 1.0 / 6.0
 enum Units {
     case inches
     case feet
