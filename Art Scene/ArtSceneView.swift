@@ -84,6 +84,7 @@ class ArtSceneView: SCNView, Undo {
         image.unlockFocus()
         resizeCursor = NSCursor.init(image: image, hotSpot: NSPoint(x: 12, y: 12))
         
+        
         super.init(coder: coder)
     }
     
@@ -141,7 +142,7 @@ class ArtSceneView: SCNView, Undo {
     func getInfo(_ node: SCNNode, option: Bool = false, hitPosition: SCNVector3? = nil) {
         var vNode = node
         if !option && nodeType(node) == .Image {
-            vNode = picture(node)!
+            vNode = pictureOf(node)!
         }
         guard let type = nodeType(vNode) else { return }
         switch type {

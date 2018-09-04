@@ -47,6 +47,7 @@ class Document: NSDocument {
     func createDefaultScene() -> SCNScene {
         let scene = SCNScene()
         sceneView.scene = scene
+        scene.background.contents = NSColor.lightGray
         let camera = SCNCamera()
         if #available(OSX 10.13, *) {
             camera.fieldOfView = 60
@@ -59,8 +60,8 @@ class Document: NSDocument {
         cameraNode.camera = camera
         cameraNode.name = "Camera"
         scene.rootNode.addChildNode(cameraNode)
-        
-        cameraNode.position = SCNVector3(x: 0, y: 6, z: 15)
+        cameraNode.position = SCNVector3(x: 0, y: 6, z: 0)
+        sceneView.pointOfView = cameraNode
         
         // create and add a light to the scene
         let light = SCNLight()
@@ -83,10 +84,9 @@ class Document: NSDocument {
         
         let gridNode = makeCheckerBoardFloor()
         scene.rootNode.addChildNode(gridNode)
-        let floorNode = makeGrayFloor()
-        scene.rootNode.addChildNode(floorNode)
-        
-        let wallNode = sceneView.controller.makeWall(at: SCNVector3(x: 0.0, y: 6.0, z: 0.0))
+        let floor = makeGrayFloor()
+        scene.rootNode.addChildNode(floor)
+        let wallNode = sceneView.controller.makeWall(at: SCNVector3(x: 0.0, y: 6.0, z: -15.0))
         scene.rootNode.addChildNode(wallNode)
         
         return scene
@@ -139,6 +139,28 @@ class Document: NSDocument {
         floor.reflectivity = 0.2
         floorMaterial.transparency = 1.0
         return floorNode
+    }
+    
+    func makeImageFloor(_ image: NSImage)->SCNNode
+    {
+        let floor = SCNFloor()
+        if #available(OSX 10.12, *) {
+            floor.width = 100
+            floor.length = 100
+        }
+        let floorNode = SCNNode(geometry: floor)
+        floorNode.position = SCNVector3(x: 0, y: 0, z: 0)
+        floorNode.name = "Floor"
+        let floorMaterial = SCNMaterial()
+        floorMaterial.diffuse.contentsTransform = SCNMatrix4MakeScale(6, 0, 6)
+        floorNode.geometry?.firstMaterial?.diffuse.wrapS = SCNWrapMode.repeat
+        floorNode.geometry?.firstMaterial?.diffuse.wrapT = SCNWrapMode.repeat
+        floorMaterial.diffuse.contents = image
+        floor.materials = [floorMaterial]
+        floor.reflectivity = 0.2
+        floorMaterial.transparency = 1.0
+        return floorNode
+
     }
 
     override func windowControllerDidLoadNib(_ aController: NSWindowController) {

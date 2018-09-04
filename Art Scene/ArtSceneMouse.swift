@@ -87,7 +87,7 @@ extension ArtSceneView
         let hit = hitResults[0]
         switch editMode {
         case .getInfo:
-            if let pic = picture(hit.node), theFrame(pic).isHidden {
+            if let pic = pictureOf(hit.node), theFrame(pic).isHidden {
                 if nodeType(hit.node) != .Image {
                     mouseNode = pic.parent
                 }
@@ -96,7 +96,7 @@ extension ArtSceneView
             }
             return
         case .selecting:
-            if let picture = picture(hit.node) {
+            if let picture = pictureOf(hit.node) {
                 mouseNode = picture
             } else {
                 mouseNode = nil
@@ -128,7 +128,7 @@ extension ArtSceneView
                 if optionDown {
                     editMode = .resizing(.Image, .none)
                     resizeCursor.set()
-                    mouseNode = picture(hit.node.parent!)
+                    mouseNode = pictureOf(hit.node.parent!)
                 } else {
                     fallthrough
                 }
@@ -136,7 +136,7 @@ extension ArtSceneView
                 if case EditMode.getInfo = editMode {
                     mouseNode = hit.node
                 } else {
-                    mouseNode = picture(hit.node)
+                    mouseNode = pictureOf(hit.node)
                     editMode = .moving(.Picture)
                     NSCursor.openHand.set()
                 }
@@ -341,7 +341,7 @@ extension ArtSceneView
         switch editMode {
         case .getInfo:
             if nodeType(mouseNode) == .Matt {
-                getInfo(picture(mouseNode)!)
+                getInfo(pictureOf(mouseNode)!)
             } else {
                 let option = checkModifierFlags(theEvent, flag: .option)
                 getInfo(mouseNode, option: option, hitPosition: hitResults[0].worldCoordinates)

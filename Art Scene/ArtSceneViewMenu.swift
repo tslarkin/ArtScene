@@ -85,8 +85,17 @@ extension ArtSceneView {
         } else {
             hitResults = hitTest(p, options: nil)
         }
+        hitResults = hitResults.filter({ nodeType($0.node) != .Back && nodeType($0.node) != .Grid})
+        hitResults = hitResults.filter({ nodeType($0.node) != .Picture || !theFrame($0.node).isHidden})
+        let imageHit = hitOfType(hitResults, type: .Image)
         let pictureHit = hitOfType(hitResults, type: .Picture)
-        if let picture = pictureHit?.node {
+        var picture: SCNNode? = nil
+        if imageHit != nil {
+            picture = pictureOf(imageHit!.node)
+        } else if pictureHit != nil {
+            picture = pictureHit!.node
+        }
+        if let picture = picture {
             controller.theNode = picture
             if selection.contains(picture) && selection.count > 1 {
                 return super.menu(for: event)

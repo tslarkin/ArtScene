@@ -39,6 +39,8 @@
 		12E95BB6212825B100F025B6 /* ArtSceneMouse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB5212825B100F025B6 /* ArtSceneMouse.swift */; };
 		12E95BB82128269900F025B6 /* ArtSceneViewControllerKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */; };
 		12EBCA6F213C966B00881DC7 /* ReleaseNotes.html in Resources */ = {isa = PBXBuildFile; fileRef = 12EBCA6E213C966B00881DC7 /* ReleaseNotes.html */; };
+		12EBCA76213DC94500881DC7 /* floor.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 12EBCA75213DC94500881DC7 /* floor.jpg */; };
+		12EBCA78213EA13F00881DC7 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 12EBCA77213EA13F00881DC7 /* icon.icns */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -89,6 +91,8 @@
 		12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtSceneViewControllerKeyboard.swift; sourceTree = "<group>"; };
 		12E95BBD212E308000F025B6 /* Art Scene.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Art Scene.entitlements"; sourceTree = "<group>"; };
 		12EBCA6E213C966B00881DC7 /* ReleaseNotes.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ReleaseNotes.html; sourceTree = "<group>"; };
+		12EBCA75213DC94500881DC7 /* floor.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = floor.jpg; sourceTree = "<group>"; };
+		12EBCA77213EA13F00881DC7 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,15 +107,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		120CF83621393AA400ED0546 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				120CF83721393B0D00ED0546 /* dsa_pub.pem */,
-				120CF8392139500F00ED0546 /* Notes.txt */,
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
 		127CF8A41BD1810900F571D9 = {
 			isa = PBXGroup;
 			children = (
@@ -131,11 +126,12 @@
 		127CF8AF1BD1810A00F571D9 /* Art Scene */ = {
 			isa = PBXGroup;
 			children = (
-				120CF83621393AA400ED0546 /* Resources */,
+				12EBCA74213DB98D00881DC7 /* Images */,
+				12EBCA73213DB96D00881DC7 /* Nibs */,
+				12EBCA72213DB93000881DC7 /* Resources */,
 				12E95BBD212E308000F025B6 /* Art Scene.entitlements */,
 				125A067A1BE909F200D145AC /* Undo.swift */,
-				120C61451BF92F3E00D1F49D /* SCNVector Extensions.swift */,
-				12E95BB32126A68900F025B6 /* SCNNodeExtension.swift */,
+				1254A7FF1BD82B100056A0C8 /* Utilities.swift */,
 				127CF8B01BD1810A00F571D9 /* AppDelegate.swift */,
 				127CF8B21BD1810A00F571D9 /* Document.swift */,
 				127CF8CC1BD1821000F571D9 /* ArtSceneView.swift */,
@@ -146,25 +142,51 @@
 				12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */,
 				1200F71C1BD690FE003E4F24 /* Gestures.swift */,
 				127CF8D01BD1823300F571D9 /* Framer.swift */,
-				1254A7FF1BD82B100056A0C8 /* Utilities.swift */,
-				12EBCA6E213C966B00881DC7 /* ReleaseNotes.html */,
 				1254A8031BDA9C1F0056A0C8 /* Print.swift */,
-				127CF8B41BD1810A00F571D9 /* Document.xib */,
+				120C61451BF92F3E00D1F49D /* SCNVector Extensions.swift */,
+				12E95BB32126A68900F025B6 /* SCNNodeExtension.swift */,
 				1254A8011BD96EE40056A0C8 /* TextFieldExtension.swift */,
+				1232CBCC2121FA00006F9A64 /* NSImage+File.swift */,
 				127CF8B71BD1810A00F571D9 /* Assets.xcassets */,
-				127CF8B91BD1810A00F571D9 /* MainMenu.xib */,
+				120CF8312139321700ED0546 /* Sparkle.framework */,
+			);
+			path = "Art Scene";
+			sourceTree = "<group>";
+		};
+		12EBCA72213DB93000881DC7 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
 				127CF8BC1BD1810A00F571D9 /* Info.plist */,
+				120CF83721393B0D00ED0546 /* dsa_pub.pem */,
+				120CF8392139500F00ED0546 /* Notes.txt */,
+				12EBCA6E213C966B00881DC7 /* ReleaseNotes.html */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		12EBCA73213DB96D00881DC7 /* Nibs */ = {
+			isa = PBXGroup;
+			children = (
+				127CF8B41BD1810A00F571D9 /* Document.xib */,
+				127CF8B91BD1810A00F571D9 /* MainMenu.xib */,
 				127CF8C21BD181FA00F571D9 /* ActionMenu.xib */,
+			);
+			name = Nibs;
+			sourceTree = "<group>";
+		};
+		12EBCA74213DB98D00881DC7 /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				12EBCA77213EA13F00881DC7 /* icon.icns */,
+				12EBCA75213DC94500881DC7 /* floor.jpg */,
 				129BCF2F1BE29D5200F6B8F3 /* rotate-icon.png */,
 				1232CBCE212328A4006F9A64 /* 4way-arrow.png */,
 				127CF8C31BD181FA00F571D9 /* aligntop.png */,
 				127CF8C41BD181FA00F571D9 /* alignbottom.png */,
 				127CF8C51BD181FA00F571D9 /* alignhcenter.png */,
 				127CF8C61BD181FA00F571D9 /* alignvcenter.png */,
-				1232CBCC2121FA00006F9A64 /* NSImage+File.swift */,
-				120CF8312139321700ED0546 /* Sparkle.framework */,
 			);
-			path = "Art Scene";
+			path = Images;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -238,9 +260,11 @@
 				129BCF301BE29D5200F6B8F3 /* rotate-icon.png in Resources */,
 				127CF8C71BD181FA00F571D9 /* ActionMenu.xib in Resources */,
 				120CF83A2139500F00ED0546 /* Notes.txt in Resources */,
+				12EBCA78213EA13F00881DC7 /* icon.icns in Resources */,
 				127CF8C81BD181FA00F571D9 /* aligntop.png in Resources */,
 				12EBCA6F213C966B00881DC7 /* ReleaseNotes.html in Resources */,
 				127CF8C91BD181FA00F571D9 /* alignbottom.png in Resources */,
+				12EBCA76213DC94500881DC7 /* floor.jpg in Resources */,
 				127CF8CB1BD181FA00F571D9 /* alignvcenter.png in Resources */,
 				127CF8BB1BD1810A00F571D9 /* MainMenu.xib in Resources */,
 				120CF83821393B0D00ED0546 /* dsa_pub.pem in Resources */,

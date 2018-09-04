@@ -84,7 +84,7 @@ func parent(_ node: SCNNode, ofType type: NodeType) -> SCNNode?
     return tmp
 }
 
-func picture(_ node: SCNNode)->SCNNode? {
+func pictureOf(_ node: SCNNode)->SCNNode? {
     return parent(node, ofType: .Picture)
 }
 
@@ -220,7 +220,7 @@ func pictureInfo(_ node: SCNNode, camera: SCNNode? = nil, hitPosition: SCNVector
 func imageInfo(_ node: SCNNode) -> (size: String, name: String) {
     // The node might be the picture or the image itself
     let type = nodeType(node)
-    let plane = type == .Image ? thePlane(picture(node)!) : thePlane(node)
+    let plane = type == .Image ? thePlane(pictureOf(node)!) : thePlane(node)
     let s = plane.name! as NSString
     let name = s.lastPathComponent as String? ?? "None"
     let size = type == .Image ? node.size()! : theImage(node).size()!
@@ -384,4 +384,42 @@ func snapToGrid(_ angle: CGFloat)->CGFloat{
     var degrees = angle * r2d
     degrees = round(degrees / rotationFactor) * rotationFactor
     return degrees / r2d
+}
+
+func makeGrid(size: CGSize, spacing: CGFloat)->SCNNode
+{
+    let hCount: Int = Int(ceil(size.height / spacing)) // number of horizontal lines
+    let vCount: Int = Int(ceil(size.width / spacing)) + 1 // number of vertical lines
+    let indices: [Int32] = (0...((hCount + vCount) * 2)).map({ Int32($0) })
+    var vectors: [SCNVector3] = []
+    var y = -size.height / 2.0
+    for _ in 0...hCount {
+        let vector1 = SCNVector3Make(-size.width / 2.0, y, 0.0)
+        let vector2 = SCNVector3Make(size.width / 2.0, y, 0.0)
+        vectors.append(vector1)
+        vectors.append(vector2)
+        y += spacing
+    }
+    var x = -size.width / 2.0
+    for _ in 0...vCount {
+        let vector1 = SCNVector3Make(x, -size.height / 2.0, 0.0)
+        let vector2 = SCNVector3Make(x, size.height / 2.0, 0.0)
+        vectors.append(vector1)
+        vectors.append(vector2)
+        x += spacing
+    }
+    
+    let source = SCNGeometrySource(vertices: vectors)
+    let element = SCNGeometryElement(indices: indices, primitiveType: .line)
+    
+    let shape = SCNGeometry(sources: [source], elements: [element])
+    let gridColor = NSColor.black //(calibratedRed: 0.8, green: 0.8, blue: 1.0, alpha: 1.0)
+    let material = SCNMaterial()
+    material.diffuse.contents = gridColor
+    shape.materials = [material]
+    let grid = SCNNode(geometry: shape)
+    
+    grid.name = "Grid"
+    grid.position = SCNVector3Make(0.0, 0.0, 0.001)
+    return grid
 }

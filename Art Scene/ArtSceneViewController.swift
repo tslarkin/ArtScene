@@ -44,7 +44,7 @@ class ArtSceneViewController: NSViewController, Undo {
     
     var defaultFrameSize: CGSize = CGSize(width: 2, height: 2)
     /// The target of key-based editing, either a picture or a wall.
-    var defaultWallSize = CGSize(width: 20, height: 8)
+    var defaultWallSize = CGSize(width: 20, height: 10)
     /// The user selected wall color, which is the same for all walls
     var wallColor: NSColor = NSColor.white {
         didSet {

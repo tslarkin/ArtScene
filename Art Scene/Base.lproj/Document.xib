@@ -42,7 +42,7 @@
                         <textFieldCell key="cell" lineBreakMode="truncatingTail" refusesFirstResponder="YES" allowsUndo="NO" sendsActionOnEndEditing="YES" alignment="left" title="Label" placeholderString="" drawsBackground="YES" usesSingleLineMode="YES" id="ODo-u6-Hpf">
                             <font key="font" metaFont="system" size="24"/>
                             <color key="textColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                         <connections>
                             <action selector="hideStatus:" target="bVB-bI-cVA" id="Uxu-qp-8jy"/>
