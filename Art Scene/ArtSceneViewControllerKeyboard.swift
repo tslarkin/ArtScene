@@ -202,7 +202,7 @@ extension ArtSceneViewController
         let charCode = Int(keyString[keyString.startIndex])
         let shift = checkModifierFlags(theEvent, flag: .shift, exclusive: false)
         let jump: CGFloat = shift ? 0.1 : 1.0
-        let rotation: CGFloat = (shift ? 1.0 : 5.0) / r2d
+        let rotation: CGFloat = (shift ? -1.0 : -5.0) / r2d
         let cameraNode = artSceneView.camera()
         let omniLight = artSceneView.omniLight()
         SCNTransaction.animationDuration = 0.0
@@ -237,7 +237,7 @@ extension ArtSceneViewController
             omniLight.eulerAngles.x = cameraNode.eulerAngles.x
         } else {
             let angle = cameraNode.yRotation
-            var v = SCNVector3(x: sin(angle) * jump, y: 0.0, z: cos(angle) * jump)
+            var v = SCNVector3(x: sin(angle) * jump, y: 0.0, z: -cos(angle) * jump)
             let u = v × SCNVector3(0, 1, 0)
             // If the key is down arrow, we don't need to modify v
             switch charCode {
