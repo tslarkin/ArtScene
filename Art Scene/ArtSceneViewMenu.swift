@@ -144,6 +144,7 @@ extension ArtSceneView {
             } else {
                 menu.addItem(withTitle: "Lock Walls", action: #selector(ArtSceneViewController.lockWalls), keyEquivalent: "")
             }
+            menu.addItem(withTitle: "Reset Camera", action: #selector(ArtSceneView.resetCamera(_:)), keyEquivalent: "")
             mouseClickLocation = floorHit.worldCoordinates
             return menu
         } else {

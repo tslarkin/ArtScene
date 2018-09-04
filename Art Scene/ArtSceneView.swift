@@ -88,6 +88,12 @@ class ArtSceneView: SCNView, Undo {
         super.init(coder: coder)
     }
     
+    @IBAction func resetCamera(_ sender: AnyObject)
+    {
+        camera().rotation = SCNVector4Zero
+        camera().position = SCNVector3Make(0.0, 6.0, 0.0)
+    }
+    
     /// Required by the `Undo` protocol. Delegates the job to the controller.
     func reframePictureWithSize(_ node: SCNNode, newsize size: CGSize) {
         controller.reframePictureWithSize(node, newsize: size)
