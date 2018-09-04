@@ -151,24 +151,30 @@ class ArtSceneView: SCNView, Undo {
             vNode = pictureOf(node)!
         }
         guard let type = nodeType(vNode) else { return }
+        var hudTable: [(String, String)] = []
         switch type {
         case .Wall:
             let (size, location, rotation, distance) = wallInfo(node, camera: camera(), hitPosition: hitPosition)
+            hudTable = [("size", size), ("at", location), ("y°", rotation), ("distance", distance!)]
             controller.status = "Wall: {\(size)} at (\(location)), \(rotation); \(distance!) away"
         case .Matt:
             vNode = node.parent!
             fallthrough
         case .Picture:
             let (size, location, hidden, distance) = pictureInfo(vNode, camera: camera(), hitPosition: hitPosition)
-            let extra = hidden ? ", frame hidden" : ""
+            let extra = hidden ? "hidden" : "visible"
             let extra2 = distance.count > 0 ? " \(distance) away" : ""
+            hudTable = [("size", size), ("at", location), ("frame", extra), ("distance", distance)]
             controller.status = "(\(size)) at {\(location)}\(extra);\(extra2)"
         case .Image:
             let (size, name) = imageInfo(vNode)
+            hudTable = [("name", name), ("size", size)]
             controller.status = "\(name): \(size)"
         default:
-            break
+            return
         }
+        let hud = HUD(size: frame.size, controller: controller, items: hudTable)
+        overlaySKScene = hud
     }
     
     @IBAction func getTheInfo(_ sender: AnyObject?) {

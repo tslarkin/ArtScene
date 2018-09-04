@@ -396,6 +396,11 @@ class ArtSceneViewController: NSViewController, Undo {
         } else {
             fov = Int(camera.camera!.xFov)
         }
+        
+        let hudDictionary: [(String, String)] = [("x", x), ("y", y), ("z", z), ("y°", rot1), ("x°", rot2)]
+        let hud = HUD(size: artSceneView.frame.size, controller: self, items: hudDictionary)
+        artSceneView.overlaySKScene = hud
+        
         status = "Camera: " + "(\(x), \(y), \(z)), \(rots), \(fov)"
     }
     
