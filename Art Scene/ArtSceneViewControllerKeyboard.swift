@@ -7,6 +7,7 @@
 //
 
 import SceneKit
+import SpriteKit
 import Cocoa
 
 extension ArtSceneViewController
@@ -40,8 +41,16 @@ extension ArtSceneViewController
         for picture in group {
             changePosition(picture, delta: translation)
         }
-        let (_, location, _, _) = pictureInfo(theNode)
-        status = "Location: \(location)"
+//        let (_, location, _, _) = pictureInfo(theNode)
+//        status = "Location: \(location)"
+        
+        let (x, y, _, _, _, _) = pictureInfo2(theNode)
+        let hud = HUD(size: artSceneView.frame.size, controller: self)
+        let display = hud.addDisplay(title: "Picture",
+                                     items: [("↔", x), ("↕", y)],
+                                     width: 150)
+        display.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
+        artSceneView.overlaySKScene = hud
     }
     
     /// Edit the position of a wall using the arrow keys. If the command key is down, then
@@ -86,8 +95,14 @@ extension ArtSceneViewController
             changePosition(theNode, delta: SCNVector3Make(dx, 0.0, dz))
         }
         hideGrids(condition: 3.0)
-        let (_, location, rot, distance) = wallInfo(theNode, camera: artSceneView.camera())
-        status = "Wall Position: \(location); Distance: \(distance!); Rotation: \(rot)"
+//        let (_, location, rot, distance) = wallInfo(theNode, camera: artSceneView.camera())
+//        status = "Wall Position: \(location); Distance: \(distance!); Rotation: \(rot)"
+        
+        let (x, z, _, _, rot, distance) = wallInfo2(theNode, camera: artSceneView.camera())
+        let hud = HUD(size: artSceneView.frame.size, controller: self)
+        let display = hud.addDisplay(title: "Wall", items: [("↔", x), ("↕", z), ("y°", rot), ("↑", distance!)], width: 175)
+        display.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
+        artSceneView.overlaySKScene = hud
     }
     
     /// Edit the size of the frame using the arrow keys. If the shift key is down, use smaller deltas.
@@ -113,8 +128,15 @@ extension ArtSceneViewController
         }
         if size.width < minimumPictureSize || size.height < minimumPictureSize { return }
         changePictureSize(theNode, from: theNode.size()!, to: size)
-        let (newsize, _, _, _) = pictureInfo(theNode)
-        status = "Picture: \(newsize)"
+//        let (newsize, _, _, _) = pictureInfo(theNode)
+//        status = "Picture: \(newsize)"
+        
+        let (_, _, width, height, _, _) = pictureInfo2(theNode)
+        let hud = HUD(size: artSceneView.frame.size, controller: self)
+        let display = hud.addDisplay(title: "Picture",
+                                     items: [("width", width), ("height", height)])
+        display.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
+        artSceneView.overlaySKScene = hud
     }
     
     func doImageEditSize(_ theEvent: NSEvent)
@@ -137,8 +159,16 @@ extension ArtSceneViewController
         size.width = size.height * ratio
         if size.height < minimumImageSize || size.width < minimumImageSize { return }
         changeImageSize(theNode!, from: oldSize, to: size)
-        let (newsize, name) = imageInfo(theNode!)
-        status = "\(name): \(newsize)"
+//        let (newsize, name) = imageInfo(theNode!)
+//        status = "\(name): \(newsize)"
+        
+        let (width, height, name) = imageInfo2(theNode!)
+        let hud = HUD(size: artSceneView.frame.size, controller: self)
+        let display = hud.addDisplay(title: name,
+                                     items: [("width", width), ("height", height)],
+                                     width: 200)
+        display.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
+        artSceneView.overlaySKScene = hud
     }
     
     /// Edit the size of a wall using the arrow keys. If the shift key is down, use smaller deltas.
@@ -190,8 +220,14 @@ extension ArtSceneViewController
             changePosition(child, delta: translation)
         }
         defaultWallSize.height = size.height
-        let info = wallInfo(theNode)
-        status = "Wall Size: \(info.size)"
+//        let (newsize2, _, _, _) = wallInfo(theNode)
+//        status = "Wall Size: \(newsize2)"
+        
+        let (_, _, width, height, _, _) = wallInfo2(theNode)
+        let hud = HUD(size: artSceneView.frame.size, controller: self)
+        let display = hud.addDisplay(title: "Wall", items: [("width", width), ("height", height)], width: 210)
+        display.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
+        artSceneView.overlaySKScene = hud
         hideGrids(condition: 3.0)
     }
     

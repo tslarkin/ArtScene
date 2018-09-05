@@ -42,6 +42,7 @@
 		12EBCA6F213C966B00881DC7 /* ReleaseNotes.html in Resources */ = {isa = PBXBuildFile; fileRef = 12EBCA6E213C966B00881DC7 /* ReleaseNotes.html */; };
 		12EBCA76213DC94500881DC7 /* floor.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 12EBCA75213DC94500881DC7 /* floor.jpg */; };
 		12EBCA78213EA13F00881DC7 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 12EBCA77213EA13F00881DC7 /* icon.icns */; };
+		12EBCA7A213F5CEF00881DC7 /* TruncatingString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12EBCA79213F5CEF00881DC7 /* TruncatingString.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -95,6 +96,7 @@
 		12EBCA6E213C966B00881DC7 /* ReleaseNotes.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ReleaseNotes.html; sourceTree = "<group>"; };
 		12EBCA75213DC94500881DC7 /* floor.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = floor.jpg; sourceTree = "<group>"; };
 		12EBCA77213EA13F00881DC7 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = "<group>"; };
+		12EBCA79213F5CEF00881DC7 /* TruncatingString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TruncatingString.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -135,6 +137,7 @@
 				125A067A1BE909F200D145AC /* Undo.swift */,
 				126D3195213ED95E00D6463B /* HUD.swift */,
 				1254A7FF1BD82B100056A0C8 /* Utilities.swift */,
+				12EBCA79213F5CEF00881DC7 /* TruncatingString.swift */,
 				127CF8B01BD1810A00F571D9 /* AppDelegate.swift */,
 				127CF8B21BD1810A00F571D9 /* Document.swift */,
 				127CF8CC1BD1821000F571D9 /* ArtSceneView.swift */,
@@ -294,6 +297,7 @@
 				127CF8D31BD1823300F571D9 /* Framer.swift in Sources */,
 				127CF8CD1BD1821000F571D9 /* ArtSceneView.swift in Sources */,
 				127CF8B11BD1810A00F571D9 /* AppDelegate.swift in Sources */,
+				12EBCA7A213F5CEF00881DC7 /* TruncatingString.swift in Sources */,
 				12E95BB42126A68900F025B6 /* SCNNodeExtension.swift in Sources */,
 				1200F71D1BD690FE003E4F24 /* Gestures.swift in Sources */,
 				12E95BB6212825B100F025B6 /* ArtSceneMouse.swift in Sources */,

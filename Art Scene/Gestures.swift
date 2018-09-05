@@ -45,6 +45,7 @@ extension ArtSceneViewController
     
     /// Move the camera according to the scroll wheel.
     override func scrollWheel(with event: NSEvent) {
+        if event.deltaX == 0.0 && event.deltaY == 0.0 { return }
         SCNTransaction.animationDuration = 0.0
         let cameraNode = artSceneView.camera()
         let size = CGSize(width: event.deltaX / 20, height: event.deltaY / 20)

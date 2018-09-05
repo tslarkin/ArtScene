@@ -200,6 +200,28 @@ func wallInfo(_ wall: SCNNode, camera: SCNNode? = nil, hitPosition: SCNVector3? 
 
 }
 
+func wallInfo2(_ wall: SCNNode, camera: SCNNode? = nil, hitPosition: SCNVector3? = nil) -> (x: String, y: String, width: String, height: String, rotation: String, distance: String?) {
+    let plane = wall.geometry as! SCNPlane
+    let length = convertToFeetAndInches(plane.width)
+    let height = convertToFeetAndInches(plane.height)
+    let x = convertToFeetAndInches(wall.position.x)
+    let y = convertToFeetAndInches(-wall.position.z)
+    var angle = (wall.eulerAngles.y * r2d).truncatingRemainder(dividingBy: 360.0)
+    if angle < 0 {
+        angle += 360.0
+    }
+    let rotation = String(format: "%0.0f°", angle)
+    var distance: String? = nil
+    if let camera = camera {
+        let position = hitPosition != nil ? hitPosition! : wall.position
+        let x = position.x - camera.position.x
+        let z = position.z - camera.position.z
+        distance =  convertToFeetAndInches(sqrt(x * x + z * z))
+    }
+    return (x, y, length, height, rotation, distance)
+    
+}
+
 /// GetInfo properties for a picture.
 func pictureInfo(_ node: SCNNode, camera: SCNNode? = nil, hitPosition: SCNVector3? = nil) -> (size: String, location: String, hidden: Bool, distance: String) {
     let size = nodeSize(node)
@@ -216,15 +238,52 @@ func pictureInfo(_ node: SCNNode, camera: SCNNode? = nil, hitPosition: SCNVector
             theFrame(node).isHidden, distance)
 }
 
+func pictureInfo2(_ node: SCNNode, camera: SCNNode? = nil, hitPosition: SCNVector3? = nil) -> (x: String, y: String, width: String, height: String, hidden: String, distance: String) {
+    let size = nodeSize(node)
+    let wall = node.parent!
+    let area = wall.geometry as! SCNPlane
+    var distance = ""
+    if camera != nil && hitPosition != nil {
+        let x = hitPosition!.x - camera!.position.x
+        let z = hitPosition!.z - camera!.position.z
+        distance =  convertToFeetAndInches(sqrt(x * x + z * z))
+    }
+    return (convertToFeetAndInches(node.position.x + area.width / 2),
+        convertToFeetAndInches(node.position.y + area.height / 2),convertToFeetAndInches(size.width, units: .inches),
+        convertToFeetAndInches(size.height, units: .inches),
+        theFrame(node).isHidden ? "No" : "Yes", distance)
+}
+
+
 /// GetInfo properties for an image.
 func imageInfo(_ node: SCNNode) -> (size: String, name: String) {
     // The node might be the picture or the image itself
     let type = nodeType(node)
     let plane = type == .Image ? thePlane(pictureOf(node)!) : thePlane(node)
     let s = plane.name! as NSString
-    let name = s.lastPathComponent as String? ?? "None"
+    var name = (s.lastPathComponent as NSString).deletingPathExtension
+    let fontSize: CGFloat = 24
+    let font = NSFont(name: "Lucida Grande", size: fontSize)
+    let attributes: [NSAttributedStringKey: AnyObject] = [.font: font!]
+    name = name.truncate(maxWidth: 150, attributes: attributes)
     let size = type == .Image ? node.size()! : theImage(node).size()!
     return ("\(convertToFeetAndInches(size.width, units: .inches)) x \(convertToFeetAndInches(size.height, units: .inches))", name)
+}
+
+func imageInfo2(_ node: SCNNode) -> (width: String, height: String, name: String) {
+    // The node might be the picture or the image itself
+    let type = nodeType(node)
+    let plane = type == .Image ? thePlane(pictureOf(node)!) : thePlane(node)
+    let s = plane.name! as NSString
+    var name = (s.lastPathComponent as NSString).deletingPathExtension
+    let fontSize: CGFloat = 24
+    let font = NSFont(name: "Lucida Grande", size: fontSize)
+    let attributes: [NSAttributedStringKey: AnyObject] = [.font: font!]
+    name = name.truncate(maxWidth: 180, attributes: attributes)
+    let size = type == .Image ? node.size()! : theImage(node).size()!
+    return (convertToFeetAndInches(size.width, units: .inches),
+        convertToFeetAndInches(size.height, units: .inches),
+        name)
 }
 
 /// Determine if a wall with `newSize` contains all its pictures.
@@ -255,17 +314,14 @@ func convertToFeetAndInches(_ length: CGFloat, units:Units = .feet) -> String
         return "0\'"
     }
     let xFeet = units == .feet ? Int(length) : 0
-    let xInches: CGFloat = {
-        let x = (length - CGFloat(xFeet)) * 12.0
-        return xFeet == 0 ? x : abs(x)
-        }()
-    let quarterInches = round(xInches * 4)
-    let wholeInches = floor(quarterInches / 4)
+    var xInches: CGFloat = (length - CGFloat(xFeet)) * 12.0
+    if xFeet != 0 { xInches = abs(xInches) }
+    let wholeInches = floor(xInches)
     let fractionalInches = xInches - wholeInches
     var formattedFractionalInches = ""
-    switch round(fractionalInches / 0.25) {
+    switch Int(fractionalInches / 0.25) {
     case 0:
-        if wholeInches > 0 {
+        if abs(wholeInches) > 0 {
             formattedFractionalInches = "\""
         }
     case 1:
@@ -278,7 +334,7 @@ func convertToFeetAndInches(_ length: CGFloat, units:Units = .feet) -> String
         break
     }
     let formattedInches = wholeInches == 0 ? "" : String(format:"%d", Int(wholeInches))
-    let formattedFeet = units == Units.inches ? "" : String(format: "%d'", xFeet)
+    let formattedFeet = (units == Units.inches || xFeet == 0) ? "" : String(format: "%d'", xFeet)
     return formattedFeet + formattedInches + formattedFractionalInches
 }
 

@@ -7,6 +7,7 @@
 //
 
 import SceneKit
+import SpriteKit
 import Quartz
 
 /**
@@ -398,9 +399,10 @@ class ArtSceneViewController: NSViewController, Undo {
         }
         
         let hudDictionary: [(String, String)] = [("x", x), ("y", y), ("z", z), ("y°", rot1), ("x°", rot2)]
-        let hud = HUD(size: artSceneView.frame.size, controller: self, items: hudDictionary)
+        let hud = HUD(size: artSceneView.frame.size, controller: self)
+        let display = hud.addDisplay(title: "Camera", items: hudDictionary, width: 175)
+        display.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
         artSceneView.overlaySKScene = hud
-        
         status = "Camera: " + "(\(x), \(y), \(z)), \(rots), \(fov)"
     }
     

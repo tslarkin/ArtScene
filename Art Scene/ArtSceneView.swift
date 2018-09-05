@@ -7,6 +7,7 @@
 //
 
 import SceneKit
+import SpriteKit
 
 /**
 Hosts the Art Scene. It also handles mouse events (including keeping track of the selection),
@@ -141,8 +142,6 @@ class ArtSceneView: SCNView, Undo {
     @objc func showGrid(_ sender: AnyObject?) {
         grid().isHidden = false
     }
-
-    /// Add a wall to the scene
     
    /// Displays info on some node in the status line.
     func getInfo(_ node: SCNNode, option: Bool = false, hitPosition: SCNVector3? = nil) {
@@ -152,34 +151,41 @@ class ArtSceneView: SCNView, Undo {
         }
         guard let type = nodeType(vNode) else { return }
         var hudTable: [(String, String)] = []
+        var title: String = ""
         switch type {
         case .Wall:
-            let (size, location, rotation, distance) = wallInfo(node, camera: camera(), hitPosition: hitPosition)
-            hudTable = [("size", size), ("at", location), ("y°", rotation), ("distance", distance!)]
-            controller.status = "Wall: {\(size)} at (\(location)), \(rotation); \(distance!) away"
+            let (x, y, width, height, rotation, distance) = wallInfo2(node, camera: camera(), hitPosition: hitPosition)
+            hudTable = [("↔", x), ("↕", y), ("width", width), ("height", height), ("y°", rotation), ("↑", distance!)]
+            title = "Wall"
+//            controller.status = "Wall: {\(size)} at (\(location)), \(rotation); \(distance!) away"
         case .Matt:
             vNode = node.parent!
             fallthrough
         case .Picture:
-            let (size, location, hidden, distance) = pictureInfo(vNode, camera: camera(), hitPosition: hitPosition)
-            let extra = hidden ? "hidden" : "visible"
-            let extra2 = distance.count > 0 ? " \(distance) away" : ""
-            hudTable = [("size", size), ("at", location), ("frame", extra), ("distance", distance)]
-            controller.status = "(\(size)) at {\(location)}\(extra);\(extra2)"
+            let (x, y, width, height, hidden, distance) = pictureInfo2(vNode, camera: camera(), hitPosition: hitPosition)
+            hudTable = [("↔", x), ("↕", y), ("width", width), ("height", height),
+                        ("frame", hidden),
+                        ("↑", distance)]
+            title = "Picture"
+//            controller.status = "(\(size)) at {\(location)}\(extra);\(extra2)"
         case .Image:
-            let (size, name) = imageInfo(vNode)
-            hudTable = [("name", name), ("size", size)]
-            controller.status = "\(name): \(size)"
+            let (width, height, name) = imageInfo2(vNode)
+            hudTable = [("width", width), ("height", height)]
+            title = name
+//            controller.status = "\(name): \(size)"
         default:
             return
         }
-        let hud = HUD(size: frame.size, controller: controller, items: hudTable)
+        let hud = HUD(size: frame.size, controller: controller)
+        hud.addDisplay(title: title, items: hudTable, width: 220)
         overlaySKScene = hud
     }
     
     @IBAction func getTheInfo(_ sender: AnyObject?) {
         if case .getInfo = editMode {
             editMode = .none
+            let display = overlaySKScene?.children[0]
+            display?.run(SKAction.fadeOut(withDuration: 1.0))
             NSCursor.arrow.set()
         } else {
             editMode = .getInfo
@@ -213,6 +219,12 @@ class ArtSceneView: SCNView, Undo {
         let y: CGFloat = node.position.y + plane.height / 2.0
         let xcoord = convertToFeetAndInches(x)
         let ycoord = convertToFeetAndInches(y)
+        let hud = HUD(size: frame.size, controller: controller)
+        let display = hud.addDisplay(title: "Picture",
+                                     items: [("x", xcoord), ("y", ycoord)],
+                                     width: 175)
+        display.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
+        overlaySKScene = hud
         controller.status = "Position: \(xcoord), \(ycoord)"
     }
     

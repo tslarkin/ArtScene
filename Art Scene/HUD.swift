@@ -12,13 +12,32 @@ class HUD: SKScene
 {
     open var labelNode: SKLabelNode?
     open var display: SKShapeNode?
-    let controller: ArtSceneViewController!
+    let controller: ArtSceneViewController
     
-    init(size: CGSize, controller: ArtSceneViewController, items: [(String, String)]) {
+    init(size: CGSize, controller: ArtSceneViewController) {
         self.controller = controller
         super.init(size: size)
         scaleMode = .resizeFill
+    }
+    
+    @discardableResult func addDisplay(title: String,
+                                       items: [(String, String)],
+                                       width: CGFloat? = nil)->SKNode
+    {
         
+        func makeTextNode(text: String,
+                          position: CGPoint,
+                          fontSize: CGFloat,
+                          alignment: SKLabelHorizontalAlignmentMode)->SKLabelNode
+        {
+            let node = SKLabelNode(text: text)
+            node.fontName = "Lucida Grande"
+            node.fontSize = fontSize
+            node.fontColor = NSColor.white
+            node.position = position
+            node.horizontalAlignmentMode = alignment
+            return node
+        }
         
         var maxLabelSize: CGFloat = 0.0
         var rowDataSizes: Dictionary<String, CGFloat> = [:]
@@ -32,36 +51,39 @@ class HUD: SKScene
             let vsize: CGFloat = (value as NSString).size(withAttributes: attributes).width
             rowDataSizes[value] = vsize
         }
-        
+        let maxDataSize: CGFloat = rowDataSizes.values.reduce(0.0, { max($0, $1) })
+        let colsep: CGFloat = 20
         let lineHeight: CGFloat = 29
         let margin: CGFloat = 10
-        let displaySize = CGSize(width: 175.0, height: lineHeight * (CGFloat(items.count) + 1))
+        let titlesize: CGFloat = (title as NSString).size(withAttributes: attributes).width
+        let flexibleWidth = max(titlesize + 2 * margin, maxDataSize + maxLabelSize + colsep + margin * 2.0)
+        let displayWidth = width ?? flexibleWidth
+        let displaySize = CGSize(width: displayWidth, height: lineHeight * (CGFloat(items.count + 2)))
         let display = SKShapeNode(rectOf: displaySize)
         display.fillColor = NSColor.gray
         let color = NSColor(calibratedWhite: 0.05, alpha: 0.98)
         display.fillColor = color
         display.position = CGPoint(x: size.width / 3.0 - displaySize.width / 2.0, y: size.height / 2.0)
         self.addChild(display)
-
-        var y: CGFloat = CGFloat(items.count - 1) * lineHeight / 2.0
+        
+        var y: CGFloat = CGFloat(items.count) * lineHeight / 2.0
+        let titleNode = makeTextNode(text: title,
+                                     position: CGPoint(x: 0.0, y: y),
+                                     fontSize: fontSize, alignment: .center)
+        display.addChild(titleNode)
+        y -= lineHeight
         for (key, value) in items {
-            let keyNode = SKLabelNode(text: key)
-            keyNode.fontName = "Lucida Grande"
-            keyNode.fontSize = fontSize
-            keyNode.fontColor = NSColor.white
-            keyNode.position = CGPoint(x: -displaySize.width / 2.0 + margin, y: y)
-            keyNode.horizontalAlignmentMode = .left
+            let keyNode = makeTextNode(text: key,
+                                       position: CGPoint(x: -displaySize.width / 2.0 + margin, y: y),
+                                       fontSize: fontSize, alignment: .left)
             display.addChild(keyNode)
-            let dataNode = SKLabelNode(text: value)
-            dataNode.fontName = "Lucida Grande"
-            dataNode.fontSize = fontSize
-            dataNode.fontColor = NSColor.white
-            dataNode.position = CGPoint(x: displaySize.width / 2.0 - margin, y: y)
-            dataNode.horizontalAlignmentMode = .right
+            let dataNode = makeTextNode(text: value,
+                                        position: CGPoint(x: displaySize.width / 2.0 - margin, y: y),
+                                        fontSize: fontSize, alignment: .right)
             display.addChild(dataNode)
             y -= lineHeight
         }
-        display.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
+        return display
     }
     
     override func keyDown(with event: NSEvent) {

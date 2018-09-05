@@ -27,14 +27,14 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <sceneView translatesAutoresizingMaskIntoConstraints="NO" id="aAp-gS-prI" customClass="ArtSceneView" customModule="Art_Scene" customModuleProvider="target">
-                        <rect key="frame" x="0.0" y="0.0" width="1143" height="581"/>
+                        <rect key="frame" x="0.0" y="0.0" width="1143" height="614"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <connections>
                             <outlet property="controller" destination="bVB-bI-cVA" id="k5d-3j-SbI"/>
                             <outlet property="document" destination="-2" id="Rlp-AG-7HA"/>
                         </connections>
                     </sceneView>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ekZ-od-wn4">
+                    <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ekZ-od-wn4">
                         <rect key="frame" x="0.0" y="581" width="1145" height="33"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="33" id="KIc-tt-JVU"/>
@@ -60,7 +60,7 @@
                     <constraint firstItem="ekZ-od-wn4" firstAttribute="top" secondItem="gIp-Ho-8D9" secondAttribute="top" id="6Ry-Ie-dcm"/>
                     <constraint firstAttribute="bottom" secondItem="aAp-gS-prI" secondAttribute="bottom" id="UDT-fr-ftT"/>
                     <constraint firstAttribute="trailing" secondItem="ekZ-od-wn4" secondAttribute="trailing" constant="-2" id="XCy-wd-SBf"/>
-                    <constraint firstItem="aAp-gS-prI" firstAttribute="top" secondItem="ekZ-od-wn4" secondAttribute="bottom" id="bQ6-0l-sCb"/>
+                    <constraint firstItem="aAp-gS-prI" firstAttribute="top" secondItem="ekZ-od-wn4" secondAttribute="bottom" constant="-33" id="bQ6-0l-sCb"/>
                     <constraint firstItem="ekZ-od-wn4" firstAttribute="leading" secondItem="gIp-Ho-8D9" secondAttribute="leading" id="d8H-or-BAf"/>
                     <constraint firstAttribute="trailing" secondItem="aAp-gS-prI" secondAttribute="trailing" id="j3Q-2p-BF9"/>
                 </constraints>
