@@ -261,11 +261,7 @@ func imageInfo(_ node: SCNNode) -> (size: String, name: String) {
     let type = nodeType(node)
     let plane = type == .Image ? thePlane(pictureOf(node)!) : thePlane(node)
     let s = plane.name! as NSString
-    var name = (s.lastPathComponent as NSString).deletingPathExtension
-    let fontSize: CGFloat = 24
-    let font = NSFont(name: "Lucida Grande", size: fontSize)
-    let attributes: [NSAttributedStringKey: AnyObject] = [.font: font!]
-    name = name.truncate(maxWidth: 150, attributes: attributes)
+    let name = (s.lastPathComponent as NSString).deletingPathExtension
     let size = type == .Image ? node.size()! : theImage(node).size()!
     return ("\(convertToFeetAndInches(size.width, units: .inches)) x \(convertToFeetAndInches(size.height, units: .inches))", name)
 }
@@ -275,11 +271,7 @@ func imageInfo2(_ node: SCNNode) -> (width: String, height: String, name: String
     let type = nodeType(node)
     let plane = type == .Image ? thePlane(pictureOf(node)!) : thePlane(node)
     let s = plane.name! as NSString
-    var name = (s.lastPathComponent as NSString).deletingPathExtension
-    let fontSize: CGFloat = 24
-    let font = NSFont(name: "Lucida Grande", size: fontSize)
-    let attributes: [NSAttributedStringKey: AnyObject] = [.font: font!]
-    name = name.truncate(maxWidth: 180, attributes: attributes)
+    let name = (s.lastPathComponent as NSString).deletingPathExtension
     let size = type == .Image ? node.size()! : theImage(node).size()!
     return (convertToFeetAndInches(size.width, units: .inches),
         convertToFeetAndInches(size.height, units: .inches),

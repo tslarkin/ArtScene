@@ -20,7 +20,7 @@ class HUD: SKScene
         scaleMode = .resizeFill
     }
     
-    @discardableResult func addDisplay(title: String,
+    @discardableResult func addDisplay(title aTitle: String,
                                        items: [(String, String)],
                                        width: CGFloat? = nil)->SKNode
     {
@@ -58,11 +58,15 @@ class HUD: SKScene
         let colsep: CGFloat = 20
         let lineHeight: CGFloat = 29
         let margin: CGFloat = 10
-        let titlesize: CGFloat = (title as NSString).size(withAttributes: attributes).width
-        let flexibleWidth = max(titlesize + 2 * margin, maxDataSize + maxLabelSize + colsep + margin * 2.0)
+        let flexibleWidth = maxDataSize + maxLabelSize + colsep + margin * 2.0
+        var title = aTitle
+        let titleWidth = width != nil ? width! - 2 * margin : flexibleWidth
+        title = title.truncate(maxWidth: titleWidth, attributes: attributes)
         let displayWidth = width ?? flexibleWidth
         let displaySize = CGSize(width: displayWidth, height: lineHeight * (CGFloat(items.count + 2)))
-        let display = SKShapeNode(rectOf: displaySize)
+        let displayRect = CGRect(origin: CGPoint.zero, size: displaySize)
+        let path = CGPath(roundedRect: displayRect, cornerWidth: 10, cornerHeight: 10, transform: nil)
+        let display = SKShapeNode(path: path, centered: true)
         display.fillColor = NSColor.gray
         let color = NSColor(calibratedWhite: 0.05, alpha: 0.98)
         display.fillColor = color
@@ -74,8 +78,9 @@ class HUD: SKScene
         let titleNode = makeTextNode(text: title,
                                      position: CGPoint(x: 0.0, y: y),
                                      fontSize: fontSize, alignment: .center)
+        titleNode.fontColor = NSColor.systemYellow
         display.addChild(titleNode)
-        y -= lineHeight
+        y -= lineHeight + 8.0
         for (key, value) in items {
             let keyNode = makeTextNode(text: key,
                                        position: CGPoint(x: -displaySize.width / 2.0 + margin, y: y),

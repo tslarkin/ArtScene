@@ -15,7 +15,8 @@ extension String
         var s = self
         var width = (self as NSString).size(withAttributes: attributes).width
         let ellipses = width > maxWidth ? "…" : ""
-        while width > maxWidth {
+        let ellipsesWidth = (ellipses as NSString).size(withAttributes: attributes).width
+        while (width + ellipsesWidth) > maxWidth {
             s.removeLast()
             width = (s as NSString).size(withAttributes: attributes).width
         }

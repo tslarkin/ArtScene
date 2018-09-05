@@ -338,6 +338,7 @@ extension ArtSceneViewController
     /// Dispatch the key down event on `editMode`.
     override func keyDown(with theEvent: NSEvent)
     {
+        SCNTransaction.animationDuration = 0.2
         let pad = theEvent.modifierFlags.contains(.numericPad)
         guard let keyString = theEvent.charactersIgnoringModifiers else { return }
         if keyString == "+" {

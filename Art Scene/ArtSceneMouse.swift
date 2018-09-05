@@ -190,6 +190,7 @@ extension ArtSceneView
             return
         }
         
+        SCNTransaction.animationDuration = 0.1
         let shift = checkModifierFlags(theEvent, flag: .shift)
         let scale: CGFloat = shift ? 80.0 : 20.0
         let dx = theEvent.deltaX / scale
