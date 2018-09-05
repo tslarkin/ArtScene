@@ -145,12 +145,6 @@
                                     <action selector="redo:" target="-1" id="oIA-Rs-6OD"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" id="WRV-NI-Exz"/>
-                            <menuItem title="Get Info" keyEquivalent="i" id="oLT-eB-Vpv">
-                                <connections>
-                                    <action selector="getTheInfo:" target="-1" id="lZD-Fk-lYg"/>
-                                </connections>
-                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>

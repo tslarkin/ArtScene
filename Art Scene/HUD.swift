@@ -39,6 +39,9 @@ class HUD: SKScene
             return node
         }
         
+        if let old = childNode(withName: "HUD Display") {
+            old.removeFromParent()
+        }
         var maxLabelSize: CGFloat = 0.0
         var rowDataSizes: Dictionary<String, CGFloat> = [:]
         let fontSize: CGFloat = 24
@@ -64,6 +67,7 @@ class HUD: SKScene
         let color = NSColor(calibratedWhite: 0.05, alpha: 0.98)
         display.fillColor = color
         display.position = CGPoint(x: size.width / 3.0 - displaySize.width / 2.0, y: size.height / 2.0)
+        display.name = "HUD Display"
         self.addChild(display)
         
         var y: CGFloat = CGFloat(items.count) * lineHeight / 2.0
@@ -83,7 +87,15 @@ class HUD: SKScene
             display.addChild(dataNode)
             y -= lineHeight
         }
+        display.run(SKAction.fadeIn(withDuration: 1.0))
         return display
+    }
+    
+    func updateDisplay(with: SKNode) {
+        if let old = childNode(withName: "HUD Display") {
+            old.removeFromParent()
+        }
+        addChild(with)
     }
     
     override func keyDown(with event: NSEvent) {

@@ -31,11 +31,12 @@ class ArtSceneView: SCNView, Undo {
         get { return document!.undoManager! }
     }
     
+    /// The Heads Up Display hosted in an SKScene
+    var hud: HUD!
+    
     /// The set of selected pictures. The first picture selected is always the `masterNode`.
     var selection: Array<SCNNode>  = []
     
-    /// The last mouse position as determined during `mouseMoved`.
-//    var lastMousePosition: SCNVector3? = nil
     /// Accumulate deltas here.
     var deltaSum: CGPoint!
     
@@ -102,6 +103,8 @@ class ArtSceneView: SCNView, Undo {
     
     /// Register for drags of file names.
     override func awakeFromNib() {
+        hud = HUD(size: frame.size, controller: controller)
+        overlaySKScene = hud
         registerForDraggedTypes([NSPasteboard.PasteboardType(rawValue: "NSFilenamesPboardType")])
     }
     
@@ -176,7 +179,7 @@ class ArtSceneView: SCNView, Undo {
         default:
             return
         }
-        let hud = HUD(size: frame.size, controller: controller)
+//        let hud = HUD(size: frame.size, controller: controller)
         hud.addDisplay(title: title, items: hudTable, width: 220)
         overlaySKScene = hud
     }
@@ -219,7 +222,7 @@ class ArtSceneView: SCNView, Undo {
         let y: CGFloat = node.position.y + plane.height / 2.0
         let xcoord = convertToFeetAndInches(x)
         let ycoord = convertToFeetAndInches(y)
-        let hud = HUD(size: frame.size, controller: controller)
+//        let hud = HUD(size: frame.size, controller: controller)
         let display = hud.addDisplay(title: "Picture",
                                      items: [("x", xcoord), ("y", ycoord)],
                                      width: 175)

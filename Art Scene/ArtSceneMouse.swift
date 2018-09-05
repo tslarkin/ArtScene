@@ -221,7 +221,7 @@ extension ArtSceneView
                 }
                 if node === mouseNode {
                     let (x, y, _, _, _, _) = pictureInfo2(mouseNode)
-                    let hud = HUD(size: frame.size, controller: controller)
+//                    let hud = HUD(size: frame.size, controller: controller)
                     let display = hud.addDisplay(title: "Picture", items: [("↔", x), ("↕", y)], width: 150)
                     display.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
                     overlaySKScene = hud
@@ -248,7 +248,7 @@ extension ArtSceneView
 //            let (newsize, _, _, _) = pictureInfo(mouseNode)
 //            controller.status = "Picture Size: \(newsize)"
             let (_, _, width, height, _, _) = pictureInfo2(mouseNode)
-            let hud = HUD(size: frame.size, controller: controller)
+//            let hud = HUD(size: frame.size, controller: controller)
             let display = hud.addDisplay(title: "Picture",
                                          items: [("width", width),
                                                  ("height", height)],
@@ -267,7 +267,7 @@ extension ArtSceneView
 //            let (newsize, _) = imageInfo(mouseNode)
 //            controller.status = "Image size: \(newsize)"
             let (width, height, name) = imageInfo2(mouseNode)
-            let hud = HUD(size: frame.size, controller: controller)
+//            let hud = HUD(size: frame.size, controller: controller)
             let display = hud.addDisplay(title: name, items: [("width", width),
                                                               ("height", height)],
                                          width: 200)
@@ -285,7 +285,7 @@ extension ArtSceneView
 //                controller.status = "Wall Location: \(location); \(distance!) feet away"
 
                 let (x, z, _, _, _, dist) = wallInfo2(mouseNode, camera: camera())
-                let hud = HUD(size: frame.size, controller: controller)
+//                let hud = HUD(size: frame.size, controller: controller)
                 let display = hud.addDisplay(title: "Wall", items: [("↔", x), ("↕", z), ("↑", dist!)], width: 150)
                 display.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
                 overlaySKScene = hud
@@ -300,7 +300,7 @@ extension ArtSceneView
             let (_, _, rotation, _) = wallInfo(mouseNode)
             controller.status = "Wall Rotation: \(rotation)"
             
-            let hud = HUD(size: frame.size, controller: controller)
+//            let hud = HUD(size: frame.size, controller: controller)
             let display = hud.addDisplay(title: "Wall", items: [("y°", rotation)])
             display.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
             overlaySKScene = hud
@@ -340,7 +340,7 @@ extension ArtSceneView
 //                    controller.status = "Wall Size: \(newsize)"
                     
                     let (_, _, width, height, _, _) = wallInfo2(mouseNode)
-                    let hud = HUD(size: frame.size, controller: controller)
+//                    let hud = HUD(size: frame.size, controller: controller)
                     let display = hud.addDisplay(title: "Wall",
                                                  items: [("width", width),
                                                         ("height", height)],
