@@ -57,7 +57,7 @@ class ArtSceneView: SCNView, Undo {
     var wallsLocked: Bool {
         return controller.wallsLocked
     }
-        
+            
     /// Makes the `questionCursor` and `rotateCursor`, then calls `super.init()`
     required init?(coder: NSCoder) {
         var size: CGFloat = 24
@@ -85,8 +85,6 @@ class ArtSceneView: SCNView, Undo {
         resize.draw(in: NSRect(x: 0, y: 0, width: size, height: size))
         image.unlockFocus()
         resizeCursor = NSCursor.init(image: image, hotSpot: NSPoint(x: 12, y: 12))
-        
-        
         super.init(coder: coder)
     }
     
@@ -106,6 +104,7 @@ class ArtSceneView: SCNView, Undo {
         hud = HUD(size: frame.size, controller: controller)
         overlaySKScene = hud
         registerForDraggedTypes([NSPasteboard.PasteboardType(rawValue: "NSFilenamesPboardType")])
+        
     }
     
     /// Returns the single scene camera node.
@@ -160,7 +159,6 @@ class ArtSceneView: SCNView, Undo {
             let (x, y, width, height, rotation, distance) = wallInfo2(node, camera: camera(), hitPosition: hitPosition)
             hudTable = [("↔", x), ("↕", y), ("width", width), ("height", height), ("y°", rotation), ("↑", distance!)]
             title = "Wall"
-//            controller.status = "Wall: {\(size)} at (\(location)), \(rotation); \(distance!) away"
         case .Matt:
             vNode = node.parent!
             fallthrough
@@ -170,18 +168,14 @@ class ArtSceneView: SCNView, Undo {
                         ("frame", hidden),
                         ("↑", distance)]
             title = "Picture"
-//            controller.status = "(\(size)) at {\(location)}\(extra);\(extra2)"
         case .Image:
             let (width, height, name) = imageInfo2(vNode)
             hudTable = [("width", width), ("height", height)]
             title = name
-//            controller.status = "\(name): \(size)"
         default:
             return
         }
-//        let hud = HUD(size: frame.size, controller: controller)
-        hud.addDisplay(title: title, items: hudTable, width: 220)
-        overlaySKScene = hud
+        controller.hudUpdate = controller.makeDisplay(title: title, items: hudTable, width: 220)
     }
     
     @IBAction func getTheInfo(_ sender: AnyObject?) {
@@ -222,13 +216,11 @@ class ArtSceneView: SCNView, Undo {
         let y: CGFloat = node.position.y + plane.height / 2.0
         let xcoord = convertToFeetAndInches(x)
         let ycoord = convertToFeetAndInches(y)
-//        let hud = HUD(size: frame.size, controller: controller)
-        let display = hud.addDisplay(title: "Picture",
+        let display = controller.makeDisplay(title: "Picture",
                                      items: [("x", xcoord), ("y", ycoord)],
                                      width: 175)
         display.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
-        overlaySKScene = hud
-        controller.status = "Position: \(xcoord), \(ycoord)"
+        controller.hudUpdate = display
     }
     
 

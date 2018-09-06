@@ -27,6 +27,7 @@ extension ArtSceneViewController
             cameraNode.camera?.yFov += Double(mag)
         }
         updateCameraStatus()
+        hideGrids()
     }
     
     /// Rotate the camera or a wall with the rotation gesture.
@@ -37,10 +38,11 @@ extension ArtSceneViewController
         let rotation = CGFloat(event.rotation) / 4.0
         cameraNode.eulerAngles.y = cameraNode.eulerAngles.y + rotation * 1 / r2d
         omni.eulerAngles.y = cameraNode.eulerAngles.y
-        let rot = (cameraNode.eulerAngles.y * r2d).truncatingRemainder(dividingBy: 360.0)
-        let rot1 = String(format: "%.0f°", rot < 0 ? rot + 360 : rot)
-        status = "Camera Rotation: \(rot1)"
-
+//        let rot = (cameraNode.eulerAngles.y * r2d).truncatingRemainder(dividingBy: 360.0)
+//        let rot1 = String(format: "%.0f°", rot < 0 ? rot + 360 : rot)
+//        status = "Camera Rotation: \(rot1)"
+        updateCameraStatus()
+        hideGrids()
     }
     
     /// Move the camera according to the scroll wheel.
@@ -50,6 +52,10 @@ extension ArtSceneViewController
         let cameraNode = artSceneView.camera()
         let size = CGSize(width: event.deltaX / 20, height: event.deltaY / 20)
         let newPosition = newPositionFromAngle(cameraNode.position, deltaAway: size.height, deltaRight: size.width, angle: cameraNode.yRotation)
+//        var transform = cameraNode.transform
+//        let translation = SCNMatrix4MakeTranslation(event.deltaX / 30.0, 0.0, event.deltaY / 30.0)
+//        transform = SCNMatrix4Mult(translation, transform)
+//        cameraNode.transform = transform
         cameraNode.position = newPosition
         let omni = artSceneView.omniLight()
         omni.position = cameraNode.position

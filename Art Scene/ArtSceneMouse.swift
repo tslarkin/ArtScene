@@ -197,6 +197,8 @@ extension ArtSceneView
         let dy = theEvent.deltaY / scale 
         let delta = CGPoint(x: dx, y: dy)
         
+        var display: SKNode?
+        
         // Switch on editMode
         switch editMode {
         case .moving(.Picture):
@@ -222,10 +224,7 @@ extension ArtSceneView
                 }
                 if node === mouseNode {
                     let (x, y, _, _, _, _) = pictureInfo2(mouseNode)
-//                    let hud = HUD(size: frame.size, controller: controller)
-                    let display = hud.addDisplay(title: "Picture", items: [("↔", x), ("↕", y)], width: 150)
-                    display.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
-                    overlaySKScene = hud
+                    display = controller.makeDisplay(title: "Picture", items: [("↔", x), ("↕", y)], width: 150)
                 }
             }
         case .resizing(.Picture, let edge):
@@ -246,16 +245,11 @@ extension ArtSceneView
             if dx == 0.0 && dy == 0.0 { break }
             size = CGSize(width: max(size.width + dx, 1.0 / 3.0), height: max(size.height + dy, 1.0 / 3.0)) // minimum size for picture is 4"
             controller.doChangePictureSize(mouseNode, from: mouseNode.size()!, to: size)
-//            let (newsize, _, _, _) = pictureInfo(mouseNode)
-//            controller.status = "Picture Size: \(newsize)"
             let (_, _, width, height, _, _) = pictureInfo2(mouseNode)
-//            let hud = HUD(size: frame.size, controller: controller)
-            let display = hud.addDisplay(title: "Picture",
+            display = controller.makeDisplay(title: "Picture",
                                          items: [("width", width),
                                                  ("height", height)],
                                          width: 200)
-            display.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
-            overlaySKScene = hud
         case .resizing(.Image, _):
             var size = theImage(mouseNode).size()!
             var dy = shift ? -delta.y / 4.0 : -delta.y
@@ -265,15 +259,10 @@ extension ArtSceneView
             if dx == 0.0 && dy == 0.0 { break }
             size = CGSize(width: size.width + dx, height: size.height + dy)
             controller.doChangeImageSize(mouseNode, from: theImage(mouseNode).size()!, to: size)
-//            let (newsize, _) = imageInfo(mouseNode)
-//            controller.status = "Image size: \(newsize)"
             let (width, height, name) = imageInfo2(mouseNode)
-//            let hud = HUD(size: frame.size, controller: controller)
-            let display = hud.addDisplay(title: name, items: [("width", width),
+            display = controller.makeDisplay(title: name, items: [("width", width),
                                                               ("height", height)],
                                          width: 200)
-            display.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
-            overlaySKScene = hud
         case .moving(.Wall):
             if !wallsLocked {
                 SCNTransaction.animationDuration = 0.0
@@ -281,15 +270,9 @@ extension ArtSceneView
                 if dx == 0.0 && dz == 0.0 { break }
                 let translation = SCNVector3Make(dx, 0.0, dz)
                 changePosition(mouseNode, delta: translation)
-                controller.hideGrids(condition: 3.0)
-//                let (_, location, _, distance) = wallInfo(mouseNode, camera: camera())
-//                controller.status = "Wall Location: \(location); \(distance!) feet away"
-
+                controller.hideGrids()
                 let (x, z, _, _, _, dist) = wallInfo2(mouseNode, camera: camera())
-//                let hud = HUD(size: frame.size, controller: controller)
-                let display = hud.addDisplay(title: "Wall", items: [("↔", x), ("↕", z), ("↑", dist!)], width: 150)
-                display.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
-                overlaySKScene = hud
+                display = controller.makeDisplay(title: "Wall", items: [("↔", x), ("↕", z), ("↑", dist!)], width: 150)
             }
         case .resizing(.Wall, .pivot):
             var dy = delta.y / 2.0
@@ -301,10 +284,7 @@ extension ArtSceneView
             let (_, _, rotation, _) = wallInfo(mouseNode)
             controller.status = "Wall Rotation: \(rotation)"
             
-//            let hud = HUD(size: frame.size, controller: controller)
-            let display = hud.addDisplay(title: "Wall", items: [("y°", rotation)])
-            display.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
-            overlaySKScene = hud
+            display = controller.makeDisplay(title: "Wall", items: [("y°", rotation)])
         case .resizing(.Wall, let edge):
             if !wallsLocked {
                 let geometry = thePlane(mouseNode)
@@ -337,20 +317,18 @@ extension ArtSceneView
                         changePosition(child, delta: translation)
                     }
                     controller.hideGrids(condition: 3.0)
-//                    let (newsize, _, _, _) = wallInfo(mouseNode)
-//                    controller.status = "Wall Size: \(newsize)"
-                    
                     let (_, _, width, height, _, _) = wallInfo2(mouseNode)
-//                    let hud = HUD(size: frame.size, controller: controller)
-                    let display = hud.addDisplay(title: "Wall",
+                    display = controller.makeDisplay(title: "Wall",
                                                  items: [("width", width),
                                                         ("height", height)],
                                                  width: 200)
-                    display.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
-                    overlaySKScene = hud
                 }
             }
         default: ()
+        }
+        if display != nil {
+            controller.hudUpdate = display
+            display!.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
         }
     }
     
