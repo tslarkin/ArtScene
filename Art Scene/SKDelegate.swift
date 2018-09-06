@@ -28,6 +28,7 @@ extension ArtSceneViewController: SKSceneDelegate
             ("h", "hide/show help")
         ]
         let help = makeDisplay(title: "Camera Help", items: items)
+        help.name = "Help"
         return help
     }
     
@@ -138,15 +139,13 @@ extension ArtSceneViewController: SKSceneDelegate
         
         if wantsCameraHelp {
             if scene.childNode(withName: "Help") == nil {
-                let sceneSize = scene.size
-                let helpSize = cameraHelp.frame.size
-                cameraHelp.position.x = helpSize.width / 2.0 + 20
-                cameraHelp.position.y = sceneSize.height - helpSize.height / 2.0 - 20
-                cameraHelp.name = "Help"
                 scene.addChild(cameraHelp)
-            } else {
-                cameraHelp.alpha = 1.0
             }
+            let sceneSize = scene.size
+            let helpSize = cameraHelp.frame.size
+            cameraHelp.position.x = helpSize.width / 2.0 + 20
+            cameraHelp.position.y = sceneSize.height - helpSize.height / 2.0 - 20
+            cameraHelp.alpha = 1.0
         } else  {
             cameraHelp.alpha = 0.0
         }
