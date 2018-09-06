@@ -331,7 +331,8 @@ extension ArtSceneViewController
         SCNTransaction.animationDuration = 0.2
         let pad = theEvent.modifierFlags.contains(.numericPad)
         guard let keyString = theEvent.charactersIgnoringModifiers else { return }
-        if keyString == "+" {
+        switch keyString {
+        case "+":
             if #available(OSX 10.13, *)
             {
                 camera.fieldOfView += 2.0
@@ -341,7 +342,7 @@ extension ArtSceneViewController
             }
             updateCameraStatus()
             return
-        } else if keyString == "-" {
+        case "-":
             if #available(OSX 10.13, *) {
                 camera.fieldOfView -= 2.0
             }else {
@@ -350,12 +351,16 @@ extension ArtSceneViewController
             }
             updateCameraStatus()
             return
-        } else if keyString == "i" {
+        case "i":
             artSceneView.getTheInfo(nil)
-        } else if keyString == "c" {
+        case "c":
             cameraHidden = !cameraHidden
+        case "h":
+            wantsCameraHelp = !wantsCameraHelp
+        default:
+            ()
         }
-        else if pad {
+        if pad {
             if case EditMode.none = editMode {
                 doCameraEdit(theEvent)
             } else {
