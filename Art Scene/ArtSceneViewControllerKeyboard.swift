@@ -235,8 +235,8 @@ extension ArtSceneViewController
             cameraNode.position.y += up
             omniLight.position = cameraNode.position
         } else if optionDown && controlDown {
-            let quadrant = Int(round(cameraNode.yRotation / .pi / 2.0)) % 4
-            var sign: Int = 0
+            let quarter: CGFloat = .pi / 2.0
+            var sign: CGFloat = 0
             switch charCode {
             case NSLeftArrowFunctionKey:
                 sign = 1
@@ -244,7 +244,7 @@ extension ArtSceneViewController
                 sign = -1
             default: return
             }
-            let direction = (CGFloat(quadrant + sign) * .pi / 2.0).truncatingRemainder(dividingBy: 2.0 * .pi)
+            let direction = round((cameraNode.yRotation + sign * quarter) / quarter) * quarter
             cameraNode.yRotation = direction
         } else if optionDown {
             switch charCode {
