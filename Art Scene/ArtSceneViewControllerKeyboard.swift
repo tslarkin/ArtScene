@@ -45,7 +45,7 @@ extension ArtSceneViewController
         let (x, y, _, _, _, _) = pictureInfo2(theNode)
         hudUpdate = makeDisplay(title: "Picture",
                                      items: [("↔", x), ("↕", y)],
-                                     width: 150)
+                                     width: fontScaler * 150)
         hudUpdate!.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
     }
     
@@ -92,7 +92,7 @@ extension ArtSceneViewController
         }
         hideGrids(condition: 3.0)
         let (x, z, _, _, rot, distance) = wallInfo2(theNode, camera: artSceneView.camera())
-        hudUpdate = makeDisplay(title: "Wall", items: [("↔", x), ("↕", z), ("y°", rot), ("↑", distance!)], width: 175)
+        hudUpdate = makeDisplay(title: "Wall", items: [("↔", x), ("↕", z), ("y°", rot), ("↑", distance!)], width: fontScaler * 175)
         hudUpdate!.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
     }
     
@@ -203,7 +203,7 @@ extension ArtSceneViewController
         }
         defaultWallSize.height = size.height
         let (_, _, width, height, _, _) = wallInfo2(theNode)
-        hudUpdate = makeDisplay(title: "Wall", items: [("width", width), ("height", height)], width: 210)
+        hudUpdate = makeDisplay(title: "Wall", items: [("width", width), ("height", height)], width: fontScaler * 210)
         hudUpdate!.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
         hideGrids()
     }
@@ -235,6 +235,7 @@ extension ArtSceneViewController
             cameraNode.position.y += up
             omniLight.position = cameraNode.position
         } else if optionDown && controlDown {
+            SCNTransaction.animationDuration = 2.0
             let quarter: CGFloat = .pi / 2.0
             var sign: CGFloat = 0
             switch charCode {
@@ -244,7 +245,8 @@ extension ArtSceneViewController
                 sign = -1
             default: return
             }
-            let direction = round((cameraNode.yRotation + sign * quarter) / quarter) * quarter
+            let quadrant = Int(round(cameraNode.yRotation / quarter))
+            let direction = (CGFloat(quadrant)  + sign) * quarter 
             cameraNode.yRotation = direction
         } else if optionDown {
             switch charCode {

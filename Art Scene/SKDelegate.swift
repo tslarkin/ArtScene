@@ -8,9 +8,12 @@
 
 import SpriteKit
 
+let standardFontSize: CGFloat = 24.0
+let fontSize: CGFloat = 18.0
+let fontScaler: CGFloat = fontSize / standardFontSize
+
 extension ArtSceneViewController: SKSceneDelegate
 {
-    
     func makeCameraHelp()->SKNode
     {
         let items: [(String, String)] = [
@@ -24,10 +27,10 @@ extension ArtSceneViewController: SKSceneDelegate
             ("⌥→", "rotate right"),
             ("⌃⌥←", "90° left"),
             ("⌃⌥→", "90° right"),
-            ("c", "hide/show 📹"),
+            ("c", "hide/show specs"),
             ("h", "hide/show help")
         ]
-        let help = makeDisplay(title: "Camera Help", items: items)
+        let help = makeDisplay(title: "Camera Help", items: items, fontSize: 16)
         help.name = "Help"
         return help
     }
@@ -50,12 +53,13 @@ extension ArtSceneViewController: SKSceneDelegate
         }
         
         let hudDictionary: [(String, String)] = [("x", x), ("y", y), ("z", z), ("y°", rot1), ("x°", rot2), ("fov", String(format: "%2d", fov))]
-        hudUpdate = makeDisplay(title: "Camera", items: hudDictionary, width: 175)
+        hudUpdate = makeDisplay(title: "Camera", items: hudDictionary, width: fontScaler * 175)
         hudUpdate!.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
     }
     
     func makeDisplay(title aTitle: String,
                      items: [(String, String)],
+                     fontSize: CGFloat = 18,
                      width: CGFloat? = nil)->SKNode
     {
         
@@ -75,9 +79,9 @@ extension ArtSceneViewController: SKSceneDelegate
         
         var maxLabelSize: CGFloat = 0.0
         var rowDataSizes: Dictionary<String, CGFloat> = [:]
-        let fontSize: CGFloat = 24
-        let font = NSFont(name: "LucidaGrande", size: fontSize)
-        let attributes: [NSAttributedStringKey: AnyObject] = [.font: font!]
+        let font = NSFont(name: "LucidaGrande", size: fontSize)!
+        let lineHeight: CGFloat = ceil(font.ascender - font.descender) + 2
+        let attributes: [NSAttributedStringKey: AnyObject] = [.font: font]
         for(key, value) in items {
             let keysize = (key as NSString).size(withAttributes: attributes)
             let ksize: CGFloat = keysize.width
@@ -87,7 +91,6 @@ extension ArtSceneViewController: SKSceneDelegate
         }
         let maxDataSize: CGFloat = rowDataSizes.values.reduce(0.0, { max($0, $1) })
         let colsep: CGFloat = 20
-        let lineHeight: CGFloat = 29
         let margin: CGFloat = 10
         let flexibleWidth = maxDataSize + maxLabelSize + colsep + margin * 2.0
         var title = aTitle

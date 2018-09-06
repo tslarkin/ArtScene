@@ -175,7 +175,7 @@ class ArtSceneView: SCNView, Undo {
         default:
             return
         }
-        controller.hudUpdate = controller.makeDisplay(title: title, items: hudTable, width: 220)
+        controller.hudUpdate = controller.makeDisplay(title: title, items: hudTable, width: fontScaler * 220)
     }
     
     @IBAction func getTheInfo(_ sender: AnyObject?) {

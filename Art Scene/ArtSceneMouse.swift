@@ -224,7 +224,7 @@ extension ArtSceneView
                 }
                 if node === mouseNode {
                     let (x, y, _, _, _, _) = pictureInfo2(mouseNode)
-                    display = controller.makeDisplay(title: "Picture", items: [("↔", x), ("↕", y)], width: 150)
+                    display = controller.makeDisplay(title: "Picture", items: [("↔", x), ("↕", y)], width: fontScaler * 150)
                 }
             }
         case .resizing(.Picture, let edge):
@@ -272,7 +272,7 @@ extension ArtSceneView
                 changePosition(mouseNode, delta: translation)
                 controller.hideGrids()
                 let (x, z, _, _, _, dist) = wallInfo2(mouseNode, camera: camera())
-                display = controller.makeDisplay(title: "Wall", items: [("↔", x), ("↕", z), ("↑", dist!)], width: 150)
+                display = controller.makeDisplay(title: "Wall", items: [("↔", x), ("↕", z), ("↑", dist!)], width: fontScaler * 150)
             }
         case .resizing(.Wall, .pivot):
             var dy = delta.y / 2.0
