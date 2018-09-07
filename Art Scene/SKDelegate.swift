@@ -25,9 +25,9 @@ extension ArtSceneViewController: SKSceneDelegate
             ("⌥↓", "tilt down"),
             ("⌥←", "rotate left"),
             ("⌥→", "rotate right"),
-            ("⌃⌥←", "90° left"),
-            ("⌃⌥→", "90° right"),
-            ("c", "hide/show specs"),
+            ("⌃⌥←", "↰"),
+            ("⌃⌥→", "↱"),
+            ("c", "hide/show HUD"),
             ("h", "hide/show help")
         ]
         let help = makeDisplay(title: "Camera Help", items: items, fontSize: 16)
@@ -69,7 +69,7 @@ extension ArtSceneViewController: SKSceneDelegate
                           alignment: SKLabelHorizontalAlignmentMode)->SKLabelNode
         {
             let node = SKLabelNode(text: text)
-            node.fontName = "Lucida Grande"
+            node.fontName = "LucidaGrande"
             node.fontSize = fontSize
             node.fontColor = NSColor.white
             node.position = position

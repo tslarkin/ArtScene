@@ -61,15 +61,18 @@ class ArtSceneView: SCNView, Undo {
     /// Makes the `questionCursor` and `rotateCursor`, then calls `super.init()`
     required init?(coder: NSCoder) {
         var size: CGFloat = 24
-        var image: NSImage = NSImage(size: NSSize(width: size, height: size))
         let font = NSFont.boldSystemFont(ofSize: size)
         let q = "?"
         let attributes: [NSAttributedStringKey: AnyObject] = [.font: font, .strokeColor: NSColor.white,
                                                               .foregroundColor: NSColor.black, .strokeWidth: NSNumber(value: -2)]
+        let qSize = (q as NSString).size(withAttributes: attributes)
+        var image: NSImage = NSImage(size: NSSize(width: qSize.width + 2, height: qSize.height + 2))
         image.lockFocus()
-        q.draw(in: NSRect(x: 0, y: 0, width: size, height: size), withAttributes:attributes)
+        q.draw(in: NSRect(x: 1, y: -7, width: qSize.width, height: qSize.height), withAttributes:attributes)
+//        NSColor.red.set()
+//        NSBezierPath.stroke(NSRect(x: 0, y: 0, width: qSize.width, height: qSize.height))
         image.unlockFocus()
-        questionCursor = NSCursor.init(image: image, hotSpot: NSPoint(x: 12, y: 21))
+        questionCursor = NSCursor.init(image: image, hotSpot: NSPoint(x: qSize.width / 2.0, y: qSize.height))
         
         size = 24
         let rotate = NSImage(named: (("rotate-icon.png" as NSString) as NSImage.Name))!
@@ -181,7 +184,7 @@ class ArtSceneView: SCNView, Undo {
     @IBAction func getTheInfo(_ sender: AnyObject?) {
         if case .getInfo = editMode {
             editMode = .none
-            let display = overlaySKScene?.children[0]
+            let display = overlaySKScene?.childNode(withName: "HUD Display")
             display?.run(SKAction.fadeOut(withDuration: 1.0))
             NSCursor.arrow.set()
         } else {

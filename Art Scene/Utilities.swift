@@ -302,7 +302,7 @@ func wallContainsPictures(_ wall: SCNNode, withNewSize newSize: CGSize) -> Bool
 
 func convertToFeetAndInches(_ length: CGFloat, units:Units = .feet) -> String
 {
-    if length == 0.0 {
+    if length < 0.0001 {
         return "0\'"
     }
     let xFeet = units == .feet ? Int(length) : 0
@@ -326,7 +326,7 @@ func convertToFeetAndInches(_ length: CGFloat, units:Units = .feet) -> String
         break
     }
     let formattedInches = wholeInches == 0 ? "" : String(format:"%d", Int(wholeInches))
-    let formattedFeet = (units == Units.inches || xFeet == 0) ? "" : String(format: "%d'", xFeet)
+    let formattedFeet = (units == Units.inches || xFeet == 0 && (wholeInches != 0.0 || fractionalInches != 0.0)) ? "" : String(format: "%d'", xFeet)
     return formattedFeet + formattedInches + formattedFractionalInches
 }
 

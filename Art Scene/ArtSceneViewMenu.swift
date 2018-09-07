@@ -17,7 +17,7 @@ extension ArtSceneView {
     /// Set `editMode` and the cursor image based on modifier keys.
     override func flagsChanged(with theEvent: NSEvent) {
         if inDrag { return }
-        if case .getInfo = editMode { return }
+        if case EditMode.getInfo = editMode { return }
         let controlAlone = checkModifierFlags(theEvent, flag: .control)
         if controlAlone {
             NSCursor.contextualMenu.set()

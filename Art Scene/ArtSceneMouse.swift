@@ -52,7 +52,11 @@ extension ArtSceneView
         case .getInfo:
             questionCursor.set()
         case .contextualMenu:
-            NSCursor.contextualMenu.set()
+            if !checkModifierFlags(theEvent, flag: .control) {
+                editMode = .none
+            } else {
+                NSCursor.contextualMenu.set()
+            }
         case .selecting:
             NSCursor.pointingHand.set()
         default:
@@ -61,13 +65,13 @@ extension ArtSceneView
 
 
         // These modes are effected by changes to the keyboard flags, so are not affected by mouse movements
-        switch editMode {
-        case .selecting, .getInfo, .resizing(.Image, _), .contextualMenu: break
-        default:
-            NSCursor.arrow.set()
-            mouseNode = nil
-            editMode = .none
-        }
+//        switch editMode {
+//        case .selecting, .getInfo, .resizing(.Image, _), .contextualMenu: break
+//        default:
+//            NSCursor.arrow.set()
+//            mouseNode = nil
+//            editMode = .none
+//        }
                 
         var hitResults: [SCNHitTestResult]
         if #available(OSX 10.13, *) {
@@ -88,13 +92,7 @@ extension ArtSceneView
         let hit = hitResults[0]
         switch editMode {
         case .getInfo:
-            if let pic = pictureOf(hit.node), theFrame(pic).isHidden {
-                if nodeType(hit.node) != .Image {
-                    mouseNode = pic.parent
-                }
-            } else {
-                mouseNode = hit.node
-            }
+            mouseNode = hit.node
             return
         case .selecting:
             if let picture = pictureOf(hit.node) {
@@ -144,6 +142,11 @@ extension ArtSceneView
             case .Wall:
                 if wallsLocked {
                     mouseNode = hit.node
+                    if case EditMode.getInfo = editMode {
+                    } else {
+                        NSCursor.arrow.set()
+                        editMode = .none
+                    }
                     break
                 }
                 let local = NSPoint(x: hit.localCoordinates.x, y: hit.localCoordinates.y)
@@ -178,7 +181,10 @@ extension ArtSceneView
                         }
                     }
                 }
-            default: ()
+            default:
+                NSCursor.arrow.set()
+                mouseNode = nil
+                editMode = .none
             }
         }
     }
@@ -345,21 +351,24 @@ extension ArtSceneView
             selection = []
             return
         }
-        let p = theEvent.locationInWindow
-        var hitResults = hitTest(p, options: nil)
-            //, options: [SCNHitTestOption.firstFoundOnly:  searchMode:  NSNumber(value: 1),
-                                           //   SCNHitTestOption.ignoreHiddenNodes: NSNumber(value: true)])
-        hitResults = hitResults.filter({ nodeType($0.node) != .Back && nodeType($0.node) != .Grid})
-        guard hitResults.count > 0 else {
-            return
-        }
-        if case EditMode.getInfo = editMode {
-            mouseNode = hitResults[0].node
-        }
+
         guard let mouseNode = mouseNode else { return }
         switch editMode {
         case .getInfo:
-            if nodeType(mouseNode) == .Matt {
+            var hitResults: [SCNHitTestResult]
+            if #available(OSX 10.13, *) {
+                hitResults = hitTest(theEvent.locationInWindow, options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
+            } else {
+                hitResults = hitTest(theEvent.locationInWindow, options: nil)
+            }
+            hitResults = hitResults.filter({ nodeType($0.node) != .Back && nodeType($0.node) != .Grid})
+            hitResults = hitResults.filter({ nodeType($0.node) != .Picture || !theFrame($0.node).isHidden})
+            guard hitResults.count > 0 else {
+                return
+            }
+            if nodeType(mouseNode) == .Wall {
+                getInfo(mouseNode, option: false, hitPosition: hitResults[0].worldCoordinates)
+            } else if nodeType(mouseNode) == .Matt {
                 getInfo(pictureOf(mouseNode)!, option: false, hitPosition: hitResults[0].worldCoordinates)
             } else {
                 let option = checkModifierFlags(theEvent, flag: .option)

@@ -356,10 +356,14 @@ extension ArtSceneViewController
         case "i":
             artSceneView.getTheInfo(nil)
         case "c":
+            let defaults = UserDefaults.standard
             cameraHidden = !cameraHidden
+            defaults.set(cameraHidden, forKey: "cameraHidden")
         case "h":
+            let defaults = UserDefaults.standard
             wantsCameraHelp = !wantsCameraHelp
-        default:
+            defaults.set(wantsCameraHelp, forKey: "wantsCameraHelp")
+       default:
             ()
         }
         if pad {

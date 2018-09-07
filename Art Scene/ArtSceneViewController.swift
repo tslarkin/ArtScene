@@ -174,6 +174,11 @@ class ArtSceneViewController: NSViewController, Undo {
     override func awakeFromNib(){
         Bundle.main.loadNibNamed(("ActionMenu" as NSString) as NSNib.Name, owner: artSceneView, topLevelObjects: nil)
         
+        let defaults = UserDefaults.standard
+        defaults.register(defaults: ["cameraHidden": false, "wantsCameraHelp": true])
+        cameraHidden = defaults.bool(forKey: "cameraHidden")
+        wantsCameraHelp = defaults.bool(forKey: "wantsCameraHelp")
+        
         // create a new scene
         
         // allows the user to manipulate the camera
