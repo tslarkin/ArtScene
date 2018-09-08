@@ -61,6 +61,7 @@ class ArtSceneViewController: NSViewController, Undo {
     var cameraHidden: Bool = false
     var wantsCameraHelp: Bool = true
     var cameraHelp: SKNode!
+    var frameSizeChanged: Bool = false
     
     @objc func setColorOfWalls(_ sender: AnyObject?) {
         if let sender = sender as? NSColorPanel {

@@ -14,6 +14,12 @@ Hosts the Art Scene. It also handles mouse events (including keeping track of th
 and printing.
 */
 class ArtSceneView: SCNView, Undo {
+    
+    override var frame: NSRect {
+        didSet {
+            controller.frameSizeChanged = true
+        }
+    }
 
     /// A reference to its controller
     @IBOutlet weak var controller: ArtSceneViewController!

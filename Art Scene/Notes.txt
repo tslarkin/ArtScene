@@ -1,6 +1,6 @@
 How to sign the read only DMG:
 https://stackoverflow.com/questions/23824815/how-to-add-codesigning-to-dmg-file-in-mac
-codesign --force --sign "Developer ID Application: Timothy Larkin (P5AAYT7AT4)" --keychain ~/Library/Keychains/login.keychain /Users/tslarkin/Projects/Art\ Scene/Updates.dmg
-spctl -a -t open --context context:primary-signature -v /Users/tslarkin/Projects/Art\ Scene/Updates.dmg
-/Users/tslarkin/Projects/Art Scene/Updates.dmg: accepted
+codesign --force --sign "Developer ID Application: Timothy Larkin (P5AAYT7AT4)" --keychain ~/Library/Keychains/login.keychain /Users/tslarkin/Projects/Art\ Scene/ArtScene.dmg
+spctl -a -t open --context context:primary-signature -v /Users/tslarkin/Projects/Art\ Scene/ArtScene.dmg
+/Users/tslarkin/Projects/Art Scene/ArtScene.dmg: accepted
 source=Developer ID

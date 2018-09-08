@@ -10,15 +10,17 @@ import SpriteKit
 
 class HUD: SKScene
 {
-    open var labelNode: SKLabelNode?
-    open var display: SKShapeNode?
+//    open var labelNode: SKLabelNode?
+    var display: SKShapeNode?
     let controller: ArtSceneViewController
+    
     
     init(size: CGSize, controller: ArtSceneViewController) {
         self.controller = controller
         super.init(size: size)
         self.delegate = controller
         scaleMode = .resizeFill
+        isUserInteractionEnabled = false
     }
     
     override func keyDown(with event: NSEvent) {
@@ -28,6 +30,8 @@ class HUD: SKScene
     override func flagsChanged(with event: NSEvent) {
         controller.artSceneView.flagsChanged(with: event)
     }
+    
+    
     
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

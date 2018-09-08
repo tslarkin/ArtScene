@@ -143,14 +143,21 @@ extension ArtSceneViewController: SKSceneDelegate
         if wantsCameraHelp {
             if scene.childNode(withName: "Help") == nil {
                 scene.addChild(cameraHelp)
+                frameSizeChanged = true
+                artSceneView.isPlaying = false
             }
-            let sceneSize = scene.size
-            let helpSize = cameraHelp.frame.size
-            cameraHelp.position.x = helpSize.width / 2.0 + 20
-            cameraHelp.position.y = sceneSize.height - helpSize.height / 2.0 - 20
-            cameraHelp.alpha = 1.0
-        } else  {
-            cameraHelp.alpha = 0.0
+            if frameSizeChanged {
+                let sceneSize = scene.size
+                let helpSize = cameraHelp.frame.size
+                cameraHelp.position.x = helpSize.width / 2.0 + 20
+                cameraHelp.position.y = sceneSize.height - helpSize.height / 2.0 - 20
+                frameSizeChanged = false
+            }
+         } else  {
+            if cameraHelp.parent != nil {
+                cameraHelp.removeFromParent()
+                artSceneView.isPlaying = false
+            }
         }
     }
 }

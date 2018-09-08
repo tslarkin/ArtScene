@@ -42,7 +42,7 @@
 		12E95BB82128269900F025B6 /* ArtSceneViewControllerKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */; };
 		12EBCA6F213C966B00881DC7 /* ReleaseNotes.html in Resources */ = {isa = PBXBuildFile; fileRef = 12EBCA6E213C966B00881DC7 /* ReleaseNotes.html */; };
 		12EBCA76213DC94500881DC7 /* floor.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 12EBCA75213DC94500881DC7 /* floor.jpg */; };
-		12EBCA78213EA13F00881DC7 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 12EBCA77213EA13F00881DC7 /* icon.icns */; };
+		12EBCA78213EA13F00881DC7 /* docicon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 12EBCA77213EA13F00881DC7 /* docicon.icns */; };
 		12EBCA7A213F5CEF00881DC7 /* TruncatingString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12EBCA79213F5CEF00881DC7 /* TruncatingString.swift */; };
 /* End PBXBuildFile section */
 
@@ -97,7 +97,7 @@
 		12E95BBD212E308000F025B6 /* Art Scene.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Art Scene.entitlements"; sourceTree = "<group>"; };
 		12EBCA6E213C966B00881DC7 /* ReleaseNotes.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ReleaseNotes.html; sourceTree = "<group>"; };
 		12EBCA75213DC94500881DC7 /* floor.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = floor.jpg; sourceTree = "<group>"; };
-		12EBCA77213EA13F00881DC7 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = "<group>"; };
+		12EBCA77213EA13F00881DC7 /* docicon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = docicon.icns; sourceTree = "<group>"; };
 		12EBCA79213F5CEF00881DC7 /* TruncatingString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TruncatingString.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -186,7 +186,7 @@
 		12EBCA74213DB98D00881DC7 /* Images */ = {
 			isa = PBXGroup;
 			children = (
-				12EBCA77213EA13F00881DC7 /* icon.icns */,
+				12EBCA77213EA13F00881DC7 /* docicon.icns */,
 				12EBCA75213DC94500881DC7 /* floor.jpg */,
 				129BCF2F1BE29D5200F6B8F3 /* rotate-icon.png */,
 				1232CBCE212328A4006F9A64 /* 4way-arrow.png */,
@@ -269,7 +269,7 @@
 				129BCF301BE29D5200F6B8F3 /* rotate-icon.png in Resources */,
 				127CF8C71BD181FA00F571D9 /* ActionMenu.xib in Resources */,
 				120CF83A2139500F00ED0546 /* Notes.txt in Resources */,
-				12EBCA78213EA13F00881DC7 /* icon.icns in Resources */,
+				12EBCA78213EA13F00881DC7 /* docicon.icns in Resources */,
 				127CF8C81BD181FA00F571D9 /* aligntop.png in Resources */,
 				12EBCA6F213C966B00881DC7 /* ReleaseNotes.html in Resources */,
 				127CF8C91BD181FA00F571D9 /* alignbottom.png in Resources */,
