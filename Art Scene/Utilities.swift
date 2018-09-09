@@ -16,13 +16,14 @@ enum Units {
     case feet
 }
 
-enum NodeEdge {
+indirect enum NodeEdge: Equatable {
     case none
     case top
     case bottom
     case left
     case right
     case pivot
+    case side(Int, NodeEdge)
 }
 
 enum NodeType: String {
@@ -38,6 +39,7 @@ enum NodeType: String {
     case Floor
     case Back
     case Grid
+    case Box
 }
 
 enum EditMode {
@@ -131,18 +133,6 @@ func runOpenPanel() -> URL?
 
 let r2d = CGFloat(180.0 / .pi)
 
-//func roundToQuarterInch(x: CGFloat) -> CGFloat
-//{
-//    let quarters = round(x * 12 * 4)
-//    return quarters / (12 * 4)
-//}
-
-//func constrainToGrid(point: SCNVector3) -> SCNVector3
-//{
-//    
-//    return SCNVector3(x: roundToQuarterInch(point.x), y: roundToQuarterInch(point.y), z: point.z)
-//}
-
 func nodeSize(_ node: SCNNode) -> CGSize
 {
     if let plane = node.geometry as? SCNPlane {
@@ -178,29 +168,8 @@ func distanceForPicture(_ node: SCNNode, axis: Axis, coordinate: CGFloat = 0.0) 
 }
 
 /// GetInfo properties for a wall.
-func wallInfo(_ wall: SCNNode, camera: SCNNode? = nil, hitPosition: SCNVector3? = nil) -> (size: String, location: String, rotation: String, distance: String?) {
-    let plane = wall.geometry as! SCNPlane
-    let length = convertToFeetAndInches(plane.width)
-    let height = convertToFeetAndInches(plane.height)
-    let x = convertToFeetAndInches(wall.position.x)
-    let y = convertToFeetAndInches(-wall.position.z)
-    var angle = (wall.eulerAngles.y * r2d).truncatingRemainder(dividingBy: 360.0)
-    if angle < 0 {
-        angle += 360.0
-    }
-    let rotation = String(format: "%0.0f°", angle)
-    var distance: String? = nil
-    if let camera = camera {
-        let position = hitPosition != nil ? hitPosition! : wall.position
-        let x = position.x - camera.position.x
-        let z = position.z - camera.position.z
-        distance =  convertToFeetAndInches(sqrt(x * x + z * z))
-    }
-    return (length + " x " + height, x + ", " + y, rotation, distance)
 
-}
-
-func wallInfo2(_ wall: SCNNode, camera: SCNNode? = nil, hitPosition: SCNVector3? = nil) -> (x: String, y: String, width: String, height: String, rotation: String, distance: String?) {
+func wallInfo(_ wall: SCNNode, camera: SCNNode? = nil, hitPosition: SCNVector3? = nil) -> (x: String, y: String, width: String, height: String, rotation: String, distance: String?) {
     let plane = wall.geometry as! SCNPlane
     let length = convertToFeetAndInches(plane.width)
     let height = convertToFeetAndInches(plane.height)
@@ -222,23 +191,23 @@ func wallInfo2(_ wall: SCNNode, camera: SCNNode? = nil, hitPosition: SCNVector3?
     
 }
 
-/// GetInfo properties for a picture.
-func pictureInfo(_ node: SCNNode, camera: SCNNode? = nil, hitPosition: SCNVector3? = nil) -> (size: String, location: String, hidden: Bool, distance: String) {
-    let size = nodeSize(node)
-    let wall = node.parent!
-    let area = wall.geometry as! SCNPlane
-    var distance = ""
-    if camera != nil && hitPosition != nil {
-        let x = hitPosition!.x - camera!.position.x
-        let z = hitPosition!.z - camera!.position.z
-        distance =  convertToFeetAndInches(sqrt(x * x + z * z))
+func boxInfo(_ boxNode: SCNNode)->(x: String, y: String, width: String, height: String, length: String, rotation: String) {
+    let box = boxNode.geometry as! SCNBox
+    let width = convertToFeetAndInches(box.width)
+    let length = convertToFeetAndInches(box.length)
+    let height = convertToFeetAndInches(box.height)
+    let x = convertToFeetAndInches(boxNode.position.x)
+    let y = convertToFeetAndInches(-boxNode.position.z)
+    var angle = (boxNode.eulerAngles.y * r2d).truncatingRemainder(dividingBy: 360.0)
+    if angle < 0 {
+        angle += 360.0
     }
-    return ("\(convertToFeetAndInches(size.width, units: .inches)) x \(convertToFeetAndInches(size.height, units: .inches))",
-            "\(convertToFeetAndInches(node.position.x + area.width / 2)), \(convertToFeetAndInches(node.position.y + area.height / 2))",
-            theFrame(node).isHidden, distance)
+    let rotation = String(format: "%0.0f°", angle)
+    return (x, y, width, height, length, rotation)
 }
 
-func pictureInfo2(_ node: SCNNode, camera: SCNNode? = nil, hitPosition: SCNVector3? = nil) -> (x: String, y: String, width: String, height: String, hidden: String, distance: String) {
+/// GetInfo properties for a picture.
+func pictureInfo(_ node: SCNNode, camera: SCNNode? = nil, hitPosition: SCNVector3? = nil) -> (x: String, y: String, width: String, height: String, hidden: String, distance: String) {
     let size = nodeSize(node)
     let wall = node.parent!
     let area = wall.geometry as! SCNPlane
@@ -256,17 +225,7 @@ func pictureInfo2(_ node: SCNNode, camera: SCNNode? = nil, hitPosition: SCNVecto
 
 
 /// GetInfo properties for an image.
-func imageInfo(_ node: SCNNode) -> (size: String, name: String) {
-    // The node might be the picture or the image itself
-    let type = nodeType(node)
-    let plane = type == .Image ? thePlane(pictureOf(node)!) : thePlane(node)
-    let s = plane.name! as NSString
-    let name = (s.lastPathComponent as NSString).deletingPathExtension
-    let size = type == .Image ? node.size()! : theImage(node).size()!
-    return ("\(convertToFeetAndInches(size.width, units: .inches)) x \(convertToFeetAndInches(size.height, units: .inches))", name)
-}
-
-func imageInfo2(_ node: SCNNode) -> (width: String, height: String, name: String) {
+func imageInfo(_ node: SCNNode) -> (width: String, height: String, name: String) {
     // The node might be the picture or the image itself
     let type = nodeType(node)
     let plane = type == .Image ? thePlane(pictureOf(node)!) : thePlane(node)
@@ -278,31 +237,9 @@ func imageInfo2(_ node: SCNNode) -> (width: String, height: String, name: String
         name)
 }
 
-/// Determine if a wall with `newSize` contains all its pictures.
-func wallContainsPictures(_ wall: SCNNode, withNewSize newSize: CGSize) -> Bool
-{
-    return true
-    
-//    let pictures = wall.childNodes( passingTest: { x, yes in x.name == "Picture"} )
-//    if pictures.isEmpty {
-//        return true
-//    } else {
-//        let rect = CGRect(x: -newSize.width / 2, y: -newSize.height / 2, width: newSize.width, height: newSize.height)
-//        for picture in pictures {
-//            let frame = picture.geometry as! SCNPlane
-//            let r = CGRect(x: picture.position.x - frame.width / 2, y: picture.position.y - frame.height / 2,
-//                width: frame.width, height: frame.height)
-//            if !rect.contains(r) {
-//                return false
-//            }
-//        }
-//        return true
-//    }
-}
-
 func convertToFeetAndInches(_ length: CGFloat, units:Units = .feet) -> String
 {
-    if length < 0.0001 {
+    if abs(length) < 0.01 {
         return "0\'"
     }
     let xFeet = units == .feet ? Int(length) : 0

@@ -42,7 +42,7 @@ extension ArtSceneViewController
             changePosition(picture, delta: translation)
         }
         
-        let (x, y, _, _, _, _) = pictureInfo2(theNode)
+        let (x, y, _, _, _, _) = pictureInfo(theNode)
         hudUpdate = makeDisplay(title: "Picture",
                                      items: [("↔", x), ("↕", y)],
                                      width: fontScaler * 150)
@@ -91,7 +91,7 @@ extension ArtSceneViewController
             changePosition(theNode, delta: SCNVector3Make(dx, 0.0, dz))
         }
         hideGrids(condition: 3.0)
-        let (x, z, _, _, rot, distance) = wallInfo2(theNode, camera: artSceneView.camera())
+        let (x, z, _, _, rot, distance) = wallInfo(theNode, camera: artSceneView.camera())
         hudUpdate = makeDisplay(title: "Wall", items: [("↔", x), ("↕", z), ("y°", rot), ("↑", distance!)], width: fontScaler * 175)
         hudUpdate!.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
     }
@@ -119,7 +119,7 @@ extension ArtSceneViewController
         }
         if size.width < minimumPictureSize || size.height < minimumPictureSize { return }
         changePictureSize(theNode, from: theNode.size()!, to: size)
-        let (_, _, width, height, _, _) = pictureInfo2(theNode)
+        let (_, _, width, height, _, _) = pictureInfo(theNode)
         hudUpdate = makeDisplay(title: "Picture",
                                      items: [("width", width), ("height", height)])
         hudUpdate!.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
@@ -146,7 +146,7 @@ extension ArtSceneViewController
         if size.height < minimumImageSize || size.width < minimumImageSize { return }
         changeImageSize(theNode!, from: oldSize, to: size)
         
-        let (width, height, name) = imageInfo2(theNode!)
+        let (width, height, name) = imageInfo(theNode!)
         hudUpdate = makeDisplay(title: name,
                                      items: [("width", width), ("height", height)],
                                      width: 200)
@@ -177,16 +177,12 @@ extension ArtSceneViewController
             dy = jump
         case NSDownArrowFunctionKey:
             newsize.height -= jump
-            if wallContainsPictures(theNode, withNewSize: newsize) {
-                dy = -jump
-            }
+            dy = -jump
         case NSRightArrowFunctionKey:
             dx = jump
         case NSLeftArrowFunctionKey:
             newsize.width -= jump
-            if wallContainsPictures(theNode, withNewSize: newsize) {
-                dx = -jump
-            }
+            dx = -jump
         default:
             super.keyDown(with: theEvent)
         }
@@ -202,11 +198,80 @@ extension ArtSceneViewController
             changePosition(child, delta: translation)
         }
         defaultWallSize.height = size.height
-        let (_, _, width, height, _, _) = wallInfo2(theNode)
+        let (_, _, width, height, _, _) = wallInfo(theNode)
         hudUpdate = makeDisplay(title: "Wall", items: [("width", width), ("height", height)], width: fontScaler * 210)
         hudUpdate!.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
         hideGrids()
     }
+    
+    func doBoxEditSize(_ theEvent: NSEvent)
+    {
+        guard let theNode = theNode,
+            let box = theNode.geometry as? SCNBox,
+            let keyString = theEvent.charactersIgnoringModifiers?.utf16 else { return }
+        let shift = checkModifierFlags(theEvent, flag: .shift, exclusive: false)
+        let command = checkModifierFlags(theEvent, flag: .command, exclusive: false)
+        let jump: CGFloat = shift ? 1 / 48.0 : 0.25 // ¼" or 3"
+        let keyChar = Int(keyString[keyString.startIndex])
+        var dWidth: CGFloat = 0.0
+        var dLength: CGFloat = 0.0
+        var dHeight: CGFloat = 0.0
+        switch keyChar {
+        case NSUpArrowFunctionKey:
+            if !command { dHeight = jump }
+        case NSDownArrowFunctionKey:
+            if !command { dHeight -= jump }
+        case NSRightArrowFunctionKey:
+            if command {
+                dLength = jump
+            } else {
+                dWidth = jump
+            }
+        case NSLeftArrowFunctionKey:
+            if command {
+                dLength = -jump
+            } else {
+                dWidth = -jump
+            }
+        default:
+            super.keyDown(with: theEvent)
+        }
+        changeVolume(theNode, to: SCNVector3Make(box.width + dWidth, box.height + dHeight, box.length + dLength))
+        changePosition(theNode, delta: SCNVector3Make(-dWidth / 2.0, dHeight / 2.0, -dLength / 2.0))
+        let (_, _, width, height, length, _) = boxInfo(theNode)
+        hudUpdate = makeDisplay(title: "Box", items: [("width", width), ("height", height), ("length", length)], width: fontScaler * 210)
+        hudUpdate!.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
+    }
+    
+    func doBoxEditPosition(_ theEvent: NSEvent) {
+        guard let keyString = theEvent.charactersIgnoringModifiers?.utf16,
+            let theNode = theNode else { return }
+        let shift = checkModifierFlags(theEvent, flag: .shift)
+        let jump: CGFloat = shift ? 1.0 / 48.0 : 1.0 / 12.0 // ¼" or 1"
+        var dx: CGFloat = 0, dy: CGFloat = 0
+        let keyChar = Int(keyString[keyString.startIndex])
+        switch keyChar {
+        case NSRightArrowFunctionKey:
+            dx = jump
+        case NSLeftArrowFunctionKey:
+            dx = -jump
+        case NSUpArrowFunctionKey:
+            dy = -jump
+        case NSDownArrowFunctionKey:
+            dy = jump
+        default:
+            return
+        }
+        let translation = SCNVector3Make(dx, 0.0, dy)
+        changePosition(theNode, delta: translation, camera: artSceneView.camera())
+        
+        let (x, y, _, _, _, _) = boxInfo(theNode)
+        hudUpdate = makeDisplay(title: "Box",
+                                items: [("↔", x), ("↕", y)],
+                                width: fontScaler * 150)
+        hudUpdate!.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
+    }
+    
     
     /// Change the location and rotation of the camera with the arrow keys. The rotation
     /// is changed if the command key is down.
@@ -391,6 +456,10 @@ extension ArtSceneViewController
                     doImageEditSize(theEvent)
                 case .moving(.Picture):
                     doFrameEditPosition(theEvent)
+                case .moving(.Box):
+                    doBoxEditPosition(theEvent)
+                case .resizing(.Box, _):
+                    doBoxEditSize(theEvent)
                 default: ()
                 }
             }

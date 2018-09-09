@@ -81,6 +81,24 @@ extension Undo
         node.transform = transform
     }
         
+    func changePosition(_ node: SCNNode, delta: SCNVector3, camera: SCNNode)
+    {
+        let undoer = document!.undoManager!
+        undoer.registerUndo(withTarget: self, handler: { $0.changePosition(node, delta: SCNVector3Make(-delta.x, -delta.y, -delta.z))})
+        let newPosition = newPositionFromAngle(node.position, deltaAway: delta.z, deltaRight: -delta.x, angle: camera.yRotation)
+        node.position = newPosition
+    }
+    
+    func changeVolume(_ node: SCNNode, to: SCNVector3) {
+        let undoer = document!.undoManager!
+        let box = node.geometry as! SCNBox
+        let oldVolume = SCNVector3Make(box.width, box.height, box.length)
+        undoer.registerUndo(withTarget: self, handler: { $0.changeVolume(node, to: oldVolume) })
+        box.width = to.x
+        box.height = to.y
+        box.length = to.z
+    }
+    
     func changeSize(_ node: SCNNode, from: CGSize, to: CGSize)
     {
         let undoer = document!.undoManager!
@@ -139,19 +157,25 @@ extension Undo
         var name: String?
         switch editMode {
         case .none: name = "No Action"
-        case .resizing(_, .pivot):
+        case .resizing(.Wall, .pivot):
             name = "Wall Rotation"
+        case .resizing(.Box, .pivot):
+            name = "Box Rotation"
         case .resizing(.Image, _):
             name = "Resizing Image"
         case .resizing(.Picture, _):
             name = "Resizing Frame of \(String(describing: node.name!))"
         case .resizing(.Wall, _):
             name = "Resizing \(String(describing: node.name!))"
+        case .resizing(.Box, _):
+            name = "Resizing \(String(describing: node.name!))"
         case .moving(.Picture):
             name = "Moving \(String(describing: node.name!))"
         case .moving(.Wall):
             name = "Moving \(String(describing: node.name!))"
-        default: ()
+        case .moving(.Box):
+            name = "Moving \(String(describing: node.name!))"
+       default: ()
         }
         return name
     }

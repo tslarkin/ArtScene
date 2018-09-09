@@ -29,10 +29,6 @@ class ArtSceneViewController: NSViewController, Undo {
     /// The status bar is a text field at the top of the window.
     @IBOutlet weak var statusBar: NSTextField!
     
-    /// `true` if the controller is prepared for undo. The controller opens an undo grouping
-    /// when key based editing begins. A change in `editMode` triggers an end to that grouping.
-//    var preparedForUndo: Bool = false
-    
     var editMode = EditMode.none {
         willSet(newMode) {
             if case EditMode.none = newMode {
@@ -67,6 +63,29 @@ class ArtSceneViewController: NSViewController, Undo {
         if let sender = sender as? NSColorPanel {
             let color = sender.color
             self.wallColor = color
+        }
+    }
+    
+    @IBAction func pickBoxColor(_ sender: AnyObject?)
+    {
+        let picker = NSColorPanel.shared
+        picker.setTarget(self)
+        picker.setAction(#selector(ArtSceneViewController.setBoxColor(_:)))
+        let box = theNode!.geometry as! SCNBox
+        let color = box.firstMaterial?.diffuse.contents as! NSColor
+        picker.color = color
+        picker.isContinuous = true
+        picker.orderFront(nil)
+    }
+    
+    @objc func setBoxColor(_ sender: AnyObject) {
+        if let sender = sender as? NSColorPanel {
+            let color = sender.color
+            let box = theNode!.geometry as! SCNBox
+            let materials = box.materials
+            for material in materials {
+                material.diffuse.contents = color
+            }
         }
     }
     
@@ -166,6 +185,30 @@ class ArtSceneViewController: NSViewController, Undo {
             unlockWalls()
         }
     }
+    
+    func makeBox(at: SCNVector3)->SCNNode {
+        let box = SCNBox(width: 3.0, height: 3.0, length: 6.0, chamferRadius: 0.0)
+        let paint = SCNMaterial()
+        paint.diffuse.contents = NSColor.lightGray
+        paint.isDoubleSided = false
+        box.materials = [paint]
+        let boxNode = SCNNode(geometry: box)
+        boxNode.name = "Box"
+        boxNode.position = at
+        boxNode.position.y = 1.5
+        boxNode.castsShadow = true
+        
+        var materials:[SCNMaterial] = []
+        for _ in 0..<6 {
+            let material = SCNMaterial()
+            material.diffuse.contents = NSColor.lightGray
+            materials.append(material)
+        }
+        boxNode.geometry?.materials = materials
+        
+        return boxNode
+    }
+
     
     @IBAction func hideStatus(_ sender: AnyObject) {
         status = ""
@@ -329,51 +372,57 @@ class ArtSceneViewController: NSViewController, Undo {
         undoer.endUndoGrouping()
     }
 
+    @IBAction func addBox(_ sender: AnyObject)
+    {
+        undoer.beginUndoGrouping()
+        undoer.setActionName("Add Box")
+        let boxNode = makeBox(at: artSceneView.mouseClickLocation!)
+        changeParent(boxNode, from: nil, to: scene.rootNode)
+        undoer.endUndoGrouping()
+    }
+    
+    @IBAction func deleteBox(_ sender: AnyObject)
+    {
+        undoer.beginUndoGrouping()
+        undoer.setActionName("Delete Box")
+        changeParent(theNode!, from: theNode!.parent, to: nil)
+        undoer.endUndoGrouping()
+    }
     
     /// A menu action to put the controller in `.Moving(.Wall)` mode.
     @objc func editWallPosition(_ sender: AnyObject?) {
         editMode = .moving(.Wall)
-        let (_, location, _, distance) = wallInfo(theNode!, camera: artSceneView.camera())
-        status = "Wall Position: \(location); Distance: \(distance!)"
     }
     
     /// A menu action to put the controller in `.Resizing(.Wall)` mode.
     @objc func editWallSize(_ sender: AnyObject?)
     {
         editMode = .resizing(.Wall, .none)
-        let (size, _, _, _) = wallInfo(theNode!)
-        status = "Wall Size: \(size)"
     }
     
     /// A menu action to put the controller in `.Resizing(.Picture)` mode.
     @objc func editFrameSize(_ sender: AnyObject?)
     {
         editMode = .resizing(.Picture, .none)
-        if let theNode = theNode {
-            let (size, _, _, _) = pictureInfo(theNode)
-            status = "Picture: \(size)"
-        } else {
-            status = ""
-        }
     }
     
     @objc func editImageSize(_ sender: AnyObject?)
     {
         editMode = .resizing(.Image, .none)
-        let (size, _) = imageInfo(theNode!)
-        status = "Image: \(size)"
      }
     
     /// A menu action to put the controller in `.Moving(.Picture)` mode.
     @IBAction func editFramePosition(_ sender: AnyObject?)
     {
         editMode = .moving(.Picture)
-        if let theNode = theNode {
-            let (_, location, _, _) = pictureInfo(theNode)
-            status = "Location: \(location)"
-        } else {
-            status = ""
-        }
+    }
+    
+    @IBAction func editBoxPosition(_ sender: AnyObject) {
+        editMode = .moving(.Box)
+    }
+    
+    @IBAction func editBoxSize(_ sender: AnyObject) {
+        editMode = .resizing(.Box, .none)
     }
     
     @objc func rotateWallCW()

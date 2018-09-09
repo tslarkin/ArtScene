@@ -24,7 +24,7 @@ extension ArtSceneView {
             editMode = .contextualMenu
         } else {
             let commandAlone = checkModifierFlags(theEvent, flag: .command)
-            if commandAlone {
+            if commandAlone && nodeType(mouseNode) != .Box {
                 NSCursor.pointingHand.set()
                 editMode = .selecting
                 mouseNode = nil
@@ -103,6 +103,16 @@ extension ArtSceneView {
                 mouseNode = picture
                 return makePictureMenu()
             }
+        } else if let boxHit = hitOfType(hitResults, type: .Box) {
+            controller.theNode = boxHit.node
+            mouseNode = boxHit.node
+            let menu = NSMenu()
+            menu.autoenablesItems = true
+            menu.addItem(withTitle: "Delete Box", action: #selector(ArtSceneViewController.deleteBox(_:)), keyEquivalent: "")
+            menu.addItem(withTitle: "Box Color", action: #selector(ArtSceneViewController.pickBoxColor(_:)), keyEquivalent: "")
+            menu.addItem(withTitle: "Nudge Box Size", action: #selector(ArtSceneViewController.editBoxSize(_:)), keyEquivalent: "")
+            menu.addItem(withTitle: "Nudge Box Position", action: #selector(ArtSceneViewController.editBoxPosition(_:)), keyEquivalent: "")
+           return menu
         } else if let wallHit = hitOfType(hitResults, type: .Wall) {
             let menu = NSMenu()
             menu.autoenablesItems = true
@@ -134,15 +144,16 @@ extension ArtSceneView {
             if controller.wallsLocked == false {
                 menu.addItem(withTitle: "Add Wall", action: #selector(ArtSceneViewController.addWall(_:)), keyEquivalent: "")
             }
-            if grid().isHidden {
-                menu.addItem(withTitle: "Show Grid", action: #selector(ArtSceneView.showGrid(_:)), keyEquivalent: "")
-            } else {
-                menu.addItem(withTitle: "Hide Grid", action: #selector(ArtSceneView.hideGrid(_:)), keyEquivalent: "")
-            }
             if controller.wallsLocked == true {
                 menu.addItem(withTitle: "Unlock Walls", action: #selector(ArtSceneViewController.unlockWallsWithConfirmation), keyEquivalent: "")
             } else {
                 menu.addItem(withTitle: "Lock Walls", action: #selector(ArtSceneViewController.lockWalls), keyEquivalent: "")
+            }
+            menu.addItem(withTitle: "Add Box", action: #selector(ArtSceneViewController.addBox(_:)), keyEquivalent: "")
+            if grid().isHidden {
+                menu.addItem(withTitle: "Show Grid", action: #selector(ArtSceneView.showGrid(_:)), keyEquivalent: "")
+            } else {
+                menu.addItem(withTitle: "Hide Grid", action: #selector(ArtSceneView.hideGrid(_:)), keyEquivalent: "")
             }
             menu.addItem(withTitle: "Reset Camera", action: #selector(ArtSceneView.resetCamera(_:)), keyEquivalent: "")
             mouseClickLocation = floorHit.worldCoordinates

@@ -62,31 +62,20 @@ extension ArtSceneView
         default:
             ()
         }
-
-
-        // These modes are effected by changes to the keyboard flags, so are not affected by mouse movements
-//        switch editMode {
-//        case .selecting, .getInfo, .resizing(.Image, _), .contextualMenu: break
-//        default:
-//            NSCursor.arrow.set()
-//            mouseNode = nil
-//            editMode = .none
-//        }
-                
+        
         var hitResults: [SCNHitTestResult]
         if #available(OSX 10.13, *) {
             hitResults = hitTest(theEvent.locationInWindow, options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
         } else {
             hitResults = hitTest(theEvent.locationInWindow, options: nil)
         }
-
+        
         hitResults = hitResults.filter({ nodeType($0.node) != .Back && nodeType($0.node) != .Grid})
         hitResults = hitResults.filter({ nodeType($0.node) != .Picture || !theFrame($0.node).isHidden})
         guard hitResults.count > 0  else /* no hits */ {
-            if case EditMode.moving(_) = editMode {
-                NSCursor.arrow.set()
-            }
-            super.mouseMoved(with: theEvent)
+            NSCursor.arrow.set()
+            mouseNode = nil
+            editMode = .none
             return
         }
         let hit = hitResults[0]
@@ -108,85 +97,158 @@ extension ArtSceneView
             break
         }
         
-//        if let wallHit = hitOfType(hitResults, type: .Wall) {
-//            lastMousePosition = wallHit.localCoordinates
-//        }
-        if let type = nodeType(hit.node) {
-            switch type {
-            case .Left, .Right:
-                let edge: NodeEdge = type == .Left ? .left : .right
-                editMode = .resizing(.Picture, edge)
-                mouseNode = hit.node.parent!.parent!
-                NSCursor.resizeLeftRight.set()
-            case .Top, .Bottom:
-                editMode = .resizing(.Picture, type == .Top ? .top : .bottom)
-                mouseNode = hit.node.parent!.parent!
-                NSCursor.resizeUpDown.set()
-            case .Image:
-                let optionDown = checkModifierFlags(theEvent, flag: .option)
-                if optionDown {
-                    editMode = .resizing(.Image, .none)
-                    resizeCursor.set()
-                    mouseNode = pictureOf(hit.node.parent!)
-                } else {
-                    fallthrough
+        guard let type = nodeType(hit.node) else {
+            NSCursor.arrow.set()
+            mouseNode = nil
+            editMode = .none
+            return
+        }
+        switch type {
+        case .Box:
+            mouseNode = hit.node
+            if hit.worldCoordinates.y < 0.15 {
+                rotateCursor.set()
+                editMode = .resizing(.Box, .pivot)
+            } else {
+                // 0 and 2 are the width dimension.
+                let loc = hit.localCoordinates
+                let box = hit.node.geometry as! SCNBox
+                let cusp: CGFloat = box.height / 6.0
+                if loc.y > box.height / 2.0 - cusp {
+                    editMode = .resizing(.Box, .top)
+                    NSCursor.resizeUpDown.set()
+                    return
                 }
-             case .Picture, .Matt:
-                if case EditMode.getInfo = editMode {
-                    mouseNode = hit.node
-                } else {
-                    mouseNode = pictureOf(hit.node)
-                    editMode = .moving(.Picture)
-                    NSCursor.openHand.set()
-                }
-            case .Wall:
-                if wallsLocked {
-                    mouseNode = hit.node
-                    if case EditMode.getInfo = editMode {
+                switch hit.geometryIndex {
+                case 0, 2:
+                    let cusp1 = box.width / 2.0
+                    var inside = CGRect(x: 0, y: 0, width: box.width - cusp1, height: box.height - cusp)
+                    inside = NSOffsetRect(inside, -(box.width - cusp1) / 2.0, -(box.height - cusp) / 2.0)
+                    if NSPointInRect(NSPoint(x: loc.x, y: loc.y), inside) {
+                        editMode = .moving(.Box)
+                        NSCursor.openHand.set()
                     } else {
-                        NSCursor.arrow.set()
-                        editMode = .none
+                        if hit.geometryIndex == 0 {
+                            if loc.x > 0 {
+                                editMode = .resizing(.Box, .side(hit.geometryIndex, .right))
+                                NSCursor.resizeRight.set()
+                            } else {
+                                editMode = .resizing(.Box, .side(hit.geometryIndex, .left))
+                                NSCursor.resizeLeft.set()
+                            }
+                        } else if loc.x < 0 {
+                            editMode = .resizing(.Box, .side(hit.geometryIndex, .right))
+                            NSCursor.resizeRight.set()
+                        } else {
+                            editMode = .resizing(.Box, .side(hit.geometryIndex, .left))
+                            NSCursor.resizeLeft.set()
+                        }
+
                     }
-                    break
+                case 1, 3:
+                    let cusp1 = box.length / 2.0
+                    var inside = CGRect(x: 0, y: 0, width: box.length - cusp1, height: box.height - cusp)
+                    inside = NSOffsetRect(inside, -(box.length - cusp1) / 2.0, -(box.height - cusp) / 2.0)
+                    if NSPointInRect(NSPoint(x: loc.z, y: loc.y), inside) {
+                        editMode = .moving(.Box)
+                        NSCursor.openHand.set()
+                    } else {
+                        if hit.geometryIndex == 1 {
+                            if loc.z > 0 {
+                                editMode = .resizing(.Box, .side(hit.geometryIndex, .left))
+                                NSCursor.resizeLeft.set()
+                            } else {
+                                editMode = .resizing(.Box, .side(hit.geometryIndex, .right))
+                                NSCursor.resizeRight.set()
+                            }
+                        } else if loc.z < 0 {
+                            editMode = .resizing(.Box, .side(hit.geometryIndex, .left))
+                            NSCursor.resizeLeft.set()
+                        } else {
+                            editMode = .resizing(.Box, .side(hit.geometryIndex, .right))
+                            NSCursor.resizeRight.set()
+                        }
+                    }
+                case 4:
+                    editMode = .moving(.Box)
+                    NSCursor.openHand.set()
+                default: ()
                 }
-                let local = NSPoint(x: hit.localCoordinates.x, y: hit.localCoordinates.y)
+            }
+        case .Left, .Right:
+            let edge: NodeEdge = type == .Left ? .left : .right
+            editMode = .resizing(.Picture, edge)
+            mouseNode = hit.node.parent!.parent!
+            NSCursor.resizeLeftRight.set()
+        case .Top, .Bottom:
+            editMode = .resizing(.Picture, type == .Top ? .top : .bottom)
+            mouseNode = hit.node.parent!.parent!
+            NSCursor.resizeUpDown.set()
+        case .Image:
+            let optionDown = checkModifierFlags(theEvent, flag: .option)
+            if optionDown {
+                editMode = .resizing(.Image, .none)
+                resizeCursor.set()
+                mouseNode = pictureOf(hit.node.parent!)
+            } else {
+                fallthrough
+            }
+        case .Picture, .Matt:
+            if case EditMode.getInfo = editMode {
                 mouseNode = hit.node
-                let size = nodeSize(mouseNode!)
-                let width2 = size.width / 2
-                let height2 = size.height / 2
-                let cusp: CGFloat = 0.5
-                var rect = NSRect(x: -width2, y: -height2, width: cusp, height: size.height)
+            } else {
+                mouseNode = pictureOf(hit.node)
+                editMode = .moving(.Picture)
+                NSCursor.openHand.set()
+            }
+        case .Wall:
+            if wallsLocked {
+                mouseNode = hit.node
+                if case EditMode.getInfo = editMode {
+                } else {
+                    NSCursor.arrow.set()
+                    editMode = .none
+                }
+                break
+            }
+            let local = NSPoint(x: hit.localCoordinates.x, y: hit.localCoordinates.y)
+            mouseNode = hit.node
+            let size = nodeSize(mouseNode!)
+            let width2 = size.width / 2
+            let height2 = size.height / 2
+            let cusp: CGFloat = 0.5
+            var rect = NSRect(x: -width2, y: -height2, width: cusp, height: size.height)
+            if NSPointInRect(local, rect) {
+                editMode = .resizing(.Wall, .left)
+                NSCursor.resizeLeftRight.set()
+            } else {
+                rect = NSRect(x: width2 - cusp, y: -height2, width: cusp, height: size.height)
                 if NSPointInRect(local, rect) {
-                    editMode = .resizing(.Wall, .left)
+                    editMode = .resizing(.Wall, .right)
                     NSCursor.resizeLeftRight.set()
                 } else {
-                    rect = NSRect(x: width2 - cusp, y: -height2, width: cusp, height: size.height)
+                    rect = NSRect(x: -width2, y: height2 - cusp, width: size.width, height: cusp)
                     if NSPointInRect(local, rect) {
-                        editMode = .resizing(.Wall, .right)
-                        NSCursor.resizeLeftRight.set()
+                        editMode = .resizing(.Wall, .top)
+                        NSCursor.resizeUp.set()
                     } else {
-                        rect = NSRect(x: -width2, y: height2 - cusp, width: size.width, height: cusp)
+                        rect = NSRect(x: -width2, y: -height2, width: size.width, height: cusp)
                         if NSPointInRect(local, rect) {
-                            editMode = .resizing(.Wall, .top)
-                            NSCursor.resizeUp.set()
+                            editMode = .resizing(.Wall, .pivot)
+                            rotateCursor.set()
                         } else {
-                            rect = NSRect(x: -width2, y: -height2, width: size.width, height: cusp)
-                            if NSPointInRect(local, rect) {
-                                editMode = .resizing(.Wall, .pivot)
-                                rotateCursor.set()
-                            } else {
-                                editMode = .moving(.Wall)
-                                NSCursor.openHand.set()
-                            }
+                            editMode = .moving(.Wall)
+                            NSCursor.openHand.set()
                         }
                     }
                 }
-            default:
-                NSCursor.arrow.set()
-                mouseNode = nil
-                editMode = .none
             }
+        default:
+            NSCursor.arrow.set()
+            mouseNode = nil
+            editMode = .none
         }
+        
     }
     
     /// Based on `editMode` and `mouseNode`, perform a drag operation, either resizing,
@@ -229,7 +291,7 @@ extension ArtSceneView
                     changePosition(node, delta: translation)
                 }
                 if node === mouseNode {
-                    let (x, y, _, _, _, _) = pictureInfo2(mouseNode)
+                    let (x, y, _, _, _, _) = pictureInfo(mouseNode)
                     display = controller.makeDisplay(title: "Picture", items: [("↔", x), ("↕", y)], width: fontScaler * 150)
                 }
             }
@@ -251,11 +313,8 @@ extension ArtSceneView
             if dx == 0.0 && dy == 0.0 { break }
             size = CGSize(width: max(size.width + dx, 1.0 / 3.0), height: max(size.height + dy, 1.0 / 3.0)) // minimum size for picture is 4"
             controller.doChangePictureSize(mouseNode, from: mouseNode.size()!, to: size)
-            let (_, _, width, height, _, _) = pictureInfo2(mouseNode)
-            display = controller.makeDisplay(title: "Picture",
-                                         items: [("width", width),
-                                                 ("height", height)],
-                                         width: 200)
+            let (_, _, width, height, _, _) = pictureInfo(mouseNode)
+            display = controller.makeDisplay(title: "Picture", items: [("width", width), ("height", height)], width: fontScaler * 200)
         case .resizing(.Image, _):
             var size = theImage(mouseNode).size()!
             var dy = shift ? -delta.y / 4.0 : -delta.y
@@ -265,31 +324,79 @@ extension ArtSceneView
             if dx == 0.0 && dy == 0.0 { break }
             size = CGSize(width: size.width + dx, height: size.height + dy)
             controller.doChangeImageSize(mouseNode, from: theImage(mouseNode).size()!, to: size)
-            let (width, height, name) = imageInfo2(mouseNode)
-            display = controller.makeDisplay(title: name, items: [("width", width),
-                                                              ("height", height)],
-                                         width: 200)
+            let (width, height, name) = imageInfo(mouseNode)
+            display = controller.makeDisplay(title: name, items: [("width", width), ("height", height)], width: fontScaler * 200)
+
+        case .moving(.Box):
+            SCNTransaction.animationDuration = 0.0
+            let (dx, dz) = snapToGrid(d1: delta.x / 3.0, d2: delta.y / 3.0, snap: gridFactor)
+            if dx == 0.0 && dz == 0.0 { break }
+            let translation = SCNVector3Make(dx, 0.0, dz)
+            changePosition(mouseNode, delta: translation, camera: camera())
+            let (x, y, _, _, _, _) = boxInfo(mouseNode)
+            display = controller.makeDisplay(title: "Box", items: [("↔", x), ("↕", y)], width: fontScaler * 150)
+        case .resizing(.Box, .pivot):
+            var dy = delta.x / 2.0
+            (dy, _) = snapToGrid(d1: dy, d2: 0.0, snap: rotationFactor)
+            if (dy == 0) { return }
+            let newAngle = mouseNode.eulerAngles.y + dy
+            changePivot(mouseNode, from: mouseNode.yRotation, to: newAngle)
+            let (_, _, _, _, _, rotation) = boxInfo(mouseNode)
+            display = controller.makeDisplay(title: "Box", items: [("y°", rotation)], width: fontScaler * 150)
+        case .resizing(.Box, .top):
+            if abs(delta.y) > 0.0 {
+                let box = mouseNode.geometry as! SCNBox
+                SCNTransaction.animationDuration = 0.0
+                let dHeight: CGFloat = -delta.y / 2.0
+                changeVolume(mouseNode, to: SCNVector3Make(box.width, box.height + dHeight, box.length))
+                let translation = SCNVector3Make(0.0, dHeight / 2.0, 0.0)
+                changePosition(mouseNode, delta: translation)
+                let (_, _, width, height, length, _) = boxInfo(mouseNode)
+                display = controller.makeDisplay(title: "Box", items: [("width", width), ("length", length), ("height", height)], width: fontScaler * 200)
+            }
+        case .resizing(.Box, .side(let side, let edge)):
+            let box = mouseNode.geometry as! SCNBox
+            SCNTransaction.animationDuration = 0.0
+            var dWidth: CGFloat = 0.0
+            var dLength: CGFloat = 0.0
+            var sign: CGFloat = NodeEdge.left == edge ? -1.0 : 1.0
+            switch side {
+            case 0, 2:
+                dWidth = sign * delta.x / 2.0
+                if side == 2 {
+                    sign *= -1.0
+                }
+            case 1, 3:
+                dLength = sign * delta.x / 2.0
+                if side == 3 {
+                    sign *= -1.0
+                }
+            default: ()
+            }
+            if dWidth == 0.0 && dLength == 0 { break }
+            changeVolume(mouseNode, to: SCNVector3Make(box.width + dWidth, box.height, box.length + dLength))
+            changePosition(mouseNode, delta: SCNVector3Make(dWidth / 2.0 * sign, 0.0, -dLength / 2.0 * sign))
+            let (_, _, width, height, length, _) = boxInfo(mouseNode)
+            display = controller.makeDisplay(title: "Box", items: [("width", width), ("length", length), ("height", height)], width: fontScaler * 200)
         case .moving(.Wall):
             if !wallsLocked {
                 SCNTransaction.animationDuration = 0.0
                 let (dx, dz) = snapToGrid(d1: delta.x, d2: delta.y, snap: gridFactor)
                 if dx == 0.0 && dz == 0.0 { break }
                 let translation = SCNVector3Make(dx, 0.0, dz)
-                changePosition(mouseNode, delta: translation)
+                changePosition(mouseNode, delta: translation, camera: camera())
                 controller.hideGrids()
-                let (x, z, _, _, _, dist) = wallInfo2(mouseNode, camera: camera())
+                let (x, z, _, _, _, dist) = wallInfo(mouseNode, camera: camera())
                 display = controller.makeDisplay(title: "Wall", items: [("↔", x), ("↕", z), ("↑", dist!)], width: fontScaler * 150)
             }
         case .resizing(.Wall, .pivot):
-            var dy = delta.y / 2.0
+            var dy = -delta.x / 6.0
             (dy, _) = snapToGrid(d1: dy, d2: 0.0, snap: rotationFactor)
             if (dy == 0) { return }
             let newAngle = mouseNode.eulerAngles.y + dy
             changePivot(mouseNode, from: mouseNode.yRotation, to: newAngle)
             controller.hideGrids(condition: 3.0)
-            let (_, _, rotation, _) = wallInfo(mouseNode)
-            controller.status = "Wall Rotation: \(rotation)"
-            
+            let (_, _, _, _, rotation, _) = wallInfo(mouseNode)
             display = controller.makeDisplay(title: "Wall", items: [("y°", rotation)])
         case .resizing(.Wall, let edge):
             if !wallsLocked {
@@ -311,7 +418,6 @@ extension ArtSceneView
                 let newSize = CGSize(width: geometry.width + dx, height: geometry.height + dy)
                 // The wall must enclose all the pictures
                 if newSize.width >= 0.5 && newSize.height >= 0.5
-                    && wallContainsPictures(mouseNode, withNewSize: newSize)
                 {
                     changeSize(mouseNode, from: mouseNode.size()!, to: newSize)
                     dx *= direction
@@ -323,7 +429,7 @@ extension ArtSceneView
                         changePosition(child, delta: translation)
                     }
                     controller.hideGrids(condition: 3.0)
-                    let (_, _, width, height, _, _) = wallInfo2(mouseNode)
+                    let (_, _, width, height, _, _) = wallInfo(mouseNode)
                     display = controller.makeDisplay(title: "Wall",
                                                  items: [("width", width),
                                                         ("height", height)],
@@ -380,7 +486,7 @@ extension ArtSceneView
                 inDrag = true
                 NSCursor.closedHand.set()
             }
-        case .moving(.Picture):
+        case .moving(.Picture), .moving(.Box):
             prepareForUndo(mouseNode)
             inDrag = true
             NSCursor.closedHand.set()
@@ -405,6 +511,9 @@ extension ArtSceneView
             for node in oldSelection.subtracting(selectionSet) {
                 setNodeEmission(node, color: NSColor.black)
             }
+        case .resizing(.Box, _):
+            prepareForUndo(mouseNode)
+            inDrag = true
         case .resizing(.Wall, _):
             if !wallsLocked {
                 prepareForUndo(mouseNode)

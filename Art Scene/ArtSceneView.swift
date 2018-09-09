@@ -75,8 +75,6 @@ class ArtSceneView: SCNView, Undo {
         var image: NSImage = NSImage(size: NSSize(width: qSize.width + 2, height: qSize.height + 2))
         image.lockFocus()
         q.draw(in: NSRect(x: 1, y: -7, width: qSize.width, height: qSize.height), withAttributes:attributes)
-//        NSColor.red.set()
-//        NSBezierPath.stroke(NSRect(x: 0, y: 0, width: qSize.width, height: qSize.height))
         image.unlockFocus()
         questionCursor = NSCursor.init(image: image, hotSpot: NSPoint(x: qSize.width / 2.0, y: qSize.height))
         
@@ -165,26 +163,32 @@ class ArtSceneView: SCNView, Undo {
         var title: String = ""
         switch type {
         case .Wall:
-            let (x, y, width, height, rotation, distance) = wallInfo2(node, camera: camera(), hitPosition: hitPosition)
+            let (x, y, width, height, rotation, distance) = wallInfo(node, camera: camera(), hitPosition: hitPosition)
             hudTable = [("↔", x), ("↕", y), ("width", width), ("height", height), ("y°", rotation), ("↑", distance!)]
             title = "Wall"
         case .Matt:
             vNode = node.parent!
             fallthrough
         case .Picture:
-            let (x, y, width, height, hidden, distance) = pictureInfo2(vNode, camera: camera(), hitPosition: hitPosition)
+            let (x, y, width, height, hidden, distance) = pictureInfo(vNode, camera: camera(), hitPosition: hitPosition)
             hudTable = [("↔", x), ("↕", y), ("width", width), ("height", height),
                         ("frame", hidden),
                         ("↑", distance)]
             title = "Picture"
         case .Image:
-            let (width, height, name) = imageInfo2(vNode)
+            let (width, height, name) = imageInfo(vNode)
             hudTable = [("width", width), ("height", height)]
             title = name
+        case .Box:
+            let (x, y, width, height, length, rotation) = boxInfo(node)
+            hudTable = [("↔", x), ("↕", y), ("width", width), ("length", length), ("height", height), ("y°", rotation)]
+            title = "Box"
+
         default:
             return
         }
         controller.hudUpdate = controller.makeDisplay(title: title, items: hudTable, width: fontScaler * 220)
+        isPlaying = true
     }
     
     @IBAction func getTheInfo(_ sender: AnyObject?) {

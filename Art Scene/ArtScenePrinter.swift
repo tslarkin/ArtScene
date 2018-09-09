@@ -56,7 +56,7 @@ class ArtScenePrinter: NSView {
     {
         let size = name.size(withAttributes: attribs)
         var p = point
-        if case justification = NodeEdge.right {
+        if case NodeEdge.right = justification {
             p.x -= size.width
         }
         p.y -= 1.0
