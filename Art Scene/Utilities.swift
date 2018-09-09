@@ -42,7 +42,7 @@ enum NodeType: String {
     case Box
 }
 
-enum EditMode {
+enum EditMode: Equatable {
     case none
     case resizing(NodeType, NodeEdge)
     case moving(NodeType)

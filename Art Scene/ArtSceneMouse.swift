@@ -73,9 +73,11 @@ extension ArtSceneView
         hitResults = hitResults.filter({ nodeType($0.node) != .Back && nodeType($0.node) != .Grid})
         hitResults = hitResults.filter({ nodeType($0.node) != .Picture || !theFrame($0.node).isHidden})
         guard hitResults.count > 0  else /* no hits */ {
-            NSCursor.arrow.set()
-            mouseNode = nil
-            editMode = .none
+            if !(editMode == EditMode.getInfo) {
+                NSCursor.arrow.set()
+                mouseNode = nil
+                editMode = .none
+            }
             return
         }
         let hit = hitResults[0]
