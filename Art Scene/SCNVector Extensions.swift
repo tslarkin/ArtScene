@@ -30,3 +30,34 @@ func × (a: SCNVector3, b: SCNVector3) -> SCNVector3
 {
     return SCNVector3(x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x)    
 }
+
+infix operator •
+func • (a: SCNVector3, b: SCNVector3)->CGFloat
+{
+    return a.x * b.x + a.y * b.y + a.z * b.z
+}
+
+func *(a: CGFloat, b: SCNVector3)->SCNVector3
+{
+    return SCNVector3Make(a * b.x, a * b.y, a * b.z)
+}
+
+// https://stackoverflow.com/questions/45966373/rotate-scnvector3-around-an-axis
+// Rodrigues' rotation formula.
+func rotate(vector v: SCNVector3, axis k: SCNVector3, angle theta: CGFloat)->SCNVector3
+{
+    let vr1 = (cos(theta) * v)
+    let vr2 = (sin(theta) * (k × v))
+    let vr3 = (1 - cos(theta)) * ((k • v) * k )
+    return vr1 + vr2 + vr3
+}
+
+func +(a: CGSize, b: CGSize)->CGSize
+{
+    return CGSize(width: a.width + b.width, height: a.height + b.height)
+}
+
+func -(a: CGSize, b: CGSize)->CGSize
+{
+    return CGSize(width: a.width - b.width, height: a.height - b.height)
+}

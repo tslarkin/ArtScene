@@ -148,6 +148,8 @@ class ArtSceneViewController: NSViewController, Undo {
         back.position = SCNVector3Make(size.width / 2.0, -size.height / 2.0, -0.1)
         back.yRotation = .pi
         wallNode.yRotation = artSceneView.camera().yRotation
+        wallNode.physicsBody = SCNPhysicsBody.static()
+        wallNode.physicsBody?.contactTestBitMask = 1
         wallNode.addChildNode(back)
         return wallNode
     }
@@ -197,7 +199,9 @@ class ArtSceneViewController: NSViewController, Undo {
         boxNode.position = at
         boxNode.position.y = 1.5
         boxNode.castsShadow = true
-        
+        boxNode.physicsBody = SCNPhysicsBody.kinematic()
+        boxNode.physicsBody?.contactTestBitMask = 1
+
         var materials:[SCNMaterial] = []
         for _ in 0..<6 {
             let material = SCNMaterial()
@@ -254,12 +258,12 @@ class ArtSceneViewController: NSViewController, Undo {
     
     func doChangeImageSize(_ node: SCNNode, from: CGSize, to: CGSize)
     {
-        changeImageSize(node, from: from, to: to)
+        changeImageSize(node, to: to)
     }
     
-    func doChangePictureSize(_ node: SCNNode, from: CGSize, to: CGSize)
+    func doChangePictureSize(_ node: SCNNode, to: CGSize)
     {
-        changePictureSize(node, from: from, to: to)
+        changePictureSize(node, to: to)
     }
     
     /// A menu action to reframe a picture to one of the standard sizes.
@@ -273,8 +277,7 @@ class ArtSceneViewController: NSViewController, Undo {
             undoer.beginUndoGrouping()
             undoer.setActionName("Change Picture Size")
             let node = theNode!
-            let size = theNode!.size()!
-            changePictureSize(node, from: size, to: defaultFrameSize)
+            changePictureSize(node, to: defaultFrameSize)
             undoer.endUndoGrouping()
         }
     }
@@ -313,7 +316,7 @@ class ArtSceneViewController: NSViewController, Undo {
             undoer.setActionName("Add Picture")
             node.position = point
             node.position.z += 0.05
-            changeParent(node, from: nil, to: wall)
+            changeParent(node, to: wall)
             undoer.endUndoGrouping()
             return node
         } else {
@@ -359,7 +362,7 @@ class ArtSceneViewController: NSViewController, Undo {
         editMode = .none
         undoer.beginUndoGrouping()
         undoer.setActionName("Delete Wall")
-        changeParent(theNode!, from: theNode!.parent!, to: nil)
+        changeParent(theNode!, to: nil)
         undoer.endUndoGrouping()
         theNode = nil
     }
@@ -368,7 +371,7 @@ class ArtSceneViewController: NSViewController, Undo {
         undoer.beginUndoGrouping()
         undoer.setActionName("Add Wall")
         let wallNode = makeWall(at: artSceneView.mouseClickLocation!)
-        changeParent(wallNode, from: nil, to: scene.rootNode)
+        changeParent(wallNode, to: scene.rootNode)
         undoer.endUndoGrouping()
     }
 
@@ -377,7 +380,7 @@ class ArtSceneViewController: NSViewController, Undo {
         undoer.beginUndoGrouping()
         undoer.setActionName("Add Box")
         let boxNode = makeBox(at: artSceneView.mouseClickLocation!)
-        changeParent(boxNode, from: nil, to: scene.rootNode)
+        changeParent(boxNode, to: scene.rootNode)
         undoer.endUndoGrouping()
     }
     
@@ -385,7 +388,7 @@ class ArtSceneViewController: NSViewController, Undo {
     {
         undoer.beginUndoGrouping()
         undoer.setActionName("Delete Box")
-        changeParent(theNode!, from: theNode!.parent, to: nil)
+        changeParent(theNode!, to: nil)
         undoer.endUndoGrouping()
     }
     

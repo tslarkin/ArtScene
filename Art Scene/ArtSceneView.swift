@@ -211,12 +211,12 @@ class ArtSceneView: SCNView, Undo {
         if selection.count > 0 {
             undoer.setActionName("Delete Pictures")
             for picture in selection {
-                changeParent(picture, from: picture.parent!, to: nil)
+                changeParent(picture, to: nil)
             }
             selection = []
         } else if let node = mouseNode, nodeType(node) == NodeType.Picture {
             undoer.setActionName("Delete Picture")
-            changeParent(node, from: node.parent!, to: nil)
+            changeParent(node, to: nil)
         }
         undoer.endUndoGrouping()
     }

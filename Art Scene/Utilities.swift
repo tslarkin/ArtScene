@@ -174,7 +174,7 @@ func wallInfo(_ wall: SCNNode, camera: SCNNode? = nil, hitPosition: SCNVector3? 
     let length = convertToFeetAndInches(plane.width)
     let height = convertToFeetAndInches(plane.height)
     let x = convertToFeetAndInches(wall.position.x)
-    let y = convertToFeetAndInches(-wall.position.z)
+    let y = convertToFeetAndInches(wall.position.z)
     var angle = (wall.eulerAngles.y * r2d).truncatingRemainder(dividingBy: 360.0)
     if angle < 0 {
         angle += 360.0
@@ -197,7 +197,7 @@ func boxInfo(_ boxNode: SCNNode)->(x: String, y: String, width: String, height: 
     let length = convertToFeetAndInches(box.length)
     let height = convertToFeetAndInches(box.height)
     let x = convertToFeetAndInches(boxNode.position.x)
-    let y = convertToFeetAndInches(-boxNode.position.z)
+    let y = convertToFeetAndInches(boxNode.position.z)
     var angle = (boxNode.eulerAngles.y * r2d).truncatingRemainder(dividingBy: 360.0)
     if angle < 0 {
         angle += 360.0

@@ -46,15 +46,6 @@ extension Undo
         return flagDown
     }
     
-    func changePivot(_ node: SCNNode, from: CGFloat, to: CGFloat)
-    {
-        let undoer = document!.undoManager!
-        undoer.registerUndo(withTarget: self, handler: { $0.changePivot(node, from: to, to: from) })
-        if node.yRotation != to {
-            node.yRotation = to
-        }
-    }
-    
     func changePivot(_ node: SCNNode, delta: CGFloat)
     {
         let undoer = document!.undoManager!
@@ -62,31 +53,12 @@ extension Undo
         node.yRotation += delta
     }
     
-    func changePosition(_ node: SCNNode, from: SCNVector3, to: SCNVector3)
-    {
-        let undoer = document!.undoManager!
-        undoer.registerUndo(withTarget: self, handler: { $0.changePosition(node, from: to, to: from) })
-        if node.position != to {
-            node.position = to
-        }
-    }
-    
-    func changePosition(_ node: SCNNode, delta: SCNVector3)
+    func changePosition(_ node: SCNNode, delta: SCNVector3, povAngle: CGFloat = 0.0)
     {
         let undoer = document!.undoManager!
         undoer.registerUndo(withTarget: self, handler: { $0.changePosition(node, delta: SCNVector3Make(-delta.x, -delta.y, -delta.z))})
-        var transform = node.transform
-        let translation = SCNMatrix4MakeTranslation(delta.x, delta.y, delta.z)
-        transform = SCNMatrix4Mult(translation, transform)
-        node.transform = transform
-    }
-        
-    func changePosition(_ node: SCNNode, delta: SCNVector3, camera: SCNNode)
-    {
-        let undoer = document!.undoManager!
-        undoer.registerUndo(withTarget: self, handler: { $0.changePosition(node, delta: SCNVector3Make(-delta.x, -delta.y, -delta.z))})
-        let newPosition = newPositionFromAngle(node.position, deltaAway: delta.z, deltaRight: -delta.x, angle: camera.yRotation)
-        node.position = newPosition
+        let d = rotate(vector: delta, axis: SCNVector3Make(0, 1, 0), angle: povAngle)
+        node.position = node.position + d
     }
     
     func changeVolume(_ node: SCNNode, to: SCNVector3) {
@@ -99,19 +71,18 @@ extension Undo
         box.length = to.z
     }
     
-    func changeSize(_ node: SCNNode, from: CGSize, to: CGSize)
+    func changeSize(_ node: SCNNode, delta: CGSize)
     {
         let undoer = document!.undoManager!
-        undoer.registerUndo(withTarget: self, handler: { $0.changeSize(node, from: to, to: from) })
-        if node.size()! != to {
-            node.setSize(to)
-        }
+        undoer.registerUndo(withTarget: self, handler: { $0.changeSize(node, delta: CGSize(width: -delta.width, height: -delta.height)) })
+        node.setSize(node.size()! + delta)
     }
     
-    func changeParent(_ node: SCNNode, from: SCNNode?, to: SCNNode?)
+    func changeParent(_ node: SCNNode, to: SCNNode?)
     {
+        let parent = node.parent
         let undoer = document!.undoManager!
-        undoer.registerUndo(withTarget: self, handler: { $0.changeParent(node, from: to, to: from) })
+        undoer.registerUndo(withTarget: self, handler: { $0.changeParent(node, to: parent) })
         if let parent = to {
             parent.addChildNode(node)
         } else {
@@ -119,37 +90,22 @@ extension Undo
         }
     }
     
-    func changePictureSize(_ node: SCNNode, from:CGSize, to: CGSize)
+    func changePictureSize(_ node: SCNNode, to: CGSize)
     {
+        let size = node.size()!
         let undoer = document!.undoManager!
         undoer.registerUndo(withTarget: self,
-                            handler: { $0.changePictureSize(node, from: to, to: from) })
-        if from != to {
-            (self as! ArtSceneViewController).reframePictureWithSize(node, newsize: to)
-        }
+                            handler: { $0.changePictureSize(node, to: size) })
+        (self as! ArtSceneViewController).reframePictureWithSize(node, newsize: to)
     }
     
-    func changeImageSize(_ node: SCNNode, from: CGSize, to: CGSize)
+    func changeImageSize(_ node: SCNNode,to: CGSize)
     {
+        let size = node.size()!
         let undoer = document!.undoManager!
         undoer.registerUndo(withTarget: self,
-                            handler: { $0.changeImageSize(node, from: to, to: from) })
-        if from != to {
+                            handler: { $0.changeImageSize(node, to: size) })
             (self as! ArtSceneViewController).reframeImageWithSize(node, newsize: to)
-        }
-
-    }
-    
-    func changeParent(_ node: SCNNode, from: SCNNode, to: SCNNode)
-    {
-        let undoer = document!.undoManager!
-        undoer.registerUndo(withTarget: self,
-                            handler: { $0.changeParent(node, from: to, to: from) })
-        if from != to {
-            node.removeFromParentNode()
-            to.addChildNode(node)
-        }
-
     }
     
     func actionName(_ node: SCNNode, _ editMode: EditMode)->String?
@@ -165,15 +121,9 @@ extension Undo
             name = "Resizing Image"
         case .resizing(.Picture, _):
             name = "Resizing Frame of \(String(describing: node.name!))"
-        case .resizing(.Wall, _):
+        case .resizing(.Wall, _), .resizing(.Box, _):
             name = "Resizing \(String(describing: node.name!))"
-        case .resizing(.Box, _):
-            name = "Resizing \(String(describing: node.name!))"
-        case .moving(.Picture):
-            name = "Moving \(String(describing: node.name!))"
-        case .moving(.Wall):
-            name = "Moving \(String(describing: node.name!))"
-        case .moving(.Box):
+        case .moving(.Picture), .moving(.Wall), .moving(.Box):
             name = "Moving \(String(describing: node.name!))"
        default: ()
         }

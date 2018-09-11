@@ -73,7 +73,7 @@ extension ArtSceneViewController
             default:
                 super.keyDown(with: theEvent)
             }
-            changePivot(theNode, from: theNode.yRotation, to: angle)
+            changePivot(theNode, delta: angle - theNode.yRotation)
         } else {
             var dz: CGFloat = 0.0
             var dx: CGFloat = 0.0
@@ -118,7 +118,7 @@ extension ArtSceneViewController
             return
         }
         if size.width < minimumPictureSize || size.height < minimumPictureSize { return }
-        changePictureSize(theNode, from: theNode.size()!, to: size)
+        changePictureSize(theNode, to: size)
         let (_, _, width, height, _, _) = pictureInfo(theNode)
         hudUpdate = makeDisplay(title: "Picture",
                                      items: [("width", width), ("height", height)])
@@ -129,7 +129,6 @@ extension ArtSceneViewController
     {
         guard let keyString = theEvent.charactersIgnoringModifiers?.utf16 else { return }
         var size = theImage(theNode!).size()!
-        let oldSize = size
         let ratio = size.width / size.height
         let shift = checkModifierFlags(theEvent, flag: .shift)
         let jump: CGFloat = shift ? 1.0 / 48.0 : 1.0 / 12.0 // ¼" or 1"
@@ -144,7 +143,7 @@ extension ArtSceneViewController
         }
         size.width = size.height * ratio
         if size.height < minimumImageSize || size.width < minimumImageSize { return }
-        changeImageSize(theNode!, from: oldSize, to: size)
+        changeImageSize(theNode!, to: size)
         
         let (width, height, name) = imageInfo(theNode!)
         hudUpdate = makeDisplay(title: name,
@@ -188,7 +187,7 @@ extension ArtSceneViewController
         }
         size.width += dx
         size.height += dy
-        changeSize(theNode, from: theNode.size()!, to: size)
+        changeSize(theNode, delta: size - theNode.size()!)
         // In the default case, the wall shortens at the right side, and the left side
         // is fixed. The option key reverses this.
         let factor: CGFloat = theEvent.modifierFlags.contains(.option) ? -1.0 : 1.0
@@ -263,7 +262,7 @@ extension ArtSceneViewController
             return
         }
         let translation = SCNVector3Make(dx, 0.0, dy)
-        changePosition(theNode, delta: translation, camera: artSceneView.camera())
+        changePosition(theNode, delta: translation, povAngle: artSceneView.camera().yRotation)
         
         let (x, y, _, _, _, _) = boxInfo(theNode)
         hudUpdate = makeDisplay(title: "Box",

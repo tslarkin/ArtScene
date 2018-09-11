@@ -285,10 +285,11 @@ extension ArtSceneView
                 }
                 let wallHit = hitOfType(hitResults, type: .Wall)
                 if let wall = wallHit?.node, wall != node.parent {
-                    changeParent(node, from: node.parent, to: wall)
+                    changeParent(node, to: wall)
                     node.removeFromParentNode()
                     wall.addChildNode(node)
-                    changePosition(node, from: node.position, to: wallHit!.localCoordinates)
+//                    changePosition(node, from: node.position, to: wallHit!.localCoordinates)
+                    changePosition(node, delta: wallHit!.localCoordinates - node.position)
                 } else {
                     changePosition(node, delta: translation)
                 }
@@ -314,7 +315,7 @@ extension ArtSceneView
             (dx, dy) = snapToGrid(d1: dx, d2: dy, snap: gridFactor)
             if dx == 0.0 && dy == 0.0 { break }
             size = CGSize(width: max(size.width + dx, 1.0 / 3.0), height: max(size.height + dy, 1.0 / 3.0)) // minimum size for picture is 4"
-            controller.doChangePictureSize(mouseNode, from: mouseNode.size()!, to: size)
+            controller.doChangePictureSize(mouseNode, to: size)
             let (_, _, width, height, _, _) = pictureInfo(mouseNode)
             display = controller.makeDisplay(title: "Picture", items: [("width", width), ("height", height)], width: fontScaler * 200)
         case .resizing(.Image, _):
@@ -334,7 +335,7 @@ extension ArtSceneView
             let (dx, dz) = snapToGrid(d1: delta.x / 3.0, d2: delta.y / 3.0, snap: gridFactor)
             if dx == 0.0 && dz == 0.0 { break }
             let translation = SCNVector3Make(dx, 0.0, dz)
-            changePosition(mouseNode, delta: translation, camera: camera())
+            changePosition(mouseNode, delta: translation, povAngle: camera().yRotation)
             let (x, y, _, _, _, _) = boxInfo(mouseNode)
             display = controller.makeDisplay(title: "Box", items: [("↔", x), ("↕", y)], width: fontScaler * 150)
         case .resizing(.Box, .pivot):
@@ -342,7 +343,7 @@ extension ArtSceneView
             (dy, _) = snapToGrid(d1: dy, d2: 0.0, snap: rotationFactor)
             if (dy == 0) { return }
             let newAngle = mouseNode.eulerAngles.y + dy
-            changePivot(mouseNode, from: mouseNode.yRotation, to: newAngle)
+            changePivot(mouseNode, delta: newAngle - mouseNode.yRotation)
             let (_, _, _, _, _, rotation) = boxInfo(mouseNode)
             display = controller.makeDisplay(title: "Box", items: [("y°", rotation)], width: fontScaler * 150)
         case .resizing(.Box, .top):
@@ -386,17 +387,17 @@ extension ArtSceneView
                 let (dx, dz) = snapToGrid(d1: delta.x, d2: delta.y, snap: gridFactor)
                 if dx == 0.0 && dz == 0.0 { break }
                 let translation = SCNVector3Make(dx, 0.0, dz)
-                changePosition(mouseNode, delta: translation, camera: camera())
+                changePosition(mouseNode, delta: translation, povAngle: camera().yRotation)
                 controller.hideGrids()
                 let (x, z, _, _, _, dist) = wallInfo(mouseNode, camera: camera())
                 display = controller.makeDisplay(title: "Wall", items: [("↔", x), ("↕", z), ("↑", dist!)], width: fontScaler * 150)
             }
         case .resizing(.Wall, .pivot):
-            var dy = -delta.x / 6.0
+            var dy = delta.x / 6.0
             (dy, _) = snapToGrid(d1: dy, d2: 0.0, snap: rotationFactor)
             if (dy == 0) { return }
             let newAngle = mouseNode.eulerAngles.y + dy
-            changePivot(mouseNode, from: mouseNode.yRotation, to: newAngle)
+            changePivot(mouseNode, delta: newAngle - mouseNode.yRotation)
             controller.hideGrids(condition: 3.0)
             let (_, _, _, _, rotation, _) = wallInfo(mouseNode)
             display = controller.makeDisplay(title: "Wall", items: [("y°", rotation)])
@@ -421,7 +422,7 @@ extension ArtSceneView
                 // The wall must enclose all the pictures
                 if newSize.width >= 0.5 && newSize.height >= 0.5
                 {
-                    changeSize(mouseNode, from: mouseNode.size()!, to: newSize)
+                    changeSize(mouseNode, delta: newSize - mouseNode.size()!)
                     dx *= direction
                     var translation = SCNVector3Make(dx / 2.0, dy / 2.0, 0.0)
                     changePosition(mouseNode, delta: translation)
