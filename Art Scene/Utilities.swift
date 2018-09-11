@@ -411,8 +411,39 @@ func makeGrid(size: CGSize, spacing: CGFloat)->SCNNode
 
 // Implicit function of a line
 // https://math.stackexchange.com/questions/149622/finding-out-whether-two-line-segments-intersect-each-other
-func h(_ P: CGPoint, A: CGPoint, B: CGPoint)->CGFloat
+func halfSpace(_ P: CGPoint, U: CGPoint, V: CGPoint)->CGFloat
 {
-    let tmp = (B - A) × (P - A)
+    let tmp = (V - U) × (P - U)
     return tmp
+}
+
+//https://math.stackexchange.com/questions/149622/finding-out-whether-two-line-segments-intersect-each-other
+func lineIntersectsLine(_ P: CGPoint, A: CGPoint, B: CGPoint, C:CGPoint, D: CGPoint)->Bool
+{
+    if halfSpace(C, U: A, V: B) == 0.0 && halfSpace(D, U: A, V: B) == 0.0 {
+        return min(C.x, D.x) <= max(A.x, B.x) && max(C.x, D.x) >= min(A.x, B.x)
+            && min(C.y, D.y) <= max(A.y, B.y) && max(C.y, D.y) >= min(A.y, B.y)
+    }
+    return halfSpace(C, U: A, V: B) * halfSpace(D, U: A, V: B) <= 0.0
+            && halfSpace(A, U: C, V: D) * halfSpace(B, U: C, V: D) <= 0.0
+}
+
+
+// https://math.stackexchange.com/questions/275529/check-if-line-intersects-with-circles-perimeter
+func lineIntersectsCircle(endA: CGPoint, endB: CGPoint, center: CGPoint, radius: CGFloat)->Bool
+{
+    let A = endA - center
+    let B = endB - center
+    let two: CGFloat = 2.0
+    let a:CGFloat = A.x^two + A.y^two - radius^two
+    let b: CGFloat = 2.0 * (A.x * (B.x - A.x) + A.y * (B.y - A.y))
+    let c: CGFloat = (B.x - A.x)^two + (B.y - A.y)^two
+    let disc: CGFloat = b^2.0 - 4 * a * c
+    if disc < 0 { return false }
+    if disc == 0 { return true }
+    let sqrtdisc = sqrt(disc)
+    let t1 = (-b + sqrtdisc) / (2 * a)
+    let t2 = (-b - sqrtdisc) / (2 * a)
+    if(0 < t1 && t1 < 1) || (0 < t2 && t2 < 1) { return true }
+    return false
 }

@@ -57,6 +57,14 @@ func rotate(vector v: SCNVector3, axis k: SCNVector3, angle theta: CGFloat)->SCN
     return vr1 + vr2 + vr3
 }
 
+// CGFloat Math
+infix operator ^: BitwiseShiftPrecedence
+func ^(a: CGFloat, b: CGFloat)->CGFloat {
+    return pow(a, b)
+}
+
+// CGSize Math
+
 func +(a: CGSize, b: CGSize)->CGSize
 {
     return CGSize(width: a.width + b.width, height: a.height + b.height)
@@ -66,6 +74,8 @@ func -(a: CGSize, b: CGSize)->CGSize
 {
     return CGSize(width: a.width - b.width, height: a.height - b.height)
 }
+
+// CGPoint Math
 
 func +(a: CGPoint, b: CGPoint)->CGPoint
 {
@@ -81,4 +91,5 @@ func ×(a: CGPoint, b: CGPoint)->CGFloat
 {
     return a.x * b.y - a.y * b.x
 }
+
 
