@@ -408,3 +408,11 @@ func makeGrid(size: CGSize, spacing: CGFloat)->SCNNode
     grid.position = SCNVector3Make(0.0, 0.0, 0.001)
     return grid
 }
+
+// Implicit function of a line
+// https://math.stackexchange.com/questions/149622/finding-out-whether-two-line-segments-intersect-each-other
+func h(_ P: CGPoint, A: CGPoint, B: CGPoint)->CGFloat
+{
+    let tmp = (B - A) × (P - A)
+    return tmp
+}

@@ -24,14 +24,19 @@ func != (u: SCNVector3, v: SCNVector3) -> Bool {
     return !(u == v)
 }
 
-infix operator × //{ associativity left precedence 100 }
+infix operator × : MultiplicationPrecedence
 
 func × (a: SCNVector3, b: SCNVector3) -> SCNVector3
 {
     return SCNVector3(x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x)    
 }
 
-infix operator •
+precedencegroup DotProductPrecedence {
+    lowerThan: AdditionPrecedence
+    associativity: left
+}
+
+infix operator •: DotProductPrecedence
 func • (a: SCNVector3, b: SCNVector3)->CGFloat
 {
     return a.x * b.x + a.y * b.y + a.z * b.z
@@ -61,3 +66,19 @@ func -(a: CGSize, b: CGSize)->CGSize
 {
     return CGSize(width: a.width - b.width, height: a.height - b.height)
 }
+
+func +(a: CGPoint, b: CGPoint)->CGPoint
+{
+    return CGPoint(x: a.x + b.x, y: a.y + b.y)
+}
+
+func -(a: CGPoint, b: CGPoint)->CGPoint
+{
+    return CGPoint(x: a.x - b.x, y: a.y - b.y)
+}
+
+func ×(a: CGPoint, b: CGPoint)->CGFloat
+{
+    return a.x * b.y - a.y * b.x
+}
+
