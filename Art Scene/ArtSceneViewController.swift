@@ -148,8 +148,6 @@ class ArtSceneViewController: NSViewController, Undo {
         back.position = SCNVector3Make(size.width / 2.0, -size.height / 2.0, -0.1)
         back.yRotation = .pi
         wallNode.yRotation = artSceneView.camera().yRotation
-        wallNode.physicsBody = SCNPhysicsBody.static()
-        wallNode.physicsBody?.contactTestBitMask = 1
         wallNode.addChildNode(back)
         return wallNode
     }
@@ -199,8 +197,6 @@ class ArtSceneViewController: NSViewController, Undo {
         boxNode.position = at
         boxNode.position.y = 1.5
         boxNode.castsShadow = true
-        boxNode.physicsBody = SCNPhysicsBody.kinematic()
-        boxNode.physicsBody?.contactTestBitMask = 1
 
         var materials:[SCNMaterial] = []
         for _ in 0..<6 {

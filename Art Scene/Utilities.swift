@@ -418,14 +418,17 @@ func halfSpace(_ P: CGPoint, U: CGPoint, V: CGPoint)->CGFloat
 }
 
 //https://math.stackexchange.com/questions/149622/finding-out-whether-two-line-segments-intersect-each-other
-func lineIntersectsLine(_ P: CGPoint, A: CGPoint, B: CGPoint, C:CGPoint, D: CGPoint)->Bool
+func lineIntersectsLine(A: CGPoint, B: CGPoint, C:CGPoint, D: CGPoint)->Bool
 {
-    if halfSpace(C, U: A, V: B) == 0.0 && halfSpace(D, U: A, V: B) == 0.0 {
+    let h1 = halfSpace(C, U: A, V: B)
+    let h2 = halfSpace(D, U: A, V: B)
+    if h1 == 0.0 && h2 == 0.0 {
         return min(C.x, D.x) <= max(A.x, B.x) && max(C.x, D.x) >= min(A.x, B.x)
             && min(C.y, D.y) <= max(A.y, B.y) && max(C.y, D.y) >= min(A.y, B.y)
     }
-    return halfSpace(C, U: A, V: B) * halfSpace(D, U: A, V: B) <= 0.0
-            && halfSpace(A, U: C, V: D) * halfSpace(B, U: C, V: D) <= 0.0
+    let g1 = halfSpace(A, U: C, V: D)
+    let g2 = halfSpace(B, U: C, V: D)
+    return h1 * h2 <= 0.0 && g1 * g2 <= 0.0
 }
 
 
@@ -446,4 +449,73 @@ func lineIntersectsCircle(endA: CGPoint, endB: CGPoint, center: CGPoint, radius:
     let t2 = (-b - sqrtdisc) / (2 * a)
     if(0 < t1 && t1 < 1) || (0 < t2 && t2 < 1) { return true }
     return false
+}
+
+func linesForBox(_ node: SCNNode, transform: AffineTransform)->[(CGPoint, CGPoint)]
+{
+    let box = node.geometry as! SCNBox
+    var vertices: [CGPoint] = [
+        CGPoint(x: -box.width / 2.0 , y: box.length / 2.0),
+        CGPoint(x: box.width / 2.0, y: box.length / 2.0),
+        CGPoint(x: box.width / 2.0, y: -box.length / 2.0),
+        CGPoint(x: -box.width / 2.0, y: -box.length / 2.0)
+    ]
+    vertices = vertices.map{ transform.transform($0) }
+    let lines: [(CGPoint, CGPoint)] = [
+        (vertices[0], vertices[1]),
+        (vertices[2], vertices[1]),
+        (vertices[3], vertices[2]),
+        (vertices[3], vertices[0])
+    ]
+    return lines
+}
+
+func nodeIntersects(_ node: SCNNode, transform: AffineTransform)->Bool
+{
+    let lines = linesForBox(node, transform: transform)
+    var root = node
+    while root.parent != nil {
+        root = root.parent!
+    }
+    let walls = root.childNodes.filter{ nodeType($0) == .Wall }
+    guard walls.count > 0 else { return false }
+    for wall in walls {
+        let wallRotation = -wall.yRotation
+        let size = wall.size()!
+        var transform = AffineTransform(translationByX: wall.position.x, byY: wall.position.z)
+        transform.rotate(byRadians: wallRotation)
+        let A = transform.transform(CGPoint(x:  size.width / 2.0, y: 0.0))
+        let B = transform.transform(CGPoint(x: -size.width / 2.0, y: 0.0))
+        for (C, D) in lines {
+            if lineIntersectsLine(A: A, B: B, C: C, D: D) { return true }
+        }
+    }
+    let boxes = root.childNodes.filter({ nodeType($0) == .Box && $0 != node })
+    guard boxes.count > 0 else { return  false }
+    for boxNode in boxes {
+        var transform = AffineTransform(translationByX: boxNode.position.x, byY: boxNode.position.z)
+        transform.rotate(byRadians: -boxNode.yRotation)
+        let boxNodeLines = linesForBox(boxNode, transform: transform)
+        for (A, B) in boxNodeLines {
+            for (C, D) in lines {
+                if lineIntersectsLine(A: A, B: B, C: C, D: D) { return true }
+            }
+        }
+    }
+    return false
+    
+}
+
+func nodeIntersects(_ node: SCNNode, newAngle: CGFloat)->Bool
+{
+    var transform = AffineTransform(translationByX: node.position.x, byY: node.position.z)
+    transform.rotate(byRadians: newAngle)
+    return nodeIntersects(node, transform: transform)
+}
+
+func nodeIntersects(_ node: SCNNode, newPosition: SCNVector3)->Bool
+{
+    var transform = AffineTransform(translationByX: newPosition.x, byY: newPosition.z)
+    transform.rotate(byRadians: -node.yRotation)
+    return nodeIntersects(node, transform: transform)
 }

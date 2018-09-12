@@ -236,26 +236,6 @@ class ArtSceneView: SCNView, Undo {
         controller.hudUpdate = display
     }
     
-    func nodeIntersects(_ node: SCNNode, povAngle: CGFloat)->Bool
-    {
-        guard let box = node.geometry as? SCNBox else { return false }
-        var vertices: [CGPoint] = [
-            CGPoint(x: -box.width / 2.0 , y: box.height / 2.0),
-            CGPoint(x: box.width / 2.0, y: box.height / 2.0),
-            CGPoint(x: -box.width / 2.0, y: -box.height / 2.0),
-            CGPoint(x: box.width / 2.0, y: -box.height / 2.0)
-        ]
-        var transform = AffineTransform(rotationByRadians: povAngle)
-        transform.translate(x: node.position.x, y: node.position.z)
-        vertices = vertices.map{ transform.transform($0) }
-        let wallss = scene?.rootNode.childNodes.filter{ nodeType($0) == .Wall }
-        guard let walls = wallss else { return false }
-        for wall in walls {
-            let wallRotation = wall.yRotation
-            let A = CGPoint(x: box.width / 2.0 * cos(wallRotation) + node.position.x, y: box.height * sin(wallRotation) + node.position.z)
-        }
-    }
-    
 
 // MARK: Interapplication dragging.
     

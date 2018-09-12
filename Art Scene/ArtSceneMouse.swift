@@ -332,17 +332,23 @@ extension ArtSceneView
 
         case .moving(.Box):
             SCNTransaction.animationDuration = 0.0
-            let (dx, dz) = snapToGrid(d1: delta.x / 3.0, d2: delta.y / 3.0, snap: gridFactor)
+            let (dx, dz) = snapToGrid(d1: delta.x, d2: delta.y, snap: gridFactor)
             if dx == 0.0 && dz == 0.0 { break }
             let translation = SCNVector3Make(dx, 0.0, dz)
+            let d = Art_Scene.rotate(vector: translation, axis: SCNVector3Make(0, 1, 0), angle: camera().yRotation)
+            let newPosition = mouseNode.position + d
+            let boom = nodeIntersects(mouseNode, newPosition: newPosition)
+            if boom { return }
             changePosition(mouseNode, delta: translation, povAngle: camera().yRotation)
             let (x, y, _, _, _, _) = boxInfo(mouseNode)
             display = controller.makeDisplay(title: "Box", items: [("↔", x), ("↕", y)], width: fontScaler * 150)
         case .resizing(.Box, .pivot):
-            var dy = delta.x / 2.0
+            var dy = delta.x / 4.0
             (dy, _) = snapToGrid(d1: dy, d2: 0.0, snap: rotationFactor)
             if (dy == 0) { return }
             let newAngle = mouseNode.eulerAngles.y + dy
+            let boom = nodeIntersects(mouseNode, newAngle: newAngle)
+            if boom { return }
             changePivot(mouseNode, delta: newAngle - mouseNode.yRotation)
             let (_, _, _, _, _, rotation) = boxInfo(mouseNode)
             display = controller.makeDisplay(title: "Box", items: [("y°", rotation)], width: fontScaler * 150)
@@ -366,7 +372,7 @@ extension ArtSceneView
             switch side {
             case 0, 2:
                 dWidth = sign * delta.x / 2.0
-                if side == 2 {
+                if side == 0 {
                     sign *= -1.0
                 }
             case 1, 3:
@@ -378,7 +384,7 @@ extension ArtSceneView
             }
             if dWidth == 0.0 && dLength == 0 { break }
             changeVolume(mouseNode, to: SCNVector3Make(box.width + dWidth, box.height, box.length + dLength))
-            changePosition(mouseNode, delta: SCNVector3Make(dWidth / 2.0 * sign, 0.0, -dLength / 2.0 * sign))
+            changePosition(mouseNode, delta: SCNVector3Make(dWidth / 2.0 * sign, 0.0, dLength / 2.0 * sign))
             let (_, _, width, height, length, _) = boxInfo(mouseNode)
             display = controller.makeDisplay(title: "Box", items: [("width", width), ("length", length), ("height", height)], width: fontScaler * 200)
         case .moving(.Wall):

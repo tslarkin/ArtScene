@@ -262,7 +262,11 @@ extension ArtSceneViewController
             return
         }
         let translation = SCNVector3Make(dx, 0.0, dy)
-        changePosition(theNode, delta: translation, povAngle: artSceneView.camera().yRotation)
+        let d = Art_Scene.rotate(vector: translation, axis: SCNVector3Make(0, 1, 0), angle: artSceneView.camera().yRotation)
+        let newPosition = theNode.position + d
+        let boom = nodeIntersects(theNode, newPosition: newPosition)
+        if boom { return }
+       changePosition(theNode, delta: translation, povAngle: artSceneView.camera().yRotation)
         
         let (x, y, _, _, _, _) = boxInfo(theNode)
         hudUpdate = makeDisplay(title: "Box",

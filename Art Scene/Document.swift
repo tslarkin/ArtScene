@@ -172,16 +172,7 @@ class Document: NSDocument {
             scene = createDefaultScene()
         } else {
             sceneView.scene = scene
-            if let children = scene?.rootNode.childNodes {
-                for wall in children.filter({nodeType($0) == .Wall}) {
-                    if wall.physicsBody == nil {
-                        wall.physicsBody = SCNPhysicsBody.static()
-                        wall.physicsBody?.contactTestBitMask = 1
-                    }
-                }
-            }
         }
-        scene?.physicsWorld.contactDelegate = sceneView.controller
         if (scene?.rootNode.childNode(withName: "Lock", recursively: false)) != nil {
             sceneView.controller.wallsLocked = true
         }
