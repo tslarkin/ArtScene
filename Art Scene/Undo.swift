@@ -90,6 +90,14 @@ extension Undo
         }
     }
     
+    func replaceNode(_ node: SCNNode, with: SCNNode)
+    {
+        let parent = node.parent
+        let undoer = document!.undoManager!
+        undoer.registerUndo(withTarget: self, handler: { $0.replaceNode(with, with: node) })
+        parent?.replaceChildNode(node, with: with)
+    }
+    
     func changePictureSize(_ node: SCNNode, to: CGSize)
     {
         let size = node.size()!

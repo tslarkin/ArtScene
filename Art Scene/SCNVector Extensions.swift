@@ -92,4 +92,7 @@ func ×(a: CGPoint, b: CGPoint)->CGFloat
     return a.x * b.y - a.y * b.x
 }
 
-
+func *(a: CGFloat, b: CGPoint)->CGPoint
+{
+    return CGPoint(x: a * b.x, y: a * b.y)
+}

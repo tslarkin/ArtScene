@@ -519,3 +519,65 @@ func nodeIntersects(_ node: SCNNode, newPosition: SCNVector3)->Bool
     transform.rotate(byRadians: -node.yRotation)
     return nodeIntersects(node, transform: transform)
 }
+
+func computeIntersection(A: CGPoint, B: CGPoint, C:CGPoint, D: CGPoint)->CGPoint?
+{
+    let b = (D - C) × (B - A)
+    if b != 0 {
+        let a = (A - C) × (B - A)
+        let t = a / b
+        print(t)
+        return t * (D - C) + C
+    }
+    return nil
+}
+
+func nodeIntersects(_ node: SCNNode, proposal: inout SCNNode)->Bool
+{
+    var transform = AffineTransform(translationByX: proposal.position.x, byY: proposal.position.z)
+    transform.rotate(byRadians: -proposal.yRotation)
+    let lines = linesForBox(proposal, transform: transform)
+    var root = node
+    while root.parent != nil {
+        root = root.parent!
+    }
+    let walls = root.childNodes.filter{ nodeType($0) == .Wall }
+    guard walls.count > 0 else { return false }
+    for wall in walls {
+        let wallRotation = -wall.yRotation
+        let size = wall.size()!
+        var transform = AffineTransform(translationByX: wall.position.x, byY: wall.position.z)
+        transform.rotate(byRadians: wallRotation)
+        let A = transform.transform(CGPoint(x:  size.width / 2.0, y: 0.0))
+        let B = transform.transform(CGPoint(x: -size.width / 2.0, y: 0.0))
+        for (C, D) in lines {
+            if lineIntersectsLine(A: A, B: B, C: C, D: D) { return true }
+        }
+    }
+    let boxes = root.childNodes.filter({ nodeType($0) == .Box && $0 != node })
+    guard boxes.count > 0 else { return  false }
+    for boxNode in boxes {
+        var transform = AffineTransform(translationByX: boxNode.position.x, byY: boxNode.position.z)
+        transform.rotate(byRadians: -boxNode.yRotation)
+        let boxNodeLines = linesForBox(boxNode, transform: transform)
+        for (A, B) in boxNodeLines {
+            for (C, D) in lines {
+                if lineIntersectsLine(A: A, B: B, C: C, D: D) {
+                    let intersection = computeIntersection(A: A, B: B, C: C, D: D)
+                    if let intersection = intersection {
+                        let delta = CGPoint(x: proposal.position.x - node.position.x,
+                                            y: proposal.position.z - node.position.z)
+                        let diff = intersection - delta
+                    }
+                    return true
+                }
+            }
+        }
+    }
+    return false
+}
+
+func thump()
+{
+    NSSound(named: NSSound.Name("Thump"))?.play()
+}
