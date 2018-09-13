@@ -335,19 +335,19 @@ extension ArtSceneView
             let (dx, dz) = snapToGrid(d1: delta.x, d2: delta.y, snap: gridFactor)
             if dx == 0.0 && dz == 0.0 { break }
             let translation = SCNVector3Make(dx, 0.0, dz)
-            var proposal = currentNode.copy() as! SCNNode
+            let proposal = currentNode.copy() as! SCNNode
             let d = Art_Scene.rotate(vector: translation, axis: SCNVector3Make(0, 1, 0), angle: camera().yRotation)
             proposal.position = currentNode.position + d
-            if nodeIntersects(currentNode, proposal: &proposal) { thump() }
+            if nodeIntersects(currentNode, proposal: proposal) { thump(); return }
             replaceNode(currentNode, with: proposal)
             mouseNode = proposal
             let (x, y, _, _, _, _) = boxInfo(currentNode)
             display = controller.makeDisplay(title: "Box", items: [("↔", x), ("↕", y)], width: fontScaler * 150)
         case .resizing(.Box, .pivot):
             if delta.x == 0.0 { return }
-            var proposal = currentNode.copy() as! SCNNode
+            let proposal = currentNode.copy() as! SCNNode
             proposal.yRotation += delta.x / 4.0
-            if nodeIntersects(currentNode, proposal: &proposal) { thump() }
+            if nodeIntersects(currentNode, proposal: proposal) { thump(); return }
             replaceNode(currentNode, with: proposal)
             mouseNode = proposal
             let (_, _, _, _, _, rotation) = boxInfo(proposal)
@@ -382,7 +382,7 @@ extension ArtSceneView
             default: ()
             }
             if dWidth == 0.0 && dLength == 0 { break }
-            var proposal = currentNode.copy() as! SCNNode
+            let proposal = currentNode.copy() as! SCNNode
             proposal.geometry = currentNode.geometry?.copy() as! SCNBox
             let box = proposal.geometry as! SCNBox
             box.width += dWidth
@@ -390,7 +390,7 @@ extension ArtSceneView
             let delta = SCNVector3Make(dWidth * sign, 0.0, dLength * sign)
             let d = Art_Scene.rotate(vector: delta, axis: SCNVector3Make(0, 1, 0), angle: currentNode.yRotation)
             proposal.position = proposal.position - 0.5 * d
-            if nodeIntersects(currentNode, proposal: &proposal) { thump() }
+            if nodeIntersects(currentNode, proposal: proposal) { thump(); return }
             replaceNode(currentNode, with: proposal)
             mouseNode = proposal
             let (_, _, width, height, length, _) = boxInfo(proposal)
@@ -412,7 +412,7 @@ extension ArtSceneView
             if (dy == 0) { return }
             let newAngle = currentNode.eulerAngles.y + dy
             changePivot(currentNode, delta: newAngle - currentNode.yRotation)
-            controller.hideGrids(condition: 3.0)
+            controller.hideGrids()
             let (_, _, _, _, rotation, _) = wallInfo(currentNode)
             display = controller.makeDisplay(title: "Wall", items: [("y°", rotation)])
         case .resizing(.Wall, let edge):
@@ -445,7 +445,7 @@ extension ArtSceneView
                     for child in currentNode.childNodes.filter({ nodeType($0) == .Picture }) {
                         changePosition(child, delta: translation)
                     }
-                    controller.hideGrids(condition: 3.0)
+                    controller.hideGrids()
                     let (_, _, width, height, _, _) = wallInfo(currentNode)
                     display = controller.makeDisplay(title: "Wall",
                                                  items: [("width", width),

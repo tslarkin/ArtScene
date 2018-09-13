@@ -67,7 +67,7 @@ extension ArtSceneView {
     @objc func addGrid(_ sender: AnyObject)
     {
         mouseNode?.setGrid()
-        controller.hideGrids(condition: 6.0)
+        controller.hideGrids()
     }
     
     @objc func removeGrid(_ sender: AnyObject)
@@ -127,9 +127,9 @@ extension ArtSceneView {
             }
             menu.addItem(withTitle: "Wall Color", action: #selector(ArtSceneViewController.pickWallColor(_:)), keyEquivalent: "")
             if mouseNode!.hasGrid() {
-                menu.addItem(withTitle: "Hide Grid", action: #selector(ArtSceneView.removeGrid(_:)), keyEquivalent: "")
+                menu.addItem(withTitle: "Hide Checkerboard", action: #selector(ArtSceneView.removeGrid(_:)), keyEquivalent: "")
             } else {
-                menu.addItem(withTitle: "Show Grid", action: #selector(ArtSceneView.addGrid(_:)), keyEquivalent: "")
+                menu.addItem(withTitle: "Show Checkerboard", action: #selector(ArtSceneView.addGrid(_:)), keyEquivalent: "")
             }
             menu.addItem(withTitle: "Add Picture", action: #selector(ArtSceneViewController.addPicture(_:)), keyEquivalent: "")
             if controller.wallsLocked == false {

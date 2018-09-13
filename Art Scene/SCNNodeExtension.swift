@@ -79,9 +79,9 @@ extension SCNNode
         let element = SCNGeometryElement(indices: indices, primitiveType: .line)
         
         let shape = SCNGeometry(sources: [source], elements: [element])
-        let gridColor = NSColor(calibratedRed: 0.8, green: 0.8, blue: 1.0, alpha: 1.0)
+        let gridColor = NSColor(calibratedRed: 0.3, green: 0.3, blue: 1.0, alpha: 0.98)
         let material = SCNMaterial()
-        material.diffuse.contents = gridColor
+        material.emission.contents = gridColor
         shape.materials = [material]
         let grid = SCNNode(geometry: shape)
         

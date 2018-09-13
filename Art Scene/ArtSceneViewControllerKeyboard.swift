@@ -90,7 +90,7 @@ extension ArtSceneViewController
             }
             changePosition(theNode, delta: SCNVector3Make(dx, 0.0, dz))
         }
-        hideGrids(condition: 3.0)
+        hideGrids()
         let (x, z, _, _, rot, distance) = wallInfo(theNode, camera: artSceneView.camera())
         hudUpdate = makeDisplay(title: "Wall", items: [("↔", x), ("↕", z), ("y°", rot), ("↑", distance!)], width: fontScaler * 175)
         hudUpdate!.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
@@ -235,12 +235,12 @@ extension ArtSceneViewController
         default:
             super.keyDown(with: theEvent)
         }
-        var proposal = currentNode.copy() as! SCNNode
+        let proposal = currentNode.copy() as! SCNNode
         proposal.geometry = currentNode.geometry?.copy() as! SCNBox
         let box = proposal.geometry as! SCNBox
         box.width += dWidth
         box.length += dLength
-        if nodeIntersects(currentNode, proposal: &proposal) { thump() }
+        if nodeIntersects(currentNode, proposal: proposal) { thump(); return }
         replaceNode(currentNode, with: proposal)
         theNode = proposal
         let (_, _, width, height, length, _) = boxInfo(currentNode)
@@ -268,10 +268,10 @@ extension ArtSceneViewController
             return
         }
         let translation = SCNVector3Make(dx, 0.0, dz)
-        var proposal = currentNode.copy() as! SCNNode
+        let proposal = currentNode.copy() as! SCNNode
         let d = Art_Scene.rotate(vector: translation, axis: SCNVector3Make(0, 1, 0), angle: artSceneView.camera().yRotation)
         proposal.position = proposal.position + d
-        if nodeIntersects(currentNode, proposal: &proposal) { thump() }
+        if nodeIntersects(currentNode, proposal: proposal) { thump(); return }
         replaceNode(currentNode, with: proposal)
         theNode = proposal
         let (x, y, _, _, _, _) = boxInfo(proposal)
@@ -361,10 +361,10 @@ extension ArtSceneViewController
             omniLight.position = position
         }
         updateCameraStatus()
-        hideGrids(condition: 3.0)
+        hideGrids()
     }
     
-    func hideGrids(condition: CGFloat = 3.0)
+    func hideGrids(condition: CGFloat = 4.0)
     {
         let cameraNode = artSceneView.camera()
         let walls = artSceneView.nodesInsideFrustum(of: cameraNode).filter({ nodeType($0) == .Wall})
@@ -374,7 +374,7 @@ extension ArtSceneViewController
                 let distance = position.z
                if distance <= condition * 2.0 {
                     grid.isHidden = false
-                    grid.opacity = min(0.7, (condition * 2.0 - distance) / condition)
+                    grid.opacity = min(1.0, (condition * 2.0 - distance) / condition)
                 } else {
                     grid.isHidden = true
                 }

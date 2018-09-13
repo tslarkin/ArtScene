@@ -371,43 +371,43 @@ func snapToGrid(_ angle: CGFloat)->CGFloat{
     return degrees / r2d
 }
 
-func makeGrid(size: CGSize, spacing: CGFloat)->SCNNode
-{
-    let hCount: Int = Int(ceil(size.height / spacing)) // number of horizontal lines
-    let vCount: Int = Int(ceil(size.width / spacing)) + 1 // number of vertical lines
-    let indices: [Int32] = (0...((hCount + vCount) * 2)).map({ Int32($0) })
-    var vectors: [SCNVector3] = []
-    var y = -size.height / 2.0
-    for _ in 0...hCount {
-        let vector1 = SCNVector3Make(-size.width / 2.0, y, 0.0)
-        let vector2 = SCNVector3Make(size.width / 2.0, y, 0.0)
-        vectors.append(vector1)
-        vectors.append(vector2)
-        y += spacing
-    }
-    var x = -size.width / 2.0
-    for _ in 0...vCount {
-        let vector1 = SCNVector3Make(x, -size.height / 2.0, 0.0)
-        let vector2 = SCNVector3Make(x, size.height / 2.0, 0.0)
-        vectors.append(vector1)
-        vectors.append(vector2)
-        x += spacing
-    }
-    
-    let source = SCNGeometrySource(vertices: vectors)
-    let element = SCNGeometryElement(indices: indices, primitiveType: .line)
-    
-    let shape = SCNGeometry(sources: [source], elements: [element])
-    let gridColor = NSColor.black //(calibratedRed: 0.8, green: 0.8, blue: 1.0, alpha: 1.0)
-    let material = SCNMaterial()
-    material.diffuse.contents = gridColor
-    shape.materials = [material]
-    let grid = SCNNode(geometry: shape)
-    
-    grid.name = "Grid"
-    grid.position = SCNVector3Make(0.0, 0.0, 0.001)
-    return grid
-}
+//func makeGrid(size: CGSize, spacing: CGFloat)->SCNNode
+//{
+//    let hCount: Int = Int(ceil(size.height / spacing)) // number of horizontal lines
+//    let vCount: Int = Int(ceil(size.width / spacing)) + 1 // number of vertical lines
+//    let indices: [Int32] = (0...((hCount + vCount) * 2)).map({ Int32($0) })
+//    var vectors: [SCNVector3] = []
+//    var y = -size.height / 2.0
+//    for _ in 0...hCount {
+//        let vector1 = SCNVector3Make(-size.width / 2.0, y, 0.0)
+//        let vector2 = SCNVector3Make(size.width / 2.0, y, 0.0)
+//        vectors.append(vector1)
+//        vectors.append(vector2)
+//        y += spacing
+//    }
+//    var x = -size.width / 2.0
+//    for _ in 0...vCount {
+//        let vector1 = SCNVector3Make(x, -size.height / 2.0, 0.0)
+//        let vector2 = SCNVector3Make(x, size.height / 2.0, 0.0)
+//        vectors.append(vector1)
+//        vectors.append(vector2)
+//        x += spacing
+//    }
+//    
+//    let source = SCNGeometrySource(vertices: vectors)
+//    let element = SCNGeometryElement(indices: indices, primitiveType: .line)
+//    
+//    let shape = SCNGeometry(sources: [source], elements: [element])
+//    let gridColor = (calibratedRed: 0.1, green: 0.0, blue: 0.0, alpha: 1.0)
+//    let material = SCNMaterial()
+//    material.emission.contents = gridColor
+//    shape.materials = [material]
+//    let grid = SCNNode(geometry: shape)
+//    
+//    grid.name = "Grid"
+//    grid.position = SCNVector3Make(0.0, 0.0, 0.001)
+//    return grid
+//}
 
 // Implicit function of a line
 // https://math.stackexchange.com/questions/149622/finding-out-whether-two-line-segments-intersect-each-other
@@ -532,7 +532,7 @@ func computeIntersection(A: CGPoint, B: CGPoint, C:CGPoint, D: CGPoint)->CGPoint
     return nil
 }
 
-func nodeIntersects(_ node: SCNNode, proposal: inout SCNNode)->Bool
+func nodeIntersects(_ node: SCNNode, proposal: SCNNode)->Bool
 {
     var transform = AffineTransform(translationByX: proposal.position.x, byY: proposal.position.z)
     transform.rotate(byRadians: -proposal.yRotation)
@@ -563,12 +563,6 @@ func nodeIntersects(_ node: SCNNode, proposal: inout SCNNode)->Bool
         for (A, B) in boxNodeLines {
             for (C, D) in lines {
                 if lineIntersectsLine(A: A, B: B, C: C, D: D) {
-                    let intersection = computeIntersection(A: A, B: B, C: C, D: D)
-                    if let intersection = intersection {
-                        let delta = CGPoint(x: proposal.position.x - node.position.x,
-                                            y: proposal.position.z - node.position.z)
-                        let diff = intersection - delta
-                    }
                     return true
                 }
             }
