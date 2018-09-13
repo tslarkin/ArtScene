@@ -127,9 +127,9 @@ extension ArtSceneView {
             }
             menu.addItem(withTitle: "Wall Color", action: #selector(ArtSceneViewController.pickWallColor(_:)), keyEquivalent: "")
             if mouseNode!.hasGrid() {
-                menu.addItem(withTitle: "Hide Checkerboard", action: #selector(ArtSceneView.removeGrid(_:)), keyEquivalent: "")
+                menu.addItem(withTitle: "Hide Grid", action: #selector(ArtSceneView.removeGrid(_:)), keyEquivalent: "")
             } else {
-                menu.addItem(withTitle: "Show Checkerboard", action: #selector(ArtSceneView.addGrid(_:)), keyEquivalent: "")
+                menu.addItem(withTitle: "Show Grid", action: #selector(ArtSceneView.addGrid(_:)), keyEquivalent: "")
             }
             menu.addItem(withTitle: "Add Picture", action: #selector(ArtSceneViewController.addPicture(_:)), keyEquivalent: "")
             if controller.wallsLocked == false {
@@ -151,9 +151,9 @@ extension ArtSceneView {
             }
             menu.addItem(withTitle: "Add Box", action: #selector(ArtSceneViewController.addBox(_:)), keyEquivalent: "")
             if grid().isHidden {
-                menu.addItem(withTitle: "Show Grid", action: #selector(ArtSceneView.showGrid(_:)), keyEquivalent: "")
+                menu.addItem(withTitle: "Show Checkerboard", action: #selector(ArtSceneView.showGrid(_:)), keyEquivalent: "")
             } else {
-                menu.addItem(withTitle: "Hide Grid", action: #selector(ArtSceneView.hideGrid(_:)), keyEquivalent: "")
+                menu.addItem(withTitle: "Hide Checkerboard", action: #selector(ArtSceneView.hideGrid(_:)), keyEquivalent: "")
             }
             menu.addItem(withTitle: "Reset Camera", action: #selector(ArtSceneView.resetCamera(_:)), keyEquivalent: "")
             mouseClickLocation = floorHit.worldCoordinates
