@@ -43,12 +43,15 @@ extension ArtSceneView
         
         let p = theEvent.locationInWindow
         if !NSPointInRect(p, bounds) {
-            NSCursor.arrow.set()
-            super.mouseMoved(with: theEvent)
+//            NSCursor.arrow.set()
+//            super.mouseMoved(with: theEvent)
             return
         }
-        
+
         switch editMode {
+        case .placing(.Chair):
+            chairCursor.set()
+            return
         case .getInfo:
             questionCursor.set()
         case .contextualMenu:
@@ -73,7 +76,7 @@ extension ArtSceneView
         hitResults = hitResults.filter({ nodeType($0.node) != .Back && nodeType($0.node) != .Grid})
         hitResults = hitResults.filter({ nodeType($0.node) != .Picture || !theFrame($0.node).isHidden})
         guard hitResults.count > 0  else /* no hits */ {
-            if !(editMode == EditMode.getInfo) {
+            if !(editMode == EditMode.getInfo) && !(editMode == .none) {
                 NSCursor.arrow.set()
                 mouseNode = nil
                 editMode = .none
@@ -110,9 +113,9 @@ extension ArtSceneView
             mouseNode = hit.node
             if hit.worldCoordinates.y < 0.25 {
                 rotateCursor.set()
-                editMode = .resizing(.Box, .pivot)
+                editMode = .resizing(.Chair, .pivot)
             } else {
-                editMode = .moving(.Box)
+                editMode = .moving(.Chair)
                 NSCursor.openHand.set()
             }
         case .Box:
@@ -351,8 +354,8 @@ extension ArtSceneView
             replaceNode(currentNode, with: proposal)
             mouseNode = proposal
             let (x, y, _, _, _, _) = boxInfo(currentNode)
-            display = controller.makeDisplay(title: "Box", items: [("↔", x), ("↕", y)], width: fontScaler * 150)
-        case .resizing(.Box, .pivot):
+            display = controller.makeDisplay(title: editMode == .moving(.Box) ? "Box" : "Chair", items: [("↔", x), ("↕", y)], width: fontScaler * 150)
+        case .resizing(.Box, .pivot), .resizing(.Chair, .pivot):
             if delta.x == 0.0 { return }
             let proposal = currentNode.clone()
             proposal.yRotation += delta.x / 4.0
@@ -360,7 +363,7 @@ extension ArtSceneView
             replaceNode(currentNode, with: proposal)
             mouseNode = proposal
             let (_, _, _, _, _, rotation) = boxInfo(proposal)
-            display = controller.makeDisplay(title: "Box", items: [("y°", rotation)], width: fontScaler * 150)
+            display = controller.makeDisplay(title: editMode == .moving(.Box) ? "Box" : "Chair", items: [("y°", rotation)], width: fontScaler * 150)
         case .resizing(.Box, .top):
             if abs(delta.y) > 0.0 {
                 let box = currentNode.geometry as! SCNBox
@@ -483,6 +486,21 @@ extension ArtSceneView
             selection = []
             return
         }
+        
+        if editMode == .placing(.Chair) {
+            var hitResults: [SCNHitTestResult]
+            if #available(OSX 10.13, *) {
+                hitResults = hitTest(theEvent.locationInWindow, options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
+            } else {
+                hitResults = hitTest(theEvent.locationInWindow, options: nil)
+            }
+            
+            if hitResults.count <= 2, let floor = hitOfType(hitResults, type: .Floor) {
+                controller.addChair(at: CGPoint(x: floor.worldCoordinates.x, y: floor.worldCoordinates.z))
+            }
+            editMode = .none
+            NSCursor.arrow.set()
+        }
 
         guard let mouseNode = mouseNode else { return }
         switch editMode {
@@ -512,7 +530,7 @@ extension ArtSceneView
                 inDrag = true
                 NSCursor.closedHand.set()
             }
-        case .moving(.Picture), .moving(.Box):
+        case .moving(.Picture), .moving(.Box), .moving(.Chair):
             prepareForUndo(mouseNode)
             inDrag = true
             NSCursor.closedHand.set()
@@ -537,7 +555,7 @@ extension ArtSceneView
             for node in oldSelection.subtracting(selectionSet) {
                 setNodeEmission(node, color: NSColor.black)
             }
-        case .resizing(.Box, _):
+        case .resizing(.Box, _), .resizing(.Chair, _):
             prepareForUndo(mouseNode)
             inDrag = true
         case .resizing(.Wall, _):

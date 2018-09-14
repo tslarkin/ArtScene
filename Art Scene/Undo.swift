@@ -123,6 +123,8 @@ extension Undo
         case .none: name = "No Action"
         case .resizing(.Wall, .pivot):
             name = "Wall Rotation"
+        case .resizing(.Chair, .pivot):
+            name = "Chair Rotation"
         case .resizing(.Box, .pivot):
             name = "Box Rotation"
         case .resizing(.Image, _):
@@ -131,7 +133,7 @@ extension Undo
             name = "Resizing Frame of \(String(describing: node.name!))"
         case .resizing(.Wall, _), .resizing(.Box, _):
             name = "Resizing \(String(describing: node.name!))"
-        case .moving(.Picture), .moving(.Wall), .moving(.Box):
+        case .moving(.Picture), .moving(.Wall), .moving(.Box), .moving(.Chair):
             name = "Moving \(String(describing: node.name!))"
        default: ()
         }

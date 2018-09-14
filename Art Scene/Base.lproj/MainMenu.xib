@@ -179,6 +179,19 @@
                         </items>
                     </menu>
                 </menuItem>
+                <menuItem title="Objects" id="Ele-Qr-uM0">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <menu key="submenu" title="Objects" id="q3c-fN-LcO">
+                        <items>
+                            <menuItem title="Chair" id="27A-DT-7D2">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="placeChair:" target="-1" id="Ofs-AA-vv1"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
+                </menuItem>
                 <menuItem title="Window" id="aUF-d1-5bR">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Window" systemMenu="window" id="Td7-aD-5lo">

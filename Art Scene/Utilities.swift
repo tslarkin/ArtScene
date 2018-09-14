@@ -47,6 +47,7 @@ enum EditMode: Equatable {
     case none
     case resizing(NodeType, NodeEdge)
     case moving(NodeType)
+    case placing(NodeType)
     case selecting
     case contextualMenu
     case getInfo

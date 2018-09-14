@@ -388,6 +388,51 @@ class ArtSceneViewController: NSViewController, Undo {
         undoer.endUndoGrouping()
     }
     
+    func makeChair(at point: CGPoint)->SCNNode
+    {
+        let chairScene = SCNScene(named: "pcraven_wood_chair3.dae")
+        let chairNode = chairScene!.rootNode.childNode(withName: "Wooden_Chair", recursively: true)!
+        chairNode.position = SCNVector3Make(0.0, 0.0, 0)
+        let bbox = chairNode.boundingBox
+        let chairBox = SCNBox(width: bbox.max.x - bbox.min.x, height: bbox.max.z - bbox.min.z, length: bbox.max.y - bbox.min.y, chamferRadius: 0)
+        let boxNode = SCNNode(geometry: chairBox)
+        boxNode.position = SCNVector3Make(point.x, chairBox.height / 2.0 - 1.5 / 12.0, point.y)
+        boxNode.addChildNode(chairNode)
+        boxNode.name = "Chair"
+        var materials:[SCNMaterial] = []
+        for _ in 0..<6 {
+            let material = SCNMaterial()
+            material.diffuse.contents = NSColor.clear
+            materials.append(material)
+        }
+        boxNode.geometry?.materials = materials
+        return boxNode
+    }
+    
+    func addChair(at point: CGPoint)
+    {
+        undoer.beginUndoGrouping()
+        undoer.setActionName("Add Chair")
+        let boxNode = makeChair(at: point)
+        changeParent(boxNode, to: scene.rootNode)
+        undoer.endUndoGrouping()
+    }
+    
+    @IBAction func placeChair(_ sender: AnyObject)
+    {
+        artSceneView.editMode = .placing(.Chair)
+        artSceneView.chairCursor.set()
+    }
+    
+    @IBAction func deleteChair(_ sender: AnyObject)
+    {
+        undoer.beginUndoGrouping()
+        undoer.setActionName("Delete Chair")
+        changeParent(theNode!, to: nil)
+        undoer.endUndoGrouping()
+    }
+    
+
     /// A menu action to put the controller in `.Moving(.Wall)` mode.
     @objc func editWallPosition(_ sender: AnyObject?) {
         editMode = .moving(.Wall)

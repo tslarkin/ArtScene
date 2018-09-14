@@ -113,6 +113,12 @@ extension ArtSceneView {
             menu.addItem(withTitle: "Nudge Box Size", action: #selector(ArtSceneViewController.editBoxSize(_:)), keyEquivalent: "")
             menu.addItem(withTitle: "Nudge Box Position", action: #selector(ArtSceneViewController.editBoxPosition(_:)), keyEquivalent: "")
            return menu
+        } else if let chairHit = hitOfType(hitResults, type: .Chair) {
+            controller.theNode = chairHit.node
+            let menu = NSMenu()
+            menu.autoenablesItems = true
+            menu.addItem(withTitle: "Delete Chair", action: #selector(ArtSceneViewController.deleteChair(_:)), keyEquivalent: "")
+            return menu
         } else if let wallHit = hitOfType(hitResults, type: .Wall) {
             let menu = NSMenu()
             menu.autoenablesItems = true

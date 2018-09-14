@@ -59,6 +59,8 @@ class ArtSceneView: SCNView, Undo {
     let rotateCursor: NSCursor
     /// The resize uniformly cursor.
     let resizeCursor: NSCursor
+    /// The chair curson
+    let chairCursor: NSCursor
     var currentCursor: NSCursor?
     var wallsLocked: Bool {
         return controller.wallsLocked
@@ -92,6 +94,15 @@ class ArtSceneView: SCNView, Undo {
         resize.draw(in: NSRect(x: 0, y: 0, width: size, height: size))
         image.unlockFocus()
         resizeCursor = NSCursor.init(image: image, hotSpot: NSPoint(x: 12, y: 12))
+        
+        let chair = NSImage(named: (("noun_Chair_138821.png" as NSString) as NSImage.Name))!
+        image = NSImage(size: NSSize(width: size, height: size))
+        image.lockFocus()
+        chair.draw(in: NSRect(x: 0, y: 0, width: size, height: size))
+        image.unlockFocus()
+        chairCursor = NSCursor.init(image: image, hotSpot: NSPoint(x: 12, y: 12))
+
+        
         super.init(coder: coder)
     }
     
