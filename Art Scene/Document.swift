@@ -82,6 +82,8 @@ class Document: NSDocument {
         ambientLightNode.name = "Ambient"
         scene.rootNode.addChildNode(ambientLightNode)
         
+//        let tilesNode = makeTiles()
+//        scene.rootNode.addChildNode(tilesNode)
         let gridNode = makeCheckerBoardFloor()
         scene.rootNode.addChildNode(gridNode)
         let floor = makeGrayFloor()
@@ -141,24 +143,21 @@ class Document: NSDocument {
         return floorNode
     }
     
-    func makeImageFloor(_ image: NSImage)->SCNNode
+    func makeTiles()->SCNNode
     {
-        let floor = SCNFloor()
-        if #available(OSX 10.12, *) {
-            floor.width = 100
-            floor.length = 100
-        }
+        let floor = SCNPlane(width: 100, height: 100)
         let floorNode = SCNNode(geometry: floor)
-        floorNode.position = SCNVector3(x: 0, y: 0, z: 0)
-        floorNode.name = "Floor"
-        let floorMaterial = SCNMaterial()
-        floorMaterial.diffuse.contentsTransform = SCNMatrix4MakeScale(6, 0, 6)
-        floorNode.geometry?.firstMaterial?.diffuse.wrapS = SCNWrapMode.repeat
-        floorNode.geometry?.firstMaterial?.diffuse.wrapT = SCNWrapMode.repeat
-        floorMaterial.diffuse.contents = image
-        floor.materials = [floorMaterial]
-        floor.reflectivity = 0.2
-        floorMaterial.transparency = 1.0
+        floorNode.position = SCNVector3(x: 0, y: 0.01, z: 0)
+        floorNode.name = "Tiles"
+        let tileMaterial = SCNMaterial()
+        let transform = CATransform3DMakeScale(50, 50, 1)
+        tileMaterial.diffuse.contentsTransform = transform
+        tileMaterial.diffuse.wrapS = SCNWrapMode.repeat
+        tileMaterial.diffuse.wrapT = SCNWrapMode.repeat
+        let image = NSImage(named: NSImage.Name("floor.jpg"))!
+        tileMaterial.diffuse.contents = image
+        floor.materials = [tileMaterial]
+        floorNode.eulerAngles.x = -.pi / 2.0
         return floorNode
 
     }

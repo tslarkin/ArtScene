@@ -38,6 +38,11 @@
 		127CF8D31BD1823300F571D9 /* Framer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127CF8D01BD1823300F571D9 /* Framer.swift */; };
 		129BCF301BE29D5200F6B8F3 /* rotate-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 129BCF2F1BE29D5200F6B8F3 /* rotate-icon.png */; };
 		12AACAB52149392A00C407BB /* Thump.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 12AACAB42149392A00C407BB /* Thump.mp3 */; };
+		12E222F5214AA0E5005EE7C5 /* darkwood.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 12E222F3214AA0E5005EE7C5 /* darkwood.jpg */; };
+		12E222F6214AA0E5005EE7C5 /* lightwood.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 12E222F4214AA0E5005EE7C5 /* lightwood.jpg */; };
+		12E222FC214AE63C005EE7C5 /* purplenebula.png in Resources */ = {isa = PBXBuildFile; fileRef = 12E222FB214AE63C005EE7C5 /* purplenebula.png */; };
+		12E222FE214AEDB7005EE7C5 /* miramar.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 12E222FD214AEDB7005EE7C5 /* miramar.jpg */; };
+		12E22300214BE557005EE7C5 /* pcraven_wood_chair3.dae in Resources */ = {isa = PBXBuildFile; fileRef = 12E222FF214BE557005EE7C5 /* pcraven_wood_chair3.dae */; };
 		12E95BB42126A68900F025B6 /* SCNNodeExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB32126A68900F025B6 /* SCNNodeExtension.swift */; };
 		12E95BB6212825B100F025B6 /* ArtSceneMouse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB5212825B100F025B6 /* ArtSceneMouse.swift */; };
 		12E95BB82128269900F025B6 /* ArtSceneViewControllerKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */; };
@@ -93,6 +98,11 @@
 		127CF8D01BD1823300F571D9 /* Framer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Framer.swift; sourceTree = "<group>"; };
 		129BCF2F1BE29D5200F6B8F3 /* rotate-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "rotate-icon.png"; sourceTree = "<group>"; };
 		12AACAB42149392A00C407BB /* Thump.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Thump.mp3; sourceTree = "<group>"; };
+		12E222F3214AA0E5005EE7C5 /* darkwood.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = darkwood.jpg; sourceTree = "<group>"; };
+		12E222F4214AA0E5005EE7C5 /* lightwood.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = lightwood.jpg; sourceTree = "<group>"; };
+		12E222FB214AE63C005EE7C5 /* purplenebula.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = purplenebula.png; sourceTree = "<group>"; };
+		12E222FD214AEDB7005EE7C5 /* miramar.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = miramar.jpg; sourceTree = "<group>"; };
+		12E222FF214BE557005EE7C5 /* pcraven_wood_chair3.dae */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml.dae; path = pcraven_wood_chair3.dae; sourceTree = "<group>"; };
 		12E95BB32126A68900F025B6 /* SCNNodeExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCNNodeExtension.swift; sourceTree = "<group>"; };
 		12E95BB5212825B100F025B6 /* ArtSceneMouse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtSceneMouse.swift; sourceTree = "<group>"; };
 		12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtSceneViewControllerKeyboard.swift; sourceTree = "<group>"; };
@@ -189,13 +199,18 @@
 		12EBCA74213DB98D00881DC7 /* Images */ = {
 			isa = PBXGroup;
 			children = (
-				12EBCA77213EA13F00881DC7 /* docicon.icns */,
+				12E222FF214BE557005EE7C5 /* pcraven_wood_chair3.dae */,
+				12E222FD214AEDB7005EE7C5 /* miramar.jpg */,
+				12E222FB214AE63C005EE7C5 /* purplenebula.png */,
+				12E222F3214AA0E5005EE7C5 /* darkwood.jpg */,
+				12E222F4214AA0E5005EE7C5 /* lightwood.jpg */,
 				12EBCA75213DC94500881DC7 /* floor.jpg */,
+				12EBCA77213EA13F00881DC7 /* docicon.icns */,
 				129BCF2F1BE29D5200F6B8F3 /* rotate-icon.png */,
+				127CF8C51BD181FA00F571D9 /* alignhcenter.png */,
 				1232CBCE212328A4006F9A64 /* 4way-arrow.png */,
 				127CF8C31BD181FA00F571D9 /* aligntop.png */,
 				127CF8C41BD181FA00F571D9 /* alignbottom.png */,
-				127CF8C51BD181FA00F571D9 /* alignhcenter.png */,
 				127CF8C61BD181FA00F571D9 /* alignvcenter.png */,
 			);
 			path = Images;
@@ -268,6 +283,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				127CF8B81BD1810A00F571D9 /* Assets.xcassets in Resources */,
+				12E222FC214AE63C005EE7C5 /* purplenebula.png in Resources */,
 				127CF8B61BD1810A00F571D9 /* Document.xib in Resources */,
 				129BCF301BE29D5200F6B8F3 /* rotate-icon.png in Resources */,
 				127CF8C71BD181FA00F571D9 /* ActionMenu.xib in Resources */,
@@ -280,9 +296,13 @@
 				12EBCA76213DC94500881DC7 /* floor.jpg in Resources */,
 				127CF8CB1BD181FA00F571D9 /* alignvcenter.png in Resources */,
 				127CF8BB1BD1810A00F571D9 /* MainMenu.xib in Resources */,
+				12E222F5214AA0E5005EE7C5 /* darkwood.jpg in Resources */,
+				12E222F6214AA0E5005EE7C5 /* lightwood.jpg in Resources */,
 				120CF83821393B0D00ED0546 /* dsa_pub.pem in Resources */,
 				1232CBCF212328A4006F9A64 /* 4way-arrow.png in Resources */,
 				127CF8CA1BD181FA00F571D9 /* alignhcenter.png in Resources */,
+				12E22300214BE557005EE7C5 /* pcraven_wood_chair3.dae in Resources */,
+				12E222FE214AEDB7005EE7C5 /* miramar.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

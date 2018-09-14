@@ -152,7 +152,29 @@ class ArtSceneView: SCNView, Undo {
         grid().isHidden = false
     }
     
-   /// Displays info on some node in the status line.
+    @IBAction func daySky(_ sender: AnyObject)
+    {
+        let skybox = NSImage(imageLiteralResourceName: "miramar.jpg")
+        scene!.background.contents = skybox
+    }
+    
+    @IBAction func nightSky(_ sender: AnyObject)
+    {
+        let skybox = NSImage(imageLiteralResourceName: "purplenebula.png")
+        scene!.background.contents = skybox
+    }
+    
+    @IBAction func graySky(_ sender: AnyObject)
+    {
+        scene!.background.contents = NSColor.lightGray
+    }
+    
+    @IBAction func blackSky(_ sender: AnyObject)
+    {
+        scene!.background.contents = nil
+    }
+
+    /// Displays info on some node in the status line.
     func getInfo(_ node: SCNNode, option: Bool = false, hitPosition: SCNVector3? = nil) {
         var vNode = node
         if !option && nodeType(node) == .Image {

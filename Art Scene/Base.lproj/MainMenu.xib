@@ -148,6 +148,37 @@
                         </items>
                     </menu>
                 </menuItem>
+                <menuItem title="Sky" id="9q0-Dn-65K">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <menu key="submenu" title="Sky" id="cKG-fJ-bFi">
+                        <items>
+                            <menuItem title="Day Sky" id="JCR-aV-Af9">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="daySky:" target="-1" id="9O2-dV-jYU"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Night Sky" id="cHs-de-f2D">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="nightSky:" target="-1" id="Bv2-ZN-QRB"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Gray Sky" id="G7J-rI-oPE">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="graySky:" target="-1" id="BPX-qz-zRe"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Black Sky" id="36b-F3-8Z4">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="blackSky:" target="-1" id="b9T-PL-RfO"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
+                </menuItem>
                 <menuItem title="Window" id="aUF-d1-5bR">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Window" systemMenu="window" id="Td7-aD-5lo">
