@@ -91,6 +91,25 @@ class Document: NSDocument {
         let wallNode = sceneView.controller.makeWall(at: SCNVector3(x: 0.0, y: 6.0, z: -15.0))
         scene.rootNode.addChildNode(wallNode)
         
+        let chairScene = SCNScene(named: "pcraven_wood_chair3.dae")
+        let chairNode = chairScene!.rootNode.childNode(withName: "Wooden_Chair", recursively: true)!
+        chairNode.position = SCNVector3Make(0, -1.5 / 12.0, 0)
+        let bbox = chairNode.boundingBox
+        let chairBox = SCNBox(width: bbox.max.x - bbox.min.y, height: bbox.max.z - bbox.min.z, length: bbox.max.y - bbox.min.y, chamferRadius: 0)
+        let boxNode = SCNNode(geometry: chairBox)
+        boxNode.position = SCNVector3Make(0.0, chairBox.height / 2.0, -10.0)
+        boxNode.addChildNode(chairNode)
+        boxNode.name = "Chair"
+        var materials:[SCNMaterial] = []
+        for _ in 0..<6 {
+            let material = SCNMaterial()
+            material.diffuse.contents = NSColor.clear
+            materials.append(material)
+        }
+        boxNode.geometry?.materials = materials
+
+        scene.rootNode.addChildNode(boxNode)
+        
         return scene
     }
     
@@ -178,8 +197,9 @@ class Document: NSDocument {
         // if the scene was saved with a selection, then the nodes have to revert their emissions to black
         if let children = sceneView.scene?.rootNode.childNodes ( passingTest: {  x, yes in x.geometry != nil } ) {
             for child in children {
-                let material = child.geometry!.firstMaterial!
-                material.emission.contents = NSColor.black
+                if let material = child.geometry!.firstMaterial {
+                    material.emission.contents = NSColor.black
+                }
             }
         }
         let window = windowForSheet!

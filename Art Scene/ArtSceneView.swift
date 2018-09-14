@@ -201,10 +201,10 @@ class ArtSceneView: SCNView, Undo {
             let (width, height, name) = imageInfo(vNode)
             hudTable = [("width", width), ("height", height)]
             title = name
-        case .Box:
+        case .Box, .Chair:
             let (x, y, width, height, length, rotation) = boxInfo(node)
             hudTable = [("↔", x), ("↕", y), ("width", width), ("length", length), ("height", height), ("y°", rotation)]
-            title = "Box"
+            title = type == .Box ? "Box" : "Chair"
 
         default:
             return

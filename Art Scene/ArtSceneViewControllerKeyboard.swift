@@ -235,7 +235,7 @@ extension ArtSceneViewController
         default:
             super.keyDown(with: theEvent)
         }
-        let proposal = currentNode.copy() as! SCNNode
+        let proposal = currentNode.clone()
         proposal.geometry = currentNode.geometry?.copy() as! SCNBox
         let box = proposal.geometry as! SCNBox
         box.width += dWidth
@@ -268,7 +268,7 @@ extension ArtSceneViewController
             return
         }
         let translation = SCNVector3Make(dx, 0.0, dz)
-        let proposal = currentNode.copy() as! SCNNode
+        let proposal = currentNode.clone()
         let d = Art_Scene.rotate(vector: translation, axis: SCNVector3Make(0, 1, 0), angle: artSceneView.camera().yRotation)
         proposal.position = proposal.position + d
         if nodeIntersects(currentNode, proposal: proposal) { thump(); return }

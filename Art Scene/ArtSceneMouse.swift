@@ -106,6 +106,15 @@ extension ArtSceneView
             return
         }
         switch type {
+        case .Chair:
+            mouseNode = hit.node
+            if hit.worldCoordinates.y < 0.25 {
+                rotateCursor.set()
+                editMode = .resizing(.Box, .pivot)
+            } else {
+                editMode = .moving(.Box)
+                NSCursor.openHand.set()
+            }
         case .Box:
             mouseNode = hit.node
             if hit.worldCoordinates.y < 0.25 {
@@ -117,8 +126,8 @@ extension ArtSceneView
                 let box = hit.node.geometry as! SCNBox
                 let cusp: CGFloat = box.height / 6.0
                 if loc.y > box.height / 2.0 - cusp {
-                    editMode = .resizing(.Box, .top)
-                    NSCursor.resizeUpDown.set()
+                        editMode = .resizing(.Box, .top)
+                        NSCursor.resizeUpDown.set()
                     return
                 }
                 switch hit.geometryIndex {
@@ -129,7 +138,7 @@ extension ArtSceneView
                     if NSPointInRect(NSPoint(x: loc.x, y: loc.y), inside) {
                         editMode = .moving(.Box)
                         NSCursor.openHand.set()
-                    } else {
+                    } else  {
                         if hit.geometryIndex == 0 {
                             if loc.x > 0 {
                                 editMode = .resizing(.Box, .side(hit.geometryIndex, .right))
@@ -154,7 +163,7 @@ extension ArtSceneView
                     if NSPointInRect(NSPoint(x: loc.z, y: loc.y), inside) {
                         editMode = .moving(.Box)
                         NSCursor.openHand.set()
-                    } else {
+                    } else if type != .Chair {
                         if hit.geometryIndex == 1 {
                             if loc.z > 0 {
                                 editMode = .resizing(.Box, .side(hit.geometryIndex, .left))
@@ -330,12 +339,12 @@ extension ArtSceneView
             let (width, height, name) = imageInfo(currentNode)
             display = controller.makeDisplay(title: name, items: [("width", width), ("height", height)], width: fontScaler * 200)
 
-        case .moving(.Box):
+        case .moving(.Box), .moving(.Chair):
             SCNTransaction.animationDuration = 0.0
             let (dx, dz) = snapToGrid(d1: delta.x, d2: delta.y, snap: gridFactor)
             if dx == 0.0 && dz == 0.0 { break }
             let translation = SCNVector3Make(dx, 0.0, dz)
-            let proposal = currentNode.copy() as! SCNNode
+            let proposal = currentNode.clone()
             let d = Art_Scene.rotate(vector: translation, axis: SCNVector3Make(0, 1, 0), angle: camera().yRotation)
             proposal.position = currentNode.position + d
             if nodeIntersects(currentNode, proposal: proposal) { thump(); return }
@@ -345,7 +354,7 @@ extension ArtSceneView
             display = controller.makeDisplay(title: "Box", items: [("↔", x), ("↕", y)], width: fontScaler * 150)
         case .resizing(.Box, .pivot):
             if delta.x == 0.0 { return }
-            let proposal = currentNode.copy() as! SCNNode
+            let proposal = currentNode.clone()
             proposal.yRotation += delta.x / 4.0
             if nodeIntersects(currentNode, proposal: proposal) { thump(); return }
             replaceNode(currentNode, with: proposal)
@@ -382,7 +391,7 @@ extension ArtSceneView
             default: ()
             }
             if dWidth == 0.0 && dLength == 0 { break }
-            let proposal = currentNode.copy() as! SCNNode
+            let proposal = currentNode.clone()
             proposal.geometry = currentNode.geometry?.copy() as! SCNBox
             let box = proposal.geometry as! SCNBox
             box.width += dWidth

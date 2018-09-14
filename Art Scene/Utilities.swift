@@ -40,6 +40,7 @@ enum NodeType: String {
     case Back
     case Grid
     case Box
+    case Chair
 }
 
 enum EditMode: Equatable {
