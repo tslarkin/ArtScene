@@ -18,6 +18,7 @@ extension ArtSceneView {
     override func flagsChanged(with theEvent: NSEvent) {
         if inDrag { return }
         if case EditMode.getInfo = editMode { return }
+        if case EditMode.placing(.Chair) = editMode { return }
         let controlAlone = checkModifierFlags(theEvent, flag: .control)
         if controlAlone {
             NSCursor.contextualMenu.set()
@@ -118,7 +119,8 @@ extension ArtSceneView {
             let menu = NSMenu()
             menu.autoenablesItems = true
             menu.addItem(withTitle: "Delete Chair", action: #selector(ArtSceneViewController.deleteChair(_:)), keyEquivalent: "")
-            return menu
+            menu.addItem(withTitle: "Chair Color", action: #selector(ArtSceneViewController.pickChairColor(_:)), keyEquivalent: "")
+           return menu
         } else if let wallHit = hitOfType(hitResults, type: .Wall) {
             let menu = NSMenu()
             menu.autoenablesItems = true

@@ -183,15 +183,13 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Objects" id="q3c-fN-LcO">
                         <items>
-                            <menuItem title="Chair" id="27A-DT-7D2">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem title="Chair" keyEquivalent="c" id="27A-DT-7D2">
                                 <connections>
                                     <action selector="placeChair:" target="-1" id="Ofs-AA-vv1"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="0dr-yZ-YnJ"/>
-                            <menuItem title="Lights Panel" id="2G6-I4-sVd">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem title="Lights Panel" keyEquivalent="l" id="2G6-I4-sVd">
                                 <connections>
                                     <action selector="showLightsPanel:" target="-1" id="7hn-fB-v6y"/>
                                 </connections>

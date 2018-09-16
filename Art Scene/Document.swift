@@ -65,7 +65,7 @@ class Document: NSDocument, NSWindowDelegate {
         
         // create and add a light to the scene
         let light = SCNLight()
-        light.color = NSColor(white: 0.5, alpha: 1.0)
+        light.color = NSColor(white: 0.8, alpha: 1.0)
         let lightNode = SCNNode()
         lightNode.name = "Omni"
         lightNode.light = light
@@ -78,7 +78,7 @@ class Document: NSDocument, NSWindowDelegate {
         let ambientLightNode = SCNNode()
         ambientLightNode.light = SCNLight()
         ambientLightNode.light!.type = SCNLight.LightType.ambient
-        ambientLightNode.light!.color = NSColor(white: 0.0, alpha: 1.0)
+        ambientLightNode.light!.color = NSColor(white: 0.5, alpha: 1.0)
         ambientLightNode.name = "Ambient"
         scene.rootNode.addChildNode(ambientLightNode)
         

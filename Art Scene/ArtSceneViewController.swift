@@ -89,6 +89,27 @@ class ArtSceneViewController: NSViewController, Undo {
         }
     }
     
+    @IBAction func pickChairColor(_ sender: AnyObject?)
+    {
+        let picker = NSColorPanel.shared
+        picker.setTarget(self)
+        picker.setAction(#selector(ArtSceneViewController.setChairColor(_:)))
+        let chair = theNode!.childNode(withName: "Wooden_Chair", recursively: false)!
+        let color = chair.geometry!.firstMaterial?.diffuse.contents as! NSColor
+        picker.color = color
+        picker.isContinuous = true
+        picker.orderFront(nil)
+    }
+    
+    @objc func setChairColor(_ sender: AnyObject) {
+        if let sender = sender as? NSColorPanel {
+            let color = sender.color
+            let chair = theNode!.childNode(withName: "Wooden_Chair", recursively: false)!
+            chair.geometry!.firstMaterial?.diffuse.contents = color
+        }
+    }
+
+    
     @IBAction func pickWallColor(_ sender: AnyObject?)
     {
         let picker = NSColorPanel.shared
@@ -390,13 +411,13 @@ class ArtSceneViewController: NSViewController, Undo {
     
     func makeChair(at point: CGPoint)->SCNNode
     {
-        let chairScene = SCNScene(named: "pcraven_wood_chair3.dae")
+        let chairScene = SCNScene(named: "art.scnassets/pcraven_wood_chair3.dae")
         let chairNode = chairScene!.rootNode.childNode(withName: "Wooden_Chair", recursively: true)!
-        chairNode.position = SCNVector3Make(0.0, 0.0, 0)
         let bbox = chairNode.boundingBox
-        let chairBox = SCNBox(width: bbox.max.x - bbox.min.x, height: bbox.max.z - bbox.min.z, length: bbox.max.y - bbox.min.y, chamferRadius: 0)
+        let chairBox = SCNBox(width: bbox.max.x - bbox.min.x, height: bbox.max.y - bbox.min.y, length: bbox.max.z - bbox.min.z, chamferRadius: 0)
         let boxNode = SCNNode(geometry: chairBox)
-        boxNode.position = SCNVector3Make(point.x, chairBox.height / 2.0 - 1.5 / 12.0, point.y)
+        boxNode.position = SCNVector3Make(point.x, chairNode.position.y, point.y)
+        chairNode.position = SCNVector3Make(0.0, 0.0, 0)
         boxNode.addChildNode(chairNode)
         boxNode.name = "Chair"
         var materials:[SCNMaterial] = []
@@ -414,6 +435,7 @@ class ArtSceneViewController: NSViewController, Undo {
         undoer.beginUndoGrouping()
         undoer.setActionName("Add Chair")
         let boxNode = makeChair(at: point)
+        boxNode.yRotation = -artSceneView.camera().yRotation - .pi / 2.0
         changeParent(boxNode, to: scene.rootNode)
         undoer.endUndoGrouping()
     }
