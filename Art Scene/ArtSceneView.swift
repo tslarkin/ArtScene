@@ -65,7 +65,41 @@ class ArtSceneView: SCNView, Undo {
     var wallsLocked: Bool {
         return controller.wallsLocked
     }
+    
+    /// Returns the ambient light node
+    @objc var ambientLight: SCNNode? {
+        get {
+           return scene?.rootNode.childNode(withName: "Ambient", recursively: false)!
+        }
+    }
             
+    /// Returns the omni light node
+    @objc var omniLight: SCNNode? {
+        get {
+            return scene?.rootNode.childNode(withName: "Omni", recursively: false)!
+        }
+    }
+    
+    @objc var ambientLightIntensity: CGFloat {
+        set {
+            ambientLight!.light?.color = NSColor(white: newValue, alpha: 1.0)
+        }
+        get {
+           let color = ambientLight!.light?.color as! NSColor
+            return color.whiteComponent
+        }
+    }
+    
+    @objc var omniLightIntensity: CGFloat {
+        set {
+            omniLight!.light?.color = NSColor(white: newValue, alpha: 1.0)
+        }
+        get {
+            let color = omniLight!.light?.color as! NSColor
+            return color.whiteComponent
+        }
+    }
+    
     /// Makes the `questionCursor` and `rotateCursor`, then calls `super.init()`
     required init?(coder: NSCoder) {
         var size: CGFloat = 24
@@ -101,7 +135,6 @@ class ArtSceneView: SCNView, Undo {
         chair.draw(in: NSRect(x: 0, y: 0, width: size, height: size))
         image.unlockFocus()
         chairCursor = NSCursor.init(image: image, hotSpot: NSPoint(x: 12, y: 12))
-
         
         super.init(coder: coder)
     }
@@ -122,25 +155,13 @@ class ArtSceneView: SCNView, Undo {
         hud = HUD(size: frame.size, controller: controller)
         overlaySKScene = hud
         registerForDraggedTypes([NSPasteboard.PasteboardType(rawValue: "NSFilenamesPboardType")])
-        
+
     }
     
     /// Returns the single scene camera node.
     func camera () -> SCNNode
     {
         return scene!.rootNode.childNode(withName: "Camera", recursively: false)!
-    }
-    
-    /// Returns the omni light node
-    func omniLight () -> SCNNode
-    {
-        return scene!.rootNode.childNode(withName: "Omni", recursively: false)!
-    }
-    
-    /// Returns the ambient light node
-    func ambientLight () -> SCNNode
-    {
-        return scene!.rootNode.childNode(withName: "Ambient", recursively: false)!
     }
     
     /// Returns the grid
@@ -165,14 +186,18 @@ class ArtSceneView: SCNView, Undo {
     
     @IBAction func daySky(_ sender: AnyObject)
     {
-        let skybox = NSImage(imageLiteralResourceName: "miramar.jpg")
-        scene!.background.contents = skybox
+        let skybox = NSImage.Name(rawValue: "miramar.jpg")
+        let path = Bundle.main.pathForImageResource(skybox)!
+        let image = NSImage(contentsOfFile: path)
+         scene!.background.contents = image
     }
     
     @IBAction func nightSky(_ sender: AnyObject)
     {
-        let skybox = NSImage(imageLiteralResourceName: "purplenebula.png")
-        scene!.background.contents = skybox
+        let skybox = NSImage.Name(rawValue: "purplenebula.png")
+        let path = Bundle.main.pathForImageResource(skybox)!
+        let image = NSImage(contentsOfFile: path)
+        scene!.background.contents = image
     }
     
     @IBAction func graySky(_ sender: AnyObject)
@@ -269,7 +294,6 @@ class ArtSceneView: SCNView, Undo {
         controller.hudUpdate = display
     }
     
-
 // MARK: Interapplication dragging.
     
     override func wantsPeriodicDraggingUpdates() -> Bool {

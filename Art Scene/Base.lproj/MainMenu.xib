@@ -189,6 +189,13 @@
                                     <action selector="placeChair:" target="-1" id="Ofs-AA-vv1"/>
                                 </connections>
                             </menuItem>
+                            <menuItem isSeparatorItem="YES" id="0dr-yZ-YnJ"/>
+                            <menuItem title="Lights Panel" id="2G6-I4-sVd">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="showLightsPanel:" target="-1" id="7hn-fB-v6y"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>

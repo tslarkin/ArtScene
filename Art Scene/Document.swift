@@ -33,7 +33,7 @@ fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
 }
 
 
-class Document: NSDocument {
+class Document: NSDocument, NSWindowDelegate {
 
     @IBOutlet weak var sceneView: ArtSceneView!
     
@@ -65,7 +65,7 @@ class Document: NSDocument {
         
         // create and add a light to the scene
         let light = SCNLight()
-        light.color = NSColor(white: 0.8, alpha: 1.0)
+        light.color = NSColor(white: 0.5, alpha: 1.0)
         let lightNode = SCNNode()
         lightNode.name = "Omni"
         lightNode.light = light
@@ -78,7 +78,7 @@ class Document: NSDocument {
         let ambientLightNode = SCNNode()
         ambientLightNode.light = SCNLight()
         ambientLightNode.light!.type = SCNLight.LightType.ambient
-        ambientLightNode.light!.color = NSColor(white: 0.5, alpha: 1.0)
+        ambientLightNode.light!.color = NSColor(white: 0.0, alpha: 1.0)
         ambientLightNode.name = "Ambient"
         scene.rootNode.addChildNode(ambientLightNode)
         
@@ -198,6 +198,27 @@ class Document: NSDocument {
         // If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this property and override -makeWindowControllers instead.
         return NSNib.Name("Document")
     }
+    
+    func windowDidResignMain(_ notification: Notification) {
+        sceneView.unbind(NSBindingName(rawValue: "ambientLightIntensity"))
+        sceneView.unbind(NSBindingName(rawValue: "omniLightIntensity"))
+    }
+    
+    func windowDidBecomeMain()
+    {
+        let delegate = NSApp.delegate as! AppDelegate
+        var color = sceneView.omniLight!.light!.color as! NSColor
+        delegate.setOmniLightIntensity(color.whiteComponent)
+        color = sceneView.ambientLight!.light!.color as! NSColor
+        delegate.setAmbientLightIntensity(color.whiteComponent)
+        sceneView.bind(NSBindingName(rawValue: "ambientLightIntensity"), to: delegate, withKeyPath: "ambientLightIntensity", options: nil)
+        sceneView.bind(NSBindingName(rawValue: "omniLightIntensity"), to: delegate, withKeyPath: "omniLightIntensity", options: nil)
+    }
+    
+    func windowDidBecomeMain(_ notification: Notification) {
+        windowDidBecomeMain()
+    }
+    
 
     override func data(ofType typeName: String) throws -> Data {
         // Insert code here to write your document to data of the specified type. If outError != nil, ensure that you create and set an appropriate error when returning nil.
@@ -223,7 +244,5 @@ class Document: NSDocument {
         return op
     }
     
-    
-
 }
 

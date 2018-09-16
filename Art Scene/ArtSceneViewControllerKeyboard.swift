@@ -291,7 +291,7 @@ extension ArtSceneViewController
         let jump: CGFloat = shift ? 0.1 : 1.0
         let rotation: CGFloat = (shift ? 1.0 : 5.0) / r2d
         let cameraNode = artSceneView.camera()
-        let omniLight = artSceneView.omniLight()
+        let omniLight = artSceneView.omniLight!
         SCNTransaction.animationDuration = 1.0
         let optionDown =  checkModifierFlags(theEvent, flag: .option, exclusive: false)
         let controlDown = checkModifierFlags(theEvent, flag: .control, exclusive: false)
