@@ -435,55 +435,6 @@ func linesForBox(_ node: SCNNode, transform: AffineTransform)->[(CGPoint, CGPoin
     return lines
 }
 
-func nodeIntersects(_ node: SCNNode, transform: AffineTransform)->Bool
-{
-    let lines = linesForBox(node, transform: transform)
-    var root = node
-    while root.parent != nil {
-        root = root.parent!
-    }
-    let walls = root.childNodes.filter{ nodeType($0) == .Wall }
-    guard walls.count > 0 else { return false }
-    for wall in walls {
-        let wallRotation = -wall.yRotation
-        let size = wall.size()!
-        var transform = AffineTransform(translationByX: wall.position.x, byY: wall.position.z)
-        transform.rotate(byRadians: wallRotation)
-        let A = transform.transform(CGPoint(x:  size.width / 2.0, y: 0.0))
-        let B = transform.transform(CGPoint(x: -size.width / 2.0, y: 0.0))
-        for (C, D) in lines {
-            if lineIntersectsLine(A: A, B: B, C: C, D: D) { return true }
-        }
-    }
-    let boxes = root.childNodes.filter({ ( nodeType($0) == .Chair || nodeType($0) == .Box ) && $0 != node })
-    guard boxes.count > 0 else { return  false }
-    for boxNode in boxes {
-        var transform = AffineTransform(translationByX: boxNode.position.x, byY: boxNode.position.z)
-        transform.rotate(byRadians: -boxNode.yRotation)
-        let boxNodeLines = linesForBox(boxNode, transform: transform)
-        for (A, B) in boxNodeLines {
-            for (C, D) in lines {
-                if lineIntersectsLine(A: A, B: B, C: C, D: D) { return true }
-            }
-        }
-    }
-    return false
-    
-}
-
-func nodeIntersects(_ node: SCNNode, newAngle: CGFloat)->Bool
-{
-    var transform = AffineTransform(translationByX: node.position.x, byY: node.position.z)
-    transform.rotate(byRadians: newAngle)
-    return nodeIntersects(node, transform: transform)
-}
-
-func nodeIntersects(_ node: SCNNode, newPosition: SCNVector3)->Bool
-{
-    var transform = AffineTransform(translationByX: newPosition.x, byY: newPosition.z)
-    transform.rotate(byRadians: -node.yRotation)
-    return nodeIntersects(node, transform: transform)
-}
 
 func computeIntersection(A: CGPoint, B: CGPoint, C:CGPoint, D: CGPoint)->CGPoint?
 {
@@ -519,7 +470,7 @@ func nodeIntersects(_ node: SCNNode, proposal: SCNNode)->Bool
             if lineIntersectsLine(A: A, B: B, C: C, D: D) { return true }
         }
     }
-    let boxes = root.childNodes.filter({ nodeType($0) == .Box && $0 != node })
+    let boxes = root.childNodes.filter({ ( nodeType($0) == .Chair || nodeType($0) == .Box ) && $0 != node })
     guard boxes.count > 0 else { return  false }
     for boxNode in boxes {
         var transform = AffineTransform(translationByX: boxNode.position.x, byY: boxNode.position.z)

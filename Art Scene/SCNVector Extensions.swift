@@ -96,3 +96,19 @@ func *(a: CGFloat, b: CGPoint)->CGPoint
 {
     return CGPoint(x: a * b.x, y: a * b.y)
 }
+
+extension CGFloat {
+    var inches: CGFloat {
+        get {
+            return self / 12.0
+        }
+    }
+}
+
+extension Double {
+    var inches: CGFloat {
+        get {
+            return CGFloat(self / 12.0)
+        }
+    }
+}

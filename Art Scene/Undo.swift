@@ -11,20 +11,13 @@ import Cocoa
 
 /**
  A protocol to support Undo. The nodes have four properties that are undoable.
- 1. Rotation, which applies only to walls;
+ 1. Rotation, which applies only to walls, boxes, and chairs;
  1. Position, which is effectively an x, z coordinate for a wall, and an x, y coordinate for a picture;
  1. Size, which is the size of a node's geometry.
  1. Parent. Setting this to `nil` removes the node from the scene.
  
  The protocol is adopted by `ArtSceneView` and `ArtSceneViewController`.
  
- Each of the four methods requires a corresponding method, the original method name suffixed by
- `1`. Since each of the methods requires two arguments, the node and a new value for the property,
- the undo registration cannot simply call the set method itself. It calls a dummy function, passing 
- the two arguments in a dictionary, which uses the dictionary values to call the original method.
- 
- Due to some weirdness in Swift, these dummy functions crash if they are defined in the protocol
- extension, so they have to be fulfilled by the the adopting class.
  */
 
 protocol Undo : AnyObject

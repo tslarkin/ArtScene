@@ -414,7 +414,7 @@ class ArtSceneViewController: NSViewController, Undo {
         let chairScene = SCNScene(named: "art.scnassets/pcraven_wood_chair3.dae")
         let chairNode = chairScene!.rootNode.childNode(withName: "Wooden_Chair", recursively: true)!
         let bbox = chairNode.boundingBox
-        let chairBox = SCNBox(width: bbox.max.x - bbox.min.x, height: bbox.max.y - bbox.min.y, length: bbox.max.z - bbox.min.z, chamferRadius: 0)
+        let chairBox = SCNBox(width: bbox.max.x - bbox.min.x + 2.0.inches, height: bbox.max.y - bbox.min.y, length: bbox.max.z - bbox.min.z, chamferRadius: 0)
         let boxNode = SCNNode(geometry: chairBox)
         boxNode.position = SCNVector3Make(point.x, chairNode.position.y, point.y)
         chairNode.position = SCNVector3Make(0.0, 0.0, 0)
