@@ -454,6 +454,51 @@ class ArtSceneViewController: NSViewController, Undo {
         undoer.endUndoGrouping()
     }
     
+    func makeTable(at point: CGPoint)->SCNNode
+    {
+        let scene = SCNScene(named: "art.scnassets/table.dae")
+        let tableNode = scene!.rootNode.childNode(withName: "Table", recursively: true)!
+        let bbox = tableNode.boundingBox
+        let tableBox = SCNBox(width: bbox.max.x - bbox.min.x, height: bbox.max.y - bbox.min.y, length: bbox.max.z - bbox.min.z, chamferRadius: 0)
+        let boxNode = SCNNode(geometry: tableBox)
+        boxNode.position = SCNVector3Make(point.x, tableNode.position.y, point.y)
+        tableNode.position = SCNVector3Make(0.0, 0.0, 0)
+        boxNode.addChildNode(tableNode)
+        boxNode.name = "Table"
+        var materials:[SCNMaterial] = []
+        for _ in 0..<6 {
+            let material = SCNMaterial()
+            material.diffuse.contents = NSColor.clear
+            materials.append(material)
+        }
+        boxNode.geometry?.materials = materials
+        return boxNode
+    }
+    
+    func addTable(at point: CGPoint)
+    {
+        undoer.beginUndoGrouping()
+        undoer.setActionName("Add Table")
+        let boxNode = makeTable(at: point)
+        boxNode.yRotation = -artSceneView.camera().yRotation - .pi / 2.0
+        changeParent(boxNode, to: scene.rootNode)
+        undoer.endUndoGrouping()
+    }
+    
+    @IBAction func placeTable(_ sender: AnyObject)
+    {
+        artSceneView.editMode = .placing(.Table)
+        artSceneView.chairCursor.set()
+    }
+    
+    @IBAction func deleteTable(_ sender: AnyObject)
+    {
+        undoer.beginUndoGrouping()
+        undoer.setActionName("Delete Chair")
+        changeParent(theNode!, to: nil)
+        undoer.endUndoGrouping()
+    }
+    
 
     /// A menu action to put the controller in `.Moving(.Wall)` mode.
     @objc func editWallPosition(_ sender: AnyObject?) {

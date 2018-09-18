@@ -49,7 +49,7 @@ extension ArtSceneView
         }
 
         switch editMode {
-        case .placing(.Chair):
+        case .placing(.Chair), .placing(.Table):
             chairCursor.set()
             return
         case .getInfo:
@@ -487,7 +487,7 @@ extension ArtSceneView
             return
         }
         
-        if editMode == .placing(.Chair) {
+        if editMode == .placing(.Chair) || editMode == .placing(.Table) {
             var hitResults: [SCNHitTestResult]
             if #available(OSX 10.13, *) {
                 hitResults = hitTest(theEvent.locationInWindow, options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
@@ -496,7 +496,11 @@ extension ArtSceneView
             }
             
             if hitResults.count <= 2, let floor = hitOfType(hitResults, type: .Floor) {
-                controller.addChair(at: CGPoint(x: floor.worldCoordinates.x, y: floor.worldCoordinates.z))
+                if editMode == .placing(.Chair) {
+                    controller.addChair(at: CGPoint(x: floor.worldCoordinates.x, y: floor.worldCoordinates.z))
+                } else {
+                    controller.addTable(at: CGPoint(x: floor.worldCoordinates.x, y: floor.worldCoordinates.z))
+                }
             }
             editMode = .none
             NSCursor.arrow.set()
