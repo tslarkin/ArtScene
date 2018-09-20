@@ -114,20 +114,14 @@ extension Undo
         var name: String?
         switch editMode {
         case .none: name = "No Action"
-        case .resizing(.Wall, .pivot):
-            name = "Wall Rotation"
-        case .resizing(.Chair, .pivot):
-            name = "Chair Rotation"
-        case .resizing(.Box, .pivot):
-            name = "Box Rotation"
-        case .resizing(.Image, _):
-            name = "Resizing Image"
+        case .rotating(_):
+            name = "\(String(describing: node.name!)) Rotation"
+        case .moving(_):
+            name = "Moving \(String(describing: node.name!))"
         case .resizing(.Picture, _):
             name = "Resizing Frame of \(String(describing: node.name!))"
-        case .resizing(.Wall, _), .resizing(.Box, _):
+        case .resizing(_, _):
             name = "Resizing \(String(describing: node.name!))"
-        case .moving(.Picture), .moving(.Wall), .moving(.Box), .moving(.Chair):
-            name = "Moving \(String(describing: node.name!))"
        default: ()
         }
         return name

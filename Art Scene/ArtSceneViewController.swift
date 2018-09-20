@@ -413,7 +413,9 @@ class ArtSceneViewController: NSViewController, Undo {
     {
         let chairScene = SCNScene(named: "art.scnassets/pcraven_wood_chair3.dae")
         let chairNode = chairScene!.rootNode.childNode(withName: "Wooden_Chair", recursively: true)!
-        let bbox = chairNode.boundingBox
+        chairNode.physicsBody = SCNPhysicsBody(type: .kinematic, shape: nil)
+        chairNode.physicsBody?.contactTestBitMask = (chairNode.physicsBody?.collisionBitMask)!
+       let bbox = chairNode.boundingBox
         let chairBox = SCNBox(width: bbox.max.x - bbox.min.x + 2.0.inches, height: bbox.max.y - bbox.min.y, length: bbox.max.z - bbox.min.z, chamferRadius: 0)
         let boxNode = SCNNode(geometry: chairBox)
         boxNode.position = SCNVector3Make(point.x, chairNode.position.y, point.y)
@@ -458,17 +460,23 @@ class ArtSceneViewController: NSViewController, Undo {
     {
         let scene = SCNScene(named: "art.scnassets/table.dae")
         let tableNode = scene!.rootNode.childNode(withName: "Table", recursively: true)!
+        tableNode.name = "table"
+        tableNode.physicsBody = SCNPhysicsBody(type: .kinematic, shape: nil)
+        tableNode.physicsBody?.contactTestBitMask = (tableNode.physicsBody?.collisionBitMask)!
         let bbox = tableNode.boundingBox
         let tableBox = SCNBox(width: bbox.max.x - bbox.min.x, height: bbox.max.y - bbox.min.y, length: bbox.max.z - bbox.min.z, chamferRadius: 0)
         let boxNode = SCNNode(geometry: tableBox)
-        boxNode.position = SCNVector3Make(point.x, tableNode.position.y, point.y)
-        tableNode.position = SCNVector3Make(0.0, 0.0, 0)
+        boxNode.position = SCNVector3Make(point.x, (bbox.max.y - bbox.min.y) / 2.0, point.y)
+        tableNode.position = SCNVector3Make(0.0, (bbox.max.y - bbox.min.y) / -2.0, 0)
         boxNode.addChildNode(tableNode)
         boxNode.name = "Table"
         var materials:[SCNMaterial] = []
         for _ in 0..<6 {
             let material = SCNMaterial()
-            material.diffuse.contents = NSColor.clear
+            if #available(OSX 10.13, *) {
+                material.fillMode = .lines
+                material.diffuse.contents = NSColor.red
+            }
             materials.append(material)
         }
         boxNode.geometry?.materials = materials

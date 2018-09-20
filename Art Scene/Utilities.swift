@@ -48,6 +48,7 @@ enum EditMode: Equatable {
     case none
     case resizing(NodeType, NodeEdge)
     case moving(NodeType)
+    case rotating(NodeType)
     case placing(NodeType)
     case selecting
     case contextualMenu
@@ -471,7 +472,7 @@ func nodeIntersects(_ node: SCNNode, proposal: SCNNode)->Bool
             if lineIntersectsLine(A: A, B: B, C: C, D: D) { return true }
         }
     }
-    let boxes = root.childNodes.filter({ ( nodeType($0) == .Chair || nodeType($0) == .Box ) && $0 != node })
+    let boxes = root.childNodes.filter({ ( nodeType($0) == .Chair || nodeType($0) == .Box || nodeType($0) == .Table ) && $0 != node })
     guard boxes.count > 0 else { return  false }
     for boxNode in boxes {
         var transform = AffineTransform(translationByX: boxNode.position.x, byY: boxNode.position.z)
