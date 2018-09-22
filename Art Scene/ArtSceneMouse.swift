@@ -350,19 +350,23 @@ extension ArtSceneView
             let proposal = currentNode.clone()
             let d = Art_Scene.rotate(vector: translation, axis: SCNVector3Make(0, 1, 0), angle: camera().yRotation)
             proposal.position = currentNode.position + d
-            if nodeIntersects(currentNode, proposal: proposal) { thump(); return }
-            replaceNode(currentNode, with: proposal)
-            mouseNode = proposal
+//            let physicsBody = currentNode.childNodes.count == 0 ? currentNode.physicsBody! : currentNode.childNodes[0].physicsBody!
+//            let contacts = scene?.physicsWorld.contactTest(with: physicsBody, options: nil)
+//            if nodeIntersects(currentNode, proposal: proposal) { thump(); return }
+            nodeTransform = proposal.transform
+//            replaceNode(currentNode, with: proposal)
+//            mouseNode = proposal
             let (x, y, _, _, _, _) = boxInfo(currentNode)
             display = controller.makeDisplay(title: "\(String(describing: currentNode.name!))", items: [("↔", x), ("↕", y)], width: fontScaler * 150)
         case .rotating(.Box), .rotating(.Chair), .rotating(.Table):
             if delta.x == 0.0 { return }
-            let proposal = currentNode.clone()
-            proposal.yRotation += delta.x / 4.0
-            if nodeIntersects(currentNode, proposal: proposal) { thump(); return }
-            replaceNode(currentNode, with: proposal)
-            mouseNode = proposal
-            let (_, _, _, _, _, rotation) = boxInfo(proposal)
+            nodeTransform = SCNMatrix4Rotate(currentNode.transform, delta.x / 4.0, 0, 1, 0)
+//            let proposal = currentNode.clone()
+//            proposal.yRotation += delta.x / 4.0
+//            if nodeIntersects(currentNode, proposal: proposal) { thump(); return }
+//            replaceNode(currentNode, with: proposal)
+//            mouseNode = proposal
+            let (_, _, _, _, _, rotation) = boxInfo(currentNode)
             display = controller.makeDisplay(title: "\(String(describing: currentNode.name!))", items: [("y°", rotation)], width: fontScaler * 150)
         case .resizing(.Box, .top):
             if abs(delta.y) > 0.0 {

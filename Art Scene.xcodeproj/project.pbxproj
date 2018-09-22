@@ -13,6 +13,7 @@
 		120CF834213937E500ED0546 /* Sparkle.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 120CF8312139321700ED0546 /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		120CF83821393B0D00ED0546 /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = 120CF83721393B0D00ED0546 /* dsa_pub.pem */; };
 		120CF83A2139500F00ED0546 /* Notes.txt in Resources */ = {isa = PBXBuildFile; fileRef = 120CF8392139500F00ED0546 /* Notes.txt */; };
+		121C91632153EDEE00D90FA7 /* SCNRenderDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 121C91622153EDEE00D90FA7 /* SCNRenderDelegate.swift */; };
 		1232CBCD2121FA00006F9A64 /* NSImage+File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1232CBCC2121FA00006F9A64 /* NSImage+File.swift */; };
 		1232CBCF212328A4006F9A64 /* 4way-arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 1232CBCE212328A4006F9A64 /* 4way-arrow.png */; };
 		1254A8001BD82B100056A0C8 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1254A7FF1BD82B100056A0C8 /* Utilities.swift */; };
@@ -73,6 +74,7 @@
 		120CF8312139321700ED0546 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Sparkle.framework; sourceTree = "<group>"; };
 		120CF83721393B0D00ED0546 /* dsa_pub.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dsa_pub.pem; sourceTree = "<group>"; };
 		120CF8392139500F00ED0546 /* Notes.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = Notes.txt; path = "Art Scene/Notes.txt"; sourceTree = SOURCE_ROOT; };
+		121C91622153EDEE00D90FA7 /* SCNRenderDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCNRenderDelegate.swift; sourceTree = "<group>"; };
 		1232CBCC2121FA00006F9A64 /* NSImage+File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSImage+File.swift"; sourceTree = "<group>"; };
 		1232CBCE212328A4006F9A64 /* 4way-arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "4way-arrow.png"; sourceTree = "<group>"; };
 		1254A7FF1BD82B100056A0C8 /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Utilities.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -160,6 +162,7 @@
 				127CF8CE1BD1823300F571D9 /* ArtSceneViewMenu.swift */,
 				12E95BB5212825B100F025B6 /* ArtSceneMouse.swift */,
 				1254A8051BDAB9910056A0C8 /* ArtScenePrinter.swift */,
+				121C91622153EDEE00D90FA7 /* SCNRenderDelegate.swift */,
 				127CF8CF1BD1823300F571D9 /* ArtSceneViewController.swift */,
 				12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */,
 				126D31972141900B00D6463B /* SKDelegate.swift */,
@@ -324,6 +327,7 @@
 				1254A8061BDAB9910056A0C8 /* ArtScenePrinter.swift in Sources */,
 				120C61461BF92F3E00D1F49D /* SCNVector Extensions.swift in Sources */,
 				126D31982141900B00D6463B /* SKDelegate.swift in Sources */,
+				121C91632153EDEE00D90FA7 /* SCNRenderDelegate.swift in Sources */,
 				1232CBCD2121FA00006F9A64 /* NSImage+File.swift in Sources */,
 				125A067B1BE909F200D145AC /* Undo.swift in Sources */,
 				127CF8B31BD1810A00F571D9 /* Document.swift in Sources */,

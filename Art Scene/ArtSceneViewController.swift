@@ -218,6 +218,9 @@ class ArtSceneViewController: NSViewController, Undo {
         boxNode.position = at
         boxNode.position.y = 1.5
         boxNode.castsShadow = true
+        boxNode.physicsBody = SCNPhysicsBody(type: .kinematic, shape: SCNPhysicsShape(geometry: box, options: nil))
+        boxNode.physicsBody?.categoryBitMask = 1
+        boxNode.physicsBody?.contactTestBitMask = 1
 
         var materials:[SCNMaterial] = []
         for _ in 0..<6 {
@@ -414,7 +417,8 @@ class ArtSceneViewController: NSViewController, Undo {
         let chairScene = SCNScene(named: "art.scnassets/pcraven_wood_chair3.dae")
         let chairNode = chairScene!.rootNode.childNode(withName: "Wooden_Chair", recursively: true)!
         chairNode.physicsBody = SCNPhysicsBody(type: .kinematic, shape: nil)
-        chairNode.physicsBody?.contactTestBitMask = (chairNode.physicsBody?.collisionBitMask)!
+        chairNode.physicsBody?.categoryBitMask = 1
+        chairNode.physicsBody?.contactTestBitMask = 1
        let bbox = chairNode.boundingBox
         let chairBox = SCNBox(width: bbox.max.x - bbox.min.x + 2.0.inches, height: bbox.max.y - bbox.min.y, length: bbox.max.z - bbox.min.z, chamferRadius: 0)
         let boxNode = SCNNode(geometry: chairBox)
@@ -462,7 +466,8 @@ class ArtSceneViewController: NSViewController, Undo {
         let tableNode = scene!.rootNode.childNode(withName: "Table", recursively: true)!
         tableNode.name = "table"
         tableNode.physicsBody = SCNPhysicsBody(type: .kinematic, shape: nil)
-        tableNode.physicsBody?.contactTestBitMask = (tableNode.physicsBody?.collisionBitMask)!
+        tableNode.physicsBody?.categoryBitMask = 1
+        tableNode.physicsBody?.contactTestBitMask = 1
         let bbox = tableNode.boundingBox
         let tableBox = SCNBox(width: bbox.max.x - bbox.min.x, height: bbox.max.y - bbox.min.y, length: bbox.max.z - bbox.min.z, chamferRadius: 0)
         let boxNode = SCNNode(geometry: tableBox)

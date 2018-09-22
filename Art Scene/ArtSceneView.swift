@@ -27,7 +27,11 @@ class ArtSceneView: SCNView, Undo {
     weak var masterNode: SCNNode? = nil
     /// The node under the mouse, set during `mouseMoved`.
     weak var mouseNode: SCNNode? = nil
-    
+    var nodeTransform: SCNMatrix4? {
+        didSet {
+            self.isPlaying = true
+        }
+    }
     /// The Art Scene document
     @IBOutlet weak var document: Document!
     /// The location of the last mouse click that generated a contextual menu.
@@ -155,6 +159,7 @@ class ArtSceneView: SCNView, Undo {
         hud = HUD(size: frame.size, controller: controller)
         overlaySKScene = hud
         registerForDraggedTypes([NSPasteboard.PasteboardType(rawValue: "NSFilenamesPboardType")])
+        delegate = self
 
     }
     
