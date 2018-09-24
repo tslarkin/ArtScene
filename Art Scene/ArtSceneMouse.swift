@@ -49,9 +49,6 @@ extension ArtSceneView
         }
 
         switch editMode {
-        case .placing(.Chair), .placing(.Table):
-            chairCursor.set()
-            return
         case .getInfo:
             questionCursor.set()
         case .contextualMenu:
@@ -144,7 +141,7 @@ extension ArtSceneView
                     } else  {
                         if hit.geometryIndex == 0 {
                             if loc.x > 0 {
-                                editMode = .resizing(.Box, .side(hit.geometryIndex, .right))
+                                editMode = .resizing(type, .side(hit.geometryIndex, .right))
                                 NSCursor.resizeRight.set()
                             } else {
                                 editMode = .resizing(type, .side(hit.geometryIndex, .left))
@@ -195,7 +192,7 @@ extension ArtSceneView
             mouseNode = hit.node.parent!.parent!
             NSCursor.resizeLeftRight.set()
         case .Top, .Bottom:
-            editMode = .resizing(type, type == .Top ? .top : .bottom)
+            editMode = .resizing(.Picture, type == .Top ? .top : .bottom)
             mouseNode = hit.node.parent!.parent!
             NSCursor.resizeUpDown.set()
         case .Image:
@@ -415,25 +412,50 @@ extension ArtSceneView
                 changeVolume(currentNode, to: SCNVector3Make(box.width, box.height + dHeight, box.length))
                 let translation = SCNVector3Make(0.0, dHeight / 2.0, 0.0)
                 changePosition(currentNode, delta: translation)
-
-                let top = currentNode.childNode(withName: "Top", recursively: true)!
-                let legs = currentNode.childNode(withName: "Legs", recursively: true)!
-                top.position.y += dHeight / 2.0
                 
-                let boundingBox = currentNode.boundingBox
-                let boxHeight = boundingBox.max.y - boundingBox.min.y
-                let topbb = top.boundingBox
-                let topHeight = (topbb.max.y - topbb.min.y) / 2.0
-                let newLegHeight = boxHeight - topHeight
-                let legbb = legs.boundingBox
-                let unScaledLegHeight = legbb.max.y - legbb.min.y
-                legs.scale.y = newLegHeight / unScaledLegHeight
-                legs.position.y -= (dHeight / 2.0)
+                fitTableToBox(currentNode)
 
                 let (_, _, width, h, length, _) = boxInfo(currentNode)
                 display = controller.makeDisplay(title: "Table", items: [("width", width), ("length", length), ("height", h)], width: fontScaler * 200)
             }
-        case .moving(.Wall):
+        case .resizing(.Table, .side(let side, let edge)):
+            SCNTransaction.animationDuration = 0.0
+            var dWidth: CGFloat = 0.0
+            var dLength: CGFloat = 0.0
+            var sign: CGFloat = NodeEdge.left == edge ? -1.0 : 1.0
+            switch side {
+            case 0, 2:
+                dWidth = sign * delta.x / 2.0
+                if side == 0 {
+                    sign *= -1.0
+                }
+            case 1, 3:
+                dLength = sign * delta.x / 2.0
+                if side == 3 {
+                    sign *= -1.0
+                }
+            default: ()
+            }
+            if dWidth == 0.0 && dLength == 0 { break }
+            let proposal = currentNode.clone()
+            proposal.geometry = currentNode.geometry?.copy() as! SCNBox
+            let box = proposal.geometry as! SCNBox
+            box.width += dWidth
+            box.length += dLength
+            if box.width >= 1.0 && box.length >= 1.0
+            {
+                let delta = SCNVector3Make(dWidth * sign, 0.0, dLength * sign)
+                let d = Art_Scene.rotate(vector: delta, axis: SCNVector3Make(0, 1, 0), angle: currentNode.yRotation)
+                proposal.position = proposal.position - 0.5 * d
+                if nodeIntersects(currentNode, proposal: proposal) { thump(); return }
+                replaceNode(currentNode, with: proposal)
+                fitTableToBox(proposal)
+                mouseNode = proposal
+                controller.hideGrids()
+                let (_, _, w, h, l, _) = boxInfo(currentNode)
+                display = controller.makeDisplay(title: "Table", items: [("width", w), ("length", l), ("height", h)], width: fontScaler * 200)
+            }
+       case .moving(.Wall):
             if !wallsLocked {
                 SCNTransaction.animationDuration = 0.0
                 let (dx, dz) = snapToGrid(d1: delta.x, d2: delta.y, snap: gridFactor)
@@ -513,26 +535,6 @@ extension ArtSceneView
             return
         }
         
-        if editMode == .placing(.Chair) || editMode == .placing(.Table) {
-            var hitResults: [SCNHitTestResult]
-            if #available(OSX 10.13, *) {
-                hitResults = hitTest(theEvent.locationInWindow, options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
-            } else {
-                hitResults = hitTest(theEvent.locationInWindow, options: nil)
-            }
-            
-            if hitResults.count <= 2, let floor = hitOfType(hitResults, type: .Floor) {
-                if editMode == .placing(.Chair) {
-                    controller.addChair(at: CGPoint(x: floor.worldCoordinates.x, y: floor.worldCoordinates.z))
-                } else {
-                    controller.addTable(at: CGPoint(x: floor.worldCoordinates.x, y: floor.worldCoordinates.z))
-                }
-            }
-            editMode = .none
-            NSCursor.arrow.set()
-            return
-        }
-
         guard let mouseNode = mouseNode else { return }
         switch editMode {
         case .getInfo:
@@ -594,7 +596,7 @@ extension ArtSceneView
                 prepareForUndo(mouseNode)
                 inDrag = true
             }
-        case .resizing(_, _):
+        case .resizing(.Box, _), .resizing(.Table, _):
             prepareForUndo(mouseNode)
             inDrag = true
         default: ()

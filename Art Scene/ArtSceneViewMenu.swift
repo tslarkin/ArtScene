@@ -114,6 +114,16 @@ extension ArtSceneView {
             menu.addItem(withTitle: "Nudge Box Size", action: #selector(ArtSceneViewController.editBoxSize(_:)), keyEquivalent: "")
             menu.addItem(withTitle: "Nudge Box Position", action: #selector(ArtSceneViewController.editBoxPosition(_:)), keyEquivalent: "")
            return menu
+        }  else if let tableHit = hitOfType(hitResults, type: .Table) {
+            controller.theNode = tableHit.node
+            mouseNode = tableHit.node
+            let menu = NSMenu()
+            menu.autoenablesItems = true
+            menu.addItem(withTitle: "Delete Table", action: #selector(ArtSceneViewController.deleteBox(_:)), keyEquivalent: "")
+            menu.addItem(withTitle: "Table Color", action: #selector(ArtSceneViewController.pickTableColor(_:)), keyEquivalent: "")
+            menu.addItem(withTitle: "Nudge Table Size", action: #selector(ArtSceneViewController.editBoxSize(_:)), keyEquivalent: "")
+            menu.addItem(withTitle: "Nudge Table Position", action: #selector(ArtSceneViewController.editBoxPosition(_:)), keyEquivalent: "")
+            return menu
         } else if let chairHit = hitOfType(hitResults, type: .Chair) {
             controller.theNode = chairHit.node
             let menu = NSMenu()
@@ -149,15 +159,21 @@ extension ArtSceneView {
         } else if let floorHit = hitOfType(hitResults, type: .Floor) {
             let menu = NSMenu()
             menu.autoenablesItems = true
+            let addItem = NSMenuItem(title: "Add", action: nil, keyEquivalent: "")
+            menu.addItem(addItem)
+            let addMenu = NSMenu()
+            menu.setSubmenu(addMenu, for: addItem)
+            addMenu.addItem(withTitle: "Box", action: #selector(ArtSceneViewController.addBox(_:)), keyEquivalent: "")
+            addMenu.addItem(withTitle: "Chair", action: #selector(ArtSceneViewController.addChair(_:)), keyEquivalent: "")
+            addMenu.addItem(withTitle: "Table", action: #selector(ArtSceneViewController.addTable(_:)), keyEquivalent: "")
             if controller.wallsLocked == false {
-                menu.addItem(withTitle: "Add Wall", action: #selector(ArtSceneViewController.addWall(_:)), keyEquivalent: "")
+                addMenu.addItem(withTitle: "Wall", action: #selector(ArtSceneViewController.addWall(_:)), keyEquivalent: "")
             }
-            if controller.wallsLocked == true {
+           if controller.wallsLocked == true {
                 menu.addItem(withTitle: "Unlock Walls", action: #selector(ArtSceneViewController.unlockWallsWithConfirmation), keyEquivalent: "")
             } else {
                 menu.addItem(withTitle: "Lock Walls", action: #selector(ArtSceneViewController.lockWalls), keyEquivalent: "")
             }
-            menu.addItem(withTitle: "Add Box", action: #selector(ArtSceneViewController.addBox(_:)), keyEquivalent: "")
             if grid().isHidden {
                 menu.addItem(withTitle: "Show Checkerboard", action: #selector(ArtSceneView.showGrid(_:)), keyEquivalent: "")
             } else {
