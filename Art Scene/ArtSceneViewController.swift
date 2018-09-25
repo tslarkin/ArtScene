@@ -179,7 +179,7 @@ class ArtSceneViewController: NSViewController, Undo {
         wallNode.name = "Wall"
         wallNode.position = at
         wallNode.position.y = defaultWallSize.height / 2.0
-        wallNode.castsShadow = true
+        wallNode.castsShadow = false
         
         let font = NSFont(name: "Lucida Grande", size: 0.75)!
         let attributes = [NSAttributedStringKey.font: font]
@@ -241,7 +241,7 @@ class ArtSceneViewController: NSViewController, Undo {
         boxNode.name = "Box"
         boxNode.position = at
         boxNode.position.y = 1.5
-        boxNode.castsShadow = true
+        boxNode.castsShadow = false
 
         var materials:[SCNMaterial] = []
         for _ in 0..<6 {

@@ -70,7 +70,7 @@ class Document: NSDocument, NSWindowDelegate {
         lightNode.name = "Omni"
         lightNode.light = light
         light.type = SCNLight.LightType.omni
-        light.castsShadow = true
+        light.castsShadow = false
         lightNode.position = cameraNode.position
         scene.rootNode.addChildNode(lightNode)
         
@@ -208,8 +208,10 @@ class Document: NSDocument, NSWindowDelegate {
     {
         let delegate = NSApp.delegate as! AppDelegate
         var color = sceneView.omniLight!.light!.color as! NSColor
+        color = color.usingColorSpaceName(NSColorSpaceName.calibratedWhite)!
         delegate.setOmniLightIntensity(color.whiteComponent)
         color = sceneView.ambientLight!.light!.color as! NSColor
+        color = color.usingColorSpaceName(NSColorSpaceName.calibratedWhite)!
         delegate.setAmbientLightIntensity(color.whiteComponent)
         sceneView.bind(NSBindingName(rawValue: "ambientLightIntensity"), to: delegate, withKeyPath: "ambientLightIntensity", options: nil)
         sceneView.bind(NSBindingName(rawValue: "omniLightIntensity"), to: delegate, withKeyPath: "omniLightIntensity", options: nil)

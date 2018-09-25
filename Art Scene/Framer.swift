@@ -26,7 +26,7 @@ extension ArtSceneViewController {
         blackMaterial.shininess = 1.0
         top.materials = [blackMaterial]
         let topNode = SCNNode(geometry: top)
-        topNode.castsShadow = true
+        topNode.castsShadow = false
         topNode.name = "Top"
         topNode.position = SCNVector3(x: 0, y: size.height / 2.0 - segmentWidth / 2.0, z: 0)
         let bottomNode = topNode.copy() as! SCNNode
