@@ -446,7 +446,7 @@ class ArtSceneViewController: NSViewController, Undo {
                               length: (bbox.max.z - bbox.min.z) * scale.z,
                               chamferRadius: 0)
         let boxNode = SCNNode(geometry: chairBox)
-        boxNode.position = SCNVector3Make(point.x, chairNode.position.y, point.y)
+        boxNode.position = SCNVector3Make(point.x, chairNode.position.y, point.z)
         chairNode.position = SCNVector3Make(0.0, 0.0, 0)
         boxNode.addChildNode(chairNode)
         boxNode.name = "Chair"
@@ -454,6 +454,9 @@ class ArtSceneViewController: NSViewController, Undo {
         for _ in 0..<6 {
             let material = SCNMaterial()
             material.diffuse.contents = NSColor.clear
+            if #available(OSX 13.0, *) {
+                material.fillMode = .lines
+            }
             materials.append(material)
         }
         boxNode.geometry?.materials = materials
@@ -465,7 +468,7 @@ class ArtSceneViewController: NSViewController, Undo {
         undoer.beginUndoGrouping()
         undoer.setActionName("Add Chair")
         let boxNode = makeChair(at: artSceneView.mouseClickLocation!)
-        boxNode.yRotation = -artSceneView.camera().yRotation - .pi / 2.0
+//        boxNode.yRotation = -artSceneView.camera().yRotation - .pi / 2.0
         changeParent(boxNode, to: scene.rootNode)
         undoer.endUndoGrouping()
     }
