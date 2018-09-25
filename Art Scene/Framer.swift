@@ -193,7 +193,7 @@ extension ArtSceneViewController {
         if let data = data as? Data {
             newImage = NSImage(data: data)
         } else {
-            newImage = data as! NSImage
+            newImage = data as? NSImage
         }
         newImage.size = newsize
         let isHidden = theFrame(pic).isHidden

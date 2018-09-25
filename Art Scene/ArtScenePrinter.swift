@@ -78,7 +78,7 @@ class ArtScenePrinter: NSView {
             if let data = data as? Data {
                 newImage = NSImage(data: data)
             } else {
-                newImage = data as! NSImage
+                newImage = data as? NSImage
             }
             newImage.draw(in: rect, from: NSRect(origin: CGPoint.zero, size: newImage.size),
                           operation: .copy, fraction: 1.0, respectFlipped: false, hints: nil)

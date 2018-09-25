@@ -109,7 +109,31 @@ class ArtSceneViewController: NSViewController, Undo {
         }
     }
 
+    @IBAction func pickTableColor(_ sender: AnyObject?)
+    {
+        let picker = NSColorPanel.shared
+        picker.setTarget(self)
+        picker.setAction(#selector(ArtSceneViewController.setTableColor(_:)))
+        let top = theNode!.childNode(withName: "Top", recursively: false)!
+        let color = top.geometry!.firstMaterial?.diffuse.contents as! NSColor
+        picker.color = color
+        picker.isContinuous = true
+        picker.orderFront(nil)
+    }
     
+    @objc func setTableColor(_ sender: AnyObject) {
+        if let sender = sender as? NSColorPanel {
+            let color = sender.color
+            var parts = [theNode!.childNode(withName: "Top", recursively: false)!,
+                         theNode!.childNode(withName: "Under", recursively: false)!]
+            parts.append(contentsOf: theNode!.childNode(withName: "Legs", recursively: false)!.childNodes)
+            for part in parts {
+                part.geometry!.firstMaterial?.diffuse.contents = color
+            }
+        }
+    }
+    
+
     @IBAction func pickWallColor(_ sender: AnyObject?)
     {
         let picker = NSColorPanel.shared
@@ -412,17 +436,20 @@ class ArtSceneViewController: NSViewController, Undo {
         undoer.endUndoGrouping()
     }
     
-    func makeChair(at point: CGPoint)->SCNNode
+    func makeChair(at point: SCNVector3)->SCNNode
     {
         let chairScene = SCNScene(named: "art.scnassets/pcraven_wood_chair3.dae")
         let chairNode = chairScene!.rootNode.childNode(withName: "Wooden_Chair", recursively: true)!
         chairNode.physicsBody = SCNPhysicsBody(type: .kinematic, shape: nil)
-        chairNode.physicsBody?.categoryBitMask = 1
-        chairNode.physicsBody?.contactTestBitMask = 1
-       let bbox = chairNode.boundingBox
-        let chairBox = SCNBox(width: bbox.max.x - bbox.min.x + 2.0.inches, height: bbox.max.y - bbox.min.y, length: bbox.max.z - bbox.min.z, chamferRadius: 0)
+        chairNode.physicsBody?.contactTestBitMask = (chairNode.physicsBody?.collisionBitMask)!
+        let scale = chairNode.scale
+        let bbox = chairNode.boundingBox
+        let chairBox = SCNBox(width: (bbox.max.x - bbox.min.x + 2.0.inches) * scale.x,
+                              height: (bbox.max.y - bbox.min.y) * scale.y,
+                              length: (bbox.max.z - bbox.min.z) * scale.z,
+                              chamferRadius: 0)
         let boxNode = SCNNode(geometry: chairBox)
-        boxNode.position = SCNVector3Make(point.x, chairNode.position.y, point.y)
+        boxNode.position = SCNVector3Make(point.x, chairNode.position.y, point.z)
         chairNode.position = SCNVector3Make(0.0, 0.0, 0)
         boxNode.addChildNode(chairNode)
         boxNode.name = "Chair"
@@ -430,26 +457,23 @@ class ArtSceneViewController: NSViewController, Undo {
         for _ in 0..<6 {
             let material = SCNMaterial()
             material.diffuse.contents = NSColor.clear
+            if #available(OSX 13.0, *) {
+                material.fillMode = .lines
+            }
             materials.append(material)
         }
         boxNode.geometry?.materials = materials
         return boxNode
     }
     
-    func addChair(at point: CGPoint)
+    @IBAction func addChair(_ sender: AnyObject)
     {
         undoer.beginUndoGrouping()
         undoer.setActionName("Add Chair")
-        let boxNode = makeChair(at: point)
-        boxNode.yRotation = -artSceneView.camera().yRotation - .pi / 2.0
+        let boxNode = makeChair(at: artSceneView.mouseClickLocation!)
+//        boxNode.yRotation = -artSceneView.camera().yRotation - .pi / 2.0
         changeParent(boxNode, to: scene.rootNode)
         undoer.endUndoGrouping()
-    }
-    
-    @IBAction func placeChair(_ sender: AnyObject)
-    {
-        artSceneView.editMode = .placing(.Chair)
-        artSceneView.chairCursor.set()
     }
     
     @IBAction func deleteChair(_ sender: AnyObject)
@@ -460,48 +484,107 @@ class ArtSceneViewController: NSViewController, Undo {
         undoer.endUndoGrouping()
     }
     
-    func makeTable(at point: CGPoint)->SCNNode
+    func makeBoxMaterials(color: NSColor)->[SCNMaterial]
+    {
+        var materials:[SCNMaterial] = []
+        for _ in 0..<6 {
+            let material = SCNMaterial()
+            material.diffuse.contents = color
+            materials.append(material)
+        }
+        return materials
+    }
+    
+    func makeTable(at point: SCNVector3)->SCNNode
+    {
+        let height: CGFloat = 2.5
+        let length: CGFloat = 2.5
+        let width: CGFloat = 4.0
+        let topThickness: CGFloat = 2.0.inches
+        let overhang: CGFloat = 4.0.inches
+        let legThickness: CGFloat = 3.0.inches
+        
+        let box = SCNBox(width: width, height: height, length: length, chamferRadius: 0.0)
+        box.materials = makeBoxMaterials(color: NSColor.clear)
+        let tableNode = SCNNode(geometry: box)
+        tableNode.name = "Table"
+        var p = point
+        p.y = height / 2.0
+        tableNode.position = p
+        
+        let color = NSColor(calibratedRed: 0.8392156863, green: 0.8392156863, blue: 0.8392156863, alpha: 1.0)
+        let top = SCNBox(width: width, height: topThickness, length: length, chamferRadius: 0.0)
+        top.firstMaterial?.diffuse.contents = color
+        let topNode = SCNNode(geometry: top)
+        topNode.name = "Top"
+        topNode.position = SCNVector3Make(0, height / 2.0 - topThickness / 2.0, 0)
+        tableNode.addChildNode(topNode)
+        
+        let under = SCNBox(width: width - overhang * 2.0, height: topThickness, length: length - overhang * 2.0, chamferRadius: 0.0)
+        under.firstMaterial?.diffuse.contents = color
+        let underNode = SCNNode(geometry: under)
+        underNode.name = "Under"
+        underNode.position.y = height / 2.0 - topThickness - topThickness / 2.0
+        tableNode.addChildNode(underNode)
+        
+        let legs = SCNNode()
+        legs.name = "Legs"
+        legs.position.y = -topThickness / 2.0
+        tableNode.addChildNode(legs)
+        for x in [-1.0, 1.0] {
+            for z in [-1.0, 1.0] {
+                let leg = SCNCylinder(radius: legThickness / 2.0, height: height - topThickness)
+                leg.firstMaterial?.diffuse.contents = color
+                let legNode = SCNNode(geometry: leg)
+                legNode.name = "\(x),\(z)"
+                legNode.position = SCNVector3Make(CGFloat(x) * (width / 2.0 - overhang), 0.0 , CGFloat(z) * (length / 2.0 - overhang))
+                legs.addChildNode(legNode)
+            }
+        }
+        
+        
+        return tableNode
+    }
+    
+    func makeTableFromDAE(at point: CGPoint)->SCNNode
     {
         let scene = SCNScene(named: "art.scnassets/table.dae")
         let tableNode = scene!.rootNode.childNode(withName: "Table", recursively: true)!
         tableNode.name = "table"
         tableNode.physicsBody = SCNPhysicsBody(type: .kinematic, shape: nil)
-        tableNode.physicsBody?.categoryBitMask = 1
-        tableNode.physicsBody?.contactTestBitMask = 1
+        tableNode.physicsBody?.contactTestBitMask = (tableNode.physicsBody?.collisionBitMask)!
+        let top = tableNode.childNode(withName: "Top", recursively: true)!
+        let topbb = top.boundingBox
+        tableNode.position = SCNVector3Make(0.0, -topbb.max.y / 2.0, 0.0)
         let bbox = tableNode.boundingBox
-        let tableBox = SCNBox(width: bbox.max.x - bbox.min.x, height: bbox.max.y - bbox.min.y, length: bbox.max.z - bbox.min.z, chamferRadius: 0)
+        let tableHeight = bbox.max.y - bbox.min.y
+        let tableBox = SCNBox(width: bbox.max.x - bbox.min.x, height: tableHeight, length: bbox.max.z - bbox.min.z, chamferRadius: 0)
         let boxNode = SCNNode(geometry: tableBox)
-        boxNode.position = SCNVector3Make(point.x, (bbox.max.y - bbox.min.y) / 2.0, point.y)
-        tableNode.position = SCNVector3Make(0.0, (bbox.max.y - bbox.min.y) / -2.0, 0)
+        boxNode.position = SCNVector3Make(point.x, tableHeight / 2.0, point.y)
         boxNode.addChildNode(tableNode)
         boxNode.name = "Table"
         var materials:[SCNMaterial] = []
         for _ in 0..<6 {
             let material = SCNMaterial()
-            if #available(OSX 10.13, *) {
-                material.fillMode = .lines
-                material.diffuse.contents = NSColor.red
-            }
+            material.diffuse.contents = NSColor.clear
+//            if #available(OSX 10.13, *) {
+//                material.fillMode = .lines
+//                material.diffuse.contents = NSColor.red
+//            }
             materials.append(material)
         }
         boxNode.geometry?.materials = materials
         return boxNode
     }
     
-    func addTable(at point: CGPoint)
+    @IBAction func addTable(_ sender: AnyObject)
     {
         undoer.beginUndoGrouping()
         undoer.setActionName("Add Table")
-        let boxNode = makeTable(at: point)
+        let boxNode = makeTable(at: artSceneView.mouseClickLocation!)
         boxNode.yRotation = -artSceneView.camera().yRotation - .pi / 2.0
         changeParent(boxNode, to: scene.rootNode)
         undoer.endUndoGrouping()
-    }
-    
-    @IBAction func placeTable(_ sender: AnyObject)
-    {
-        artSceneView.editMode = .placing(.Table)
-        artSceneView.chairCursor.set()
     }
     
     @IBAction func deleteTable(_ sender: AnyObject)

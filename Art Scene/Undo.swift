@@ -62,6 +62,9 @@ extension Undo
         box.width = to.x
         box.height = to.y
         box.length = to.z
+        if nodeType(node) == .Table {
+            fitTableToBox(node)
+        }
     }
     
     func changeSize(_ node: SCNNode, delta: CGSize)
@@ -89,7 +92,10 @@ extension Undo
         let undoer = document!.undoManager!
         undoer.registerUndo(withTarget: self, handler: { $0.replaceNode(with, with: node) })
         parent?.replaceChildNode(node, with: with)
-    }
+        if nodeType(node) == .Table {
+            fitTableToBox(node)
+        }
+  }
     
     func changePictureSize(_ node: SCNNode, to: CGSize)
     {

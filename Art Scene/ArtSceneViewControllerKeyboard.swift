@@ -240,9 +240,13 @@ extension ArtSceneViewController
         let box = proposal.geometry as! SCNBox
         box.width += dWidth
         box.length += dLength
+        box.height += dHeight
         if nodeIntersects(currentNode, proposal: proposal) { thump(); return }
         replaceNode(currentNode, with: proposal)
         theNode = proposal
+        if nodeType(theNode) == .Table {
+            fitTableToBox(theNode!)
+        }
         let (_, _, width, height, length, _) = boxInfo(currentNode)
         hudUpdate = makeDisplay(title: "Box", items: [("width", width), ("height", height), ("length", length)], width: fontScaler * 210)
         hudUpdate!.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
@@ -465,10 +469,13 @@ extension ArtSceneViewController
                     doImageEditSize(theEvent)
                 case .moving(.Picture):
                     doFrameEditPosition(theEvent)
-                case .moving(.Box):
+                case .moving(.Box), .moving(.Chair), .moving(.Table):
                     doBoxEditPosition(theEvent)
                 case .resizing(.Box, _):
                     doBoxEditSize(theEvent)
+                case .resizing(.Table, _):
+                    doBoxEditSize(theEvent)
+                    fitTableToBox(theNode)
                 default: ()
                 }
             }

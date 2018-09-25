@@ -197,9 +197,10 @@ func wallInfo(_ wall: SCNNode, camera: SCNNode? = nil, hitPosition: SCNVector3? 
 
 func boxInfo(_ boxNode: SCNNode)->(x: String, y: String, width: String, height: String, length: String, rotation: String) {
     let box = boxNode.geometry as! SCNBox
-    let width = convertToFeetAndInches(box.width)
-    let length = convertToFeetAndInches(box.length)
-    let height = convertToFeetAndInches(box.height)
+    let scale = boxNode.scale
+    let width = convertToFeetAndInches(box.width * scale.x)
+    let length = convertToFeetAndInches(box.length * scale.z)
+    let height = convertToFeetAndInches(box.height * scale.y)
     let x = convertToFeetAndInches(boxNode.position.x)
     let y = convertToFeetAndInches(boxNode.position.z)
     var angle = (boxNode.eulerAngles.y * r2d).truncatingRemainder(dividingBy: 360.0)
@@ -452,6 +453,7 @@ func computeIntersection(A: CGPoint, B: CGPoint, C:CGPoint, D: CGPoint)->CGPoint
 
 func nodeIntersects(_ node: SCNNode, proposal: SCNNode)->Bool
 {
+/*
     var transform = AffineTransform(translationByX: proposal.position.x, byY: proposal.position.z)
     transform.rotate(byRadians: -proposal.yRotation)
     let lines = linesForBox(proposal, transform: transform)
@@ -486,10 +488,45 @@ func nodeIntersects(_ node: SCNNode, proposal: SCNNode)->Bool
             }
         }
     }
+ */
     return false
 }
 
 func thump()
 {
     NSSound(named: NSSound.Name("Thump"))?.play()
+}
+
+func fitTableToBox(_ node: SCNNode)
+{
+    let topThickness: CGFloat = 2.0.inches
+    let overhang: CGFloat = 4.0.inches
+    var box = node.geometry as! SCNBox
+    let h = box.height
+    let w = box.width
+    let l = box.length
+    
+    let top = node.childNode(withName: "Top", recursively: true)!
+    top.position.y = h / 2.0 - topThickness / 2.0
+    box = top.geometry as! SCNBox
+    box.width = w
+    box.length = l
+    
+    let under = node.childNode(withName: "Under", recursively: true)!
+    under.position.y = h / 2.0 - topThickness - topThickness / 2.0
+    box = under.geometry as! SCNBox
+    box.width = w - overhang * 2.0
+    box.length = l - overhang * 2.0
+
+    let legs = node.childNode(withName: "Legs", recursively: true)!
+    for leg in legs.childNodes {
+        let geometry = leg.geometry as! SCNCylinder
+        geometry.height = h - topThickness
+        let values = leg.name!.components(separatedBy: ",")
+        let (x, z) = (CGFloat((values[0] as NSString).doubleValue),
+            CGFloat((values[1] as NSString).doubleValue))
+        leg.position = SCNVector3Make(x * (w / 2.0 - overhang), 0.0 , z * (l / 2.0 - overhang))
+
+    }
+    
 }

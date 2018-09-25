@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14313.18" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14113" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14313.18"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14113"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -179,22 +179,10 @@
                         </items>
                     </menu>
                 </menuItem>
-                <menuItem title="Objects" id="Ele-Qr-uM0">
+                <menuItem title="Show" id="Ele-Qr-uM0">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="Objects" id="q3c-fN-LcO">
+                    <menu key="submenu" title="Show" id="q3c-fN-LcO">
                         <items>
-                            <menuItem title="Chair" keyEquivalent="c" id="27A-DT-7D2">
-                                <connections>
-                                    <action selector="placeChair:" target="-1" id="Ofs-AA-vv1"/>
-                                </connections>
-                            </menuItem>
-                            <menuItem title="Table" id="xrq-sw-AO6">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                                <connections>
-                                    <action selector="placeTable:" target="-1" id="KqK-NH-7my"/>
-                                </connections>
-                            </menuItem>
-                            <menuItem isSeparatorItem="YES" id="0dr-yZ-YnJ"/>
                             <menuItem title="Lights Panel" keyEquivalent="l" id="2G6-I4-sVd">
                                 <connections>
                                     <action selector="showLightsPanel:" target="-1" id="7hn-fB-v6y"/>
