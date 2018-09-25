@@ -14,6 +14,7 @@ extension ArtSceneView : SCNSceneRendererDelegate
 {
     func renderer(_ renderer: SCNSceneRenderer, willRenderScene scene: SCNScene, atTime time: TimeInterval)
     {
+
         let artView = renderer as! ArtSceneView
         
         guard let node = artView.mouseNode, let transform = artView.nodeTransform else { return }
@@ -22,9 +23,9 @@ extension ArtSceneView : SCNSceneRendererDelegate
         let pw = scene.physicsWorld
         var physicsBody: SCNPhysicsBody?
         switch nodeType(node)! {
-        case .Chair, .Table:
+        case .Chair:
             physicsBody = node.childNodes[0].physicsBody!
-        case .Box:
+        case .Box, .Table:
             physicsBody = node.physicsBody!
         default:
             ()
@@ -39,7 +40,6 @@ extension ArtSceneView : SCNSceneRendererDelegate
                                                            0.0,
                                                            normal.z * d)
                 node.transform = SCNMatrix4Mult(node.transform, transform)
-                Swift.print(contact.penetrationDistance, normal)
             }
         }
         artView.isPlaying = false

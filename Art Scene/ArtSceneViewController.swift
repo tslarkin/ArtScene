@@ -441,7 +441,8 @@ class ArtSceneViewController: NSViewController, Undo {
         let chairScene = SCNScene(named: "art.scnassets/pcraven_wood_chair3.dae")
         let chairNode = chairScene!.rootNode.childNode(withName: "Wooden_Chair", recursively: true)!
         chairNode.physicsBody = SCNPhysicsBody(type: .kinematic, shape: nil)
-        chairNode.physicsBody?.contactTestBitMask = (chairNode.physicsBody?.collisionBitMask)!
+        chairNode.physicsBody?.categoryBitMask = 1
+        chairNode.physicsBody?.contactTestBitMask = 1
         let scale = chairNode.scale
         let bbox = chairNode.boundingBox
         let chairBox = SCNBox(width: (bbox.max.x - bbox.min.x + 2.0.inches) * scale.x,
@@ -511,13 +512,16 @@ class ArtSceneViewController: NSViewController, Undo {
         var p = point
         p.y = height / 2.0
         tableNode.position = p
-        
+
         let color = NSColor(calibratedRed: 0.8392156863, green: 0.8392156863, blue: 0.8392156863, alpha: 1.0)
         let top = SCNBox(width: width, height: topThickness, length: length, chamferRadius: 0.0)
         top.firstMaterial?.diffuse.contents = color
         let topNode = SCNNode(geometry: top)
         topNode.name = "Top"
         topNode.position = SCNVector3Make(0, height / 2.0 - topThickness / 2.0, 0)
+        topNode.physicsBody = SCNPhysicsBody(type: .kinematic, shape: SCNPhysicsShape(geometry: top, options: nil))
+        topNode.physicsBody?.contactTestBitMask = 1
+        topNode.physicsBody?.collisionBitMask = 1
         tableNode.addChildNode(topNode)
         
         let under = SCNBox(width: width - overhang * 2.0, height: topThickness, length: length - overhang * 2.0, chamferRadius: 0.0)
@@ -525,6 +529,9 @@ class ArtSceneViewController: NSViewController, Undo {
         let underNode = SCNNode(geometry: under)
         underNode.name = "Under"
         underNode.position.y = height / 2.0 - topThickness - topThickness / 2.0
+        underNode.physicsBody = SCNPhysicsBody(type: .kinematic, shape: SCNPhysicsShape(geometry: under, options: nil))
+        underNode.physicsBody?.contactTestBitMask = 1
+        underNode.physicsBody?.collisionBitMask = 1
         tableNode.addChildNode(underNode)
         
         let legs = SCNNode()
@@ -538,6 +545,9 @@ class ArtSceneViewController: NSViewController, Undo {
                 let legNode = SCNNode(geometry: leg)
                 legNode.name = "\(x),\(z)"
                 legNode.position = SCNVector3Make(CGFloat(x) * (width / 2.0 - overhang), 0.0 , CGFloat(z) * (length / 2.0 - overhang))
+                legNode.physicsBody = SCNPhysicsBody(type: .kinematic, shape: SCNPhysicsShape(geometry: leg, options: nil))
+                legNode.physicsBody?.contactTestBitMask = 1
+                legNode.physicsBody?.collisionBitMask = 1
                 legs.addChildNode(legNode)
             }
         }
