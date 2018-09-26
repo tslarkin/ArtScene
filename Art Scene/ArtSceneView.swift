@@ -209,6 +209,30 @@ class ArtSceneView: SCNView, Undo {
     {
         scene!.background.contents = nil
     }
+    
+    @IBAction func shadows(_ sender: NSMenuItem)
+    {
+        if let omni = omniLight!.light {
+            if omni.castsShadow {
+                omni.castsShadow = false
+                sender.title = "Shadow"
+            } else {
+                omni.castsShadow = true
+                sender.title = "No Shadow"
+            }
+        }
+    }
+    
+    override func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        if menuItem.action == #selector(ArtSceneView.shadows(_:)) {
+            if omniLight?.light?.castsShadow == true {
+                menuItem.title = "No Shadows"
+            } else {
+                menuItem.title = "Shadows"
+            }
+        }
+        return true
+    }
 
     /// Displays info on some node in the status line.
     func getInfo(_ node: SCNNode, option: Bool = false, hitPosition: SCNVector3? = nil) {

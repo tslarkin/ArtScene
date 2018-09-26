@@ -506,7 +506,7 @@ func fitTableToBox(_ node: SCNNode)
     let w = box.width
     let l = box.length
     
-    let top = node.childNode(withName: "Top", recursively: true)!
+    let top = node.childNode(withName: "TableTop", recursively: true)!
     top.position.y = h / 2.0 - topThickness / 2.0
     box = top.geometry as! SCNBox
     box.width = w

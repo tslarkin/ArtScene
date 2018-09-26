@@ -144,7 +144,7 @@ extension ArtSceneViewController: SKSceneDelegate
             if scene.childNode(withName: "Help") == nil {
                 scene.addChild(cameraHelp)
                 frameSizeChanged = true
-                artSceneView.isPlaying = false
+//                artSceneView.isPlaying = false
             }
             if frameSizeChanged {
                 let sceneSize = scene.size
@@ -156,7 +156,7 @@ extension ArtSceneViewController: SKSceneDelegate
          } else  {
             if cameraHelp.parent != nil {
                 cameraHelp.removeFromParent()
-                artSceneView.isPlaying = false
+//                artSceneView.isPlaying = false
             }
         }
     }

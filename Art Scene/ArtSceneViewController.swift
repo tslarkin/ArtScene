@@ -179,7 +179,7 @@ class ArtSceneViewController: NSViewController, Undo {
         wallNode.name = "Wall"
         wallNode.position = at
         wallNode.position.y = defaultWallSize.height / 2.0
-        wallNode.castsShadow = false
+        wallNode.castsShadow = true
         
         let font = NSFont(name: "Lucida Grande", size: 0.75)!
         let attributes = [NSAttributedStringKey.font: font]
@@ -241,7 +241,7 @@ class ArtSceneViewController: NSViewController, Undo {
         boxNode.name = "Box"
         boxNode.position = at
         boxNode.position.y = 1.5
-        boxNode.castsShadow = false
+        boxNode.castsShadow = true
 
         var materials:[SCNMaterial] = []
         for _ in 0..<6 {
@@ -437,8 +437,7 @@ class ArtSceneViewController: NSViewController, Undo {
     {
         let chairScene = SCNScene(named: "art.scnassets/pcraven_wood_chair3.dae")
         let chairNode = chairScene!.rootNode.childNode(withName: "Wooden_Chair", recursively: true)!
-        chairNode.physicsBody = SCNPhysicsBody(type: .kinematic, shape: nil)
-        chairNode.physicsBody?.contactTestBitMask = (chairNode.physicsBody?.collisionBitMask)!
+        chairNode.castsShadow = true
         let scale = chairNode.scale
         let bbox = chairNode.boundingBox
         let chairBox = SCNBox(width: (bbox.max.x - bbox.min.x + 2.0.inches) * scale.x,
@@ -447,6 +446,7 @@ class ArtSceneViewController: NSViewController, Undo {
                               chamferRadius: 0)
         let boxNode = SCNNode(geometry: chairBox)
         boxNode.position = SCNVector3Make(point.x, chairNode.position.y, point.z)
+        boxNode.castsShadow = true
         chairNode.position = SCNVector3Make(0.0, 0.0, 0)
         boxNode.addChildNode(chairNode)
         boxNode.name = "Chair"
@@ -504,6 +504,7 @@ class ArtSceneViewController: NSViewController, Undo {
         let box = SCNBox(width: width, height: height, length: length, chamferRadius: 0.0)
         box.materials = makeBoxMaterials(color: NSColor.clear)
         let tableNode = SCNNode(geometry: box)
+        tableNode.castsShadow = true
         tableNode.name = "Table"
         var p = point
         p.y = height / 2.0
@@ -513,13 +514,15 @@ class ArtSceneViewController: NSViewController, Undo {
         let top = SCNBox(width: width, height: topThickness, length: length, chamferRadius: 0.0)
         top.firstMaterial?.diffuse.contents = color
         let topNode = SCNNode(geometry: top)
-        topNode.name = "Top"
+        topNode.castsShadow = true
+        topNode.name = "TableTop"
         topNode.position = SCNVector3Make(0, height / 2.0 - topThickness / 2.0, 0)
         tableNode.addChildNode(topNode)
         
         let under = SCNBox(width: width - overhang * 2.0, height: topThickness, length: length - overhang * 2.0, chamferRadius: 0.0)
         under.firstMaterial?.diffuse.contents = color
         let underNode = SCNNode(geometry: under)
+        underNode.castsShadow = true
         underNode.name = "Under"
         underNode.position.y = height / 2.0 - topThickness - topThickness / 2.0
         tableNode.addChildNode(underNode)
@@ -533,6 +536,7 @@ class ArtSceneViewController: NSViewController, Undo {
                 let leg = SCNCylinder(radius: legThickness / 2.0, height: height - topThickness)
                 leg.firstMaterial?.diffuse.contents = color
                 let legNode = SCNNode(geometry: leg)
+                legNode.castsShadow = true
                 legNode.name = "\(x),\(z)"
                 legNode.position = SCNVector3Make(CGFloat(x) * (width / 2.0 - overhang), 0.0 , CGFloat(z) * (length / 2.0 - overhang))
                 legs.addChildNode(legNode)
@@ -548,8 +552,6 @@ class ArtSceneViewController: NSViewController, Undo {
         let scene = SCNScene(named: "art.scnassets/table.dae")
         let tableNode = scene!.rootNode.childNode(withName: "Table", recursively: true)!
         tableNode.name = "table"
-        tableNode.physicsBody = SCNPhysicsBody(type: .kinematic, shape: nil)
-        tableNode.physicsBody?.contactTestBitMask = (tableNode.physicsBody?.collisionBitMask)!
         let top = tableNode.childNode(withName: "Top", recursively: true)!
         let topbb = top.boundingBox
         tableNode.position = SCNVector3Make(0.0, -topbb.max.y / 2.0, 0.0)

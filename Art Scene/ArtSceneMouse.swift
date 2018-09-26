@@ -259,6 +259,9 @@ extension ArtSceneView
             mouseNode = nil
             editMode = .none
         }
+        if mouseNode === scene?.rootNode {
+            Swift.print("Yoiks!")
+        }
         
     }
     
@@ -596,7 +599,7 @@ extension ArtSceneView
                 prepareForUndo(mouseNode)
                 inDrag = true
             }
-        case .resizing(.Box, _), .resizing(.Table, _):
+        case .resizing(_, _):
             prepareForUndo(mouseNode)
             inDrag = true
         default: ()
