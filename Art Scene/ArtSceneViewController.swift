@@ -297,6 +297,52 @@ class ArtSceneViewController: NSViewController, Undo {
 //        Swift.print("Undo Started")
 //    }
     
+    // MARK: - Spotlights
+    @IBAction func addSpotlight(_ sender: AnyObject)
+    {
+        if let node = theNode, nodeType(node) == .Picture, node.childNode(withName: "Spotlight", recursively: false) == nil {
+            let wall = node.parent!
+            let wallHeight = wall.size()!.height
+            let pictureHeight = node.position.y + wall.position.y
+            let d1: CGFloat = 3.0 // distance between wall and light
+            let d2: CGFloat = pictureHeight - wallHeight + node.size()!.height / 4.0
+            let d3 = sqrt(d1 * d1 + d2 * d2) // direct distance between spot and center of picture
+            let angle = atan(d2 / d1)
+            
+            let light = SCNLight()
+            light.type = .spot
+            light.attenuationStartDistance = 1.0
+            light.attenuationEndDistance = d3 + 10.0
+            light.attenuationFalloffExponent = 2.0
+            light.spotInnerAngle = 5
+            light.spotOuterAngle = 60
+            light.castsShadow = true
+            light.color = NSColor.white
+            
+            let box = SCNBox(width: 1, height: 1, length: 1, chamferRadius: 0)
+            box.firstMaterial?.diffuse.contents = NSColor.red
+            
+            let lightNode = SCNNode()
+            lightNode.name = "Spotlight"
+            lightNode.position.y = wallHeight - pictureHeight
+            lightNode.position.z = d1
+            lightNode.yRotation = 0.0
+            lightNode.eulerAngles.x = angle - 0.1
+            lightNode.light = light
+            node.addChildNode(lightNode)
+            
+        }
+    }
+    
+    @IBAction func removeSpotlight(_ sender: AnyObject)
+    {
+        if let node = theNode, nodeType(node) == .Picture, let spot = node.childNode(withName: "Spotlight", recursively: false) {
+            spot.removeFromParentNode()
+        }
+
+    }
+    
+    // MARK: - Pictures
     func doChangeImageSize(_ node: SCNNode, from: CGSize, to: CGSize)
     {
         changeImageSize(node, to: to)
