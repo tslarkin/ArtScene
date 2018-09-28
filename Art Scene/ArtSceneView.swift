@@ -85,7 +85,10 @@ class ArtSceneView: SCNView, Undo {
             ambientLight!.light?.color = NSColor(white: newValue, alpha: 1.0)
         }
         get {
-           let color = (ambientLight!.light?.color as! NSColor).usingColorSpaceName(NSColorSpaceName.calibratedWhite)!
+            var color = (ambientLight!.light?.color as! NSColor)
+            if #available(OSX 10.14, *) {
+                color = color.usingColorSpaceName(NSColorSpaceName.calibratedWhite)!
+            }
             return color.whiteComponent
         }
     }
@@ -95,7 +98,10 @@ class ArtSceneView: SCNView, Undo {
             omniLight!.light?.color = NSColor(white: newValue, alpha: 1.0)
         }
         get {
-            let color = (omniLight!.light?.color as! NSColor).usingColorSpaceName(NSColorSpaceName.calibratedWhite)!
+            var color = (omniLight!.light?.color as! NSColor)
+            if #available(OSX 10.14, *) {
+                color = color.usingColorSpaceName(NSColorSpaceName.calibratedWhite)!
+            }
             return color.whiteComponent
         }
     }

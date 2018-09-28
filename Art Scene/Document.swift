@@ -208,15 +208,22 @@ class Document: NSDocument, NSWindowDelegate {
     {
         let delegate = NSApp.delegate as! AppDelegate
         var color = sceneView.omniLight!.light!.color as! NSColor
-        color = color.usingColorSpaceName(NSColorSpaceName.calibratedWhite)!
+        if #available(OSX 10.14, *) {
+            color = color.usingColorSpaceName(NSColorSpaceName.calibratedWhite)!
+        }
         delegate.setOmniLightIntensity(color.whiteComponent)
         color = sceneView.ambientLight!.light!.color as! NSColor
-        color = color.usingColorSpaceName(NSColorSpaceName.calibratedWhite)!
+        if #available(OSX 10.14, *) {
+            color = color.usingColorSpaceName(NSColorSpaceName.calibratedWhite)!
+        }
         delegate.setAmbientLightIntensity(color.whiteComponent)
         if sceneView.spotlightIntensity < 0.0 {
             scene?.rootNode.enumerateChildNodes( { (node: SCNNode, stop) in
                 if node.light != nil && node.light!.type == .spot {
-                    let color = (node.light!.color as! NSColor).usingColorSpaceName(NSColorSpaceName.calibratedWhite)!
+                    var color = (node.light!.color as! NSColor)
+                    if #available(OSX 10.14, *) {
+                        color = color.usingColorSpaceName(NSColorSpaceName.calibratedWhite)!
+                    }
                     sceneView.spotlightIntensity = color.whiteComponent
                     stop.pointee = true
                 }
