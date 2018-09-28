@@ -303,28 +303,28 @@ class ArtSceneViewController: NSViewController, Undo {
         if let node = theNode, nodeType(node) == .Picture, node.childNode(withName: "Spotlight", recursively: false) == nil {
             let wall = node.parent!
             let wallHeight = wall.size()!.height
-            let pictureHeight = node.position.y + wall.position.y
-            let d1: CGFloat = 3.0 // distance between wall and light
-            let d2: CGFloat = pictureHeight - wallHeight + node.size()!.height / 4.0
-            let d3 = sqrt(d1 * d1 + d2 * d2) // direct distance between spot and center of picture
+//            let pictureHeight = node.position.y + wall.position.y
+            let d1: CGFloat = 4.0 // distance between wall and light
+            let d2: CGFloat =  3.0 - wallHeight
+//            let d3 = sqrt(d1 * d1 + d2 * d2) // direct distance between spot and center of picture
             let angle = atan(d2 / d1)
             
             let light = SCNLight()
             light.type = .spot
-            light.attenuationStartDistance = 1.0
-            light.attenuationEndDistance = d3 + 10.0
+            light.attenuationStartDistance = 4.0
+            light.attenuationEndDistance = 8.0
             light.attenuationFalloffExponent = 2.0
-            light.spotInnerAngle = 5
-            light.spotOuterAngle = 60
+            light.spotInnerAngle = 1
+            light.spotOuterAngle = 20
             light.castsShadow = true
-            light.color = NSColor.white
+            light.color = NSColor(white: artSceneView.spotlightIntensity, alpha: 1.0)
             
             let box = SCNBox(width: 1, height: 1, length: 1, chamferRadius: 0)
             box.firstMaterial?.diffuse.contents = NSColor.red
             
             let lightNode = SCNNode()
             lightNode.name = "Spotlight"
-            lightNode.position.y = wallHeight - pictureHeight
+            lightNode.position.y = wallHeight
             lightNode.position.z = d1
             lightNode.yRotation = 0.0
             lightNode.eulerAngles.x = angle - 0.1

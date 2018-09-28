@@ -59,7 +59,8 @@ extension ArtSceneView {
         menu.addItem(withTitle: "Nudge Frame Size", action: #selector(ArtSceneViewController.editFrameSize(_:)), keyEquivalent: "")
         menu.addItem(withTitle: "Nudge Image Size", action: #selector(ArtSceneViewController.editImageSize(_:)), keyEquivalent: "")
         menu.addItem(withTitle: "Nudge Position", action: #selector(ArtSceneViewController.editFramePosition(_:)), keyEquivalent: "")
-        if mouseNode?.childNode(withName: "Spotlight", recursively: false) == nil {
+        menu.addItem(NSMenuItem.separator())
+       if mouseNode?.childNode(withName: "Spotlight", recursively: false) == nil {
             menu.addItem(withTitle: "Add Spotlight", action: #selector(ArtSceneViewController.addSpotlight(_:)), keyEquivalent: "")
         } else {
             menu.addItem(withTitle: "Remove Spotlight", action: #selector(ArtSceneViewController.removeSpotlight(_:)), keyEquivalent: "")

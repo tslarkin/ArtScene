@@ -14,8 +14,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var lightsPanel: NSPanel?
     var application: NSApplication!
     @objc dynamic var ambientLightIntensity: CGFloat = 0.0
-    
     @objc dynamic var omniLightIntensity: CGFloat = 0.0
+    @objc dynamic var spotlightIntensity: CGFloat = 1.0
     
     func setOmniLightIntensity(_ intensity: CGFloat)
     {
@@ -25,6 +25,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func setAmbientLightIntensity(_ intensity: CGFloat)
     {
         ambientLightIntensity = intensity
+    }
+    
+    func setSpotlightIntensity( _ intensity: CGFloat)
+    {
+        spotlightIntensity = intensity
     }
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {

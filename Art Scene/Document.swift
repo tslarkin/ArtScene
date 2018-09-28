@@ -213,6 +213,20 @@ class Document: NSDocument, NSWindowDelegate {
         color = sceneView.ambientLight!.light!.color as! NSColor
         color = color.usingColorSpaceName(NSColorSpaceName.calibratedWhite)!
         delegate.setAmbientLightIntensity(color.whiteComponent)
+        if sceneView.spotlightIntensity < 0.0 {
+            scene?.rootNode.enumerateChildNodes( { (node: SCNNode, stop) in
+                if node.light != nil && node.light!.type == .spot {
+                    let color = (node.light!.color as! NSColor).usingColorSpaceName(NSColorSpaceName.calibratedWhite)!
+                    sceneView.spotlightIntensity = color.whiteComponent
+                    stop.pointee = true
+                }
+            } )
+        }
+        if sceneView.spotlightIntensity < 0.0 {
+            sceneView.spotlightIntensity = 0.75
+        }
+        delegate.spotlightIntensity = sceneView.spotlightIntensity
+        sceneView.bind(NSBindingName(rawValue: "spotlightIntensity"), to: delegate, withKeyPath: "spotlightIntensity", options: nil)
         sceneView.bind(NSBindingName(rawValue: "ambientLightIntensity"), to: delegate, withKeyPath: "ambientLightIntensity", options: nil)
         sceneView.bind(NSBindingName(rawValue: "omniLightIntensity"), to: delegate, withKeyPath: "omniLightIntensity", options: nil)
     }

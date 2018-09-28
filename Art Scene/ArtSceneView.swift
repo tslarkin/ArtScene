@@ -100,6 +100,17 @@ class ArtSceneView: SCNView, Undo {
         }
     }
     
+    @objc var spotlightIntensity: CGFloat = -1.0 {
+        didSet {
+            scene?.rootNode.enumerateChildNodes({ (node: SCNNode, stop) in
+                if node.light != nil && node.light!.type == .spot {
+                    node.light!.color = NSColor(white: spotlightIntensity, alpha: 1.0)
+                }
+                
+            })
+        }
+    }
+    
     /// Makes the `questionCursor` and `rotateCursor`, then calls `super.init()`
     required init?(coder: NSCoder) {
         var size: CGFloat = 24
@@ -155,6 +166,8 @@ class ArtSceneView: SCNView, Undo {
         hud = HUD(size: frame.size, controller: controller)
         overlaySKScene = hud
         registerForDraggedTypes([NSPasteboard.PasteboardType(rawValue: "NSFilenamesPboardType")])
+        if #available(OSX 10.12, *) {
+        }
 
     }
     
