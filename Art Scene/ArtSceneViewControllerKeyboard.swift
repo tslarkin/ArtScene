@@ -441,7 +441,7 @@ extension ArtSceneViewController
             let defaults = UserDefaults.standard
             wantsCameraHelp = !wantsCameraHelp
             defaults.set(wantsCameraHelp, forKey: "wantsCameraHelp")
-//            artSceneView.isPlaying = true
+            artSceneView.isPlaying = true
        default:
             ()
         }
