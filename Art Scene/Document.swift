@@ -177,7 +177,8 @@ class Document: NSDocument, NSWindowDelegate {
             sceneView.controller.wallsLocked = true
         }
         // if the scene was saved with a selection, then the nodes have to revert their emissions to black
-        if let children = sceneView.scene?.rootNode.childNodes ( passingTest: {  x, yes in x.geometry != nil } ) {
+        if let children = sceneView.scene?.rootNode.childNodes ( passingTest: {  x, yes
+            in nodeType(x) == .Picture } ) {
             for child in children {
                 if let material = child.geometry!.firstMaterial {
                     material.emission.contents = NSColor.black

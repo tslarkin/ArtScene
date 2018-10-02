@@ -17,7 +17,7 @@ extension ArtSceneViewController {
     
     /// Make a black picture frame, one inch deep, of a given height and width.
     func makeFrame(_ size: CGSize) -> SCNNode {
-        let segmentDepth: CGFloat = 1.0 / 12.0
+        let segmentDepth: CGFloat = 1.0.inches
         let segmentWidth: CGFloat = segmentDepth / 4.0
         let top = SCNBox(width: size.width, height: segmentWidth, length: segmentDepth, chamferRadius: 0)
         let blackMaterial = SCNMaterial()
@@ -38,6 +38,7 @@ extension ArtSceneViewController {
         let leftNode = SCNNode(geometry: left)
         leftNode.position = SCNVector3(x: size.width / 2.0 - segmentWidth / 2.0, y: 0, z: 0)
         leftNode.name = "Right"
+        leftNode.castsShadow = true
         
         let rightNode = leftNode.copy() as! SCNNode
         rightNode.position.x = -rightNode.position.x
@@ -73,7 +74,7 @@ extension ArtSceneViewController {
         pictureMaterial.diffuse.contents = image
         pictureMaterial.locksAmbientWithDiffuse = true
         pictureMaterial.ambient.contents = NSColor.black
-        pictureMaterial.isDoubleSided = true
+        pictureMaterial.isDoubleSided = false
         picture.materials = [pictureMaterial]
         let imageNode = SCNNode(geometry: picture)
         imageNode.name = "Image"

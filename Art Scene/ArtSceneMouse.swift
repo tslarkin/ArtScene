@@ -566,6 +566,10 @@ extension ArtSceneView
                 inDrag = true
                 NSCursor.closedHand.set()
             }
+        case .moving(.Picture):
+            frameWasHidden = theFrame(mouseNode).isHidden
+            showNodeAsRectangle(mouseNode)
+            fallthrough
         case .moving(_):
             prepareForUndo(mouseNode)
             inDrag = true
@@ -609,6 +613,15 @@ extension ArtSceneView
     override func mouseUp(with theEvent: NSEvent) {
         if inDrag == true {
             undoer.endUndoGrouping()
+            if let outline = mouseNode?.childNode(withName: "Outline", recursively: false) {
+                outline.removeFromParentNode()
+                for node in mouseNode!.childNodes {
+                    node.isHidden = false
+                }
+                if frameWasHidden {
+                    controller._hideFrame(mouseNode!)
+                }
+            }
         }
         
         inDrag = false

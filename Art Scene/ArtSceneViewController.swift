@@ -35,6 +35,15 @@ class ArtSceneViewController: NSViewController, Undo {
                 if undoer.groupingLevel == 1 {
                     undoer.endUndoGrouping()
                 }
+                if let outline = theNode?.childNode(withName: "Outline", recursively: false) {
+                    outline.removeFromParentNode()
+                    for node in theNode!.childNodes {
+                        node.isHidden = false
+                    }
+                    if artSceneView.frameWasHidden {
+                        _hideFrame(theNode!)
+                    }
+                }
             }
         }
     }
@@ -306,7 +315,7 @@ class ArtSceneViewController: NSViewController, Undo {
 //            let pictureHeight = node.position.y + wall.position.y
             let d1: CGFloat = 3.0 // distance between wall and light
             let d2: CGFloat = wallHeight / 2.0 - node.position.y - node.size()!.height / 4.0
-            let d3 = sqrt(d1 * d1 + d2 * d2) // direct distance between spot and center of picture
+//            let d3 = sqrt(d1 * d1 + d2 * d2) // direct distance between spot and center of picture
             let angle = atan(-d2 / d1)
             
             let light = SCNLight()
@@ -318,7 +327,7 @@ class ArtSceneViewController: NSViewController, Undo {
             light.spotOuterAngle = 40
             light.castsShadow = true
             light.color = NSColor(white: artSceneView.spotlightIntensity, alpha: 1.0)
-            light.shadowMode = .deferred
+//            light.shadowMode = .deferred
             
             let box = SCNBox(width: 1, height: 1, length: 1, chamferRadius: 0)
             box.firstMaterial?.diffuse.contents = NSColor.red
@@ -668,6 +677,8 @@ class ArtSceneViewController: NSViewController, Undo {
     @IBAction func editFramePosition(_ sender: AnyObject?)
     {
         editMode = .moving(.Picture)
+        artSceneView.frameWasHidden = theFrame(theNode!).isHidden
+        showNodeAsRectangle(theNode!)
     }
     
     @IBAction func editBoxPosition(_ sender: AnyObject) {

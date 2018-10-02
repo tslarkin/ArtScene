@@ -66,6 +66,9 @@ class ArtSceneView: SCNView, Undo {
         return controller.wallsLocked
     }
     
+    // A hack to restore the hidden state of the picture after moving.
+    var frameWasHidden: Bool = false
+    
     /// Returns the ambient light node
     @objc var ambientLight: SCNNode? {
         get {

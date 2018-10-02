@@ -56,8 +56,13 @@ class ArtScenePrinter: NSView {
     {
         let size = name.size(withAttributes: attribs)
         var p = point
-        if case NodeEdge.right = justification {
+        switch justification {
+        case .right:
             p.x -= size.width
+        case .center:
+            p.x -= size.width / 2.0
+        default:
+            ()
         }
         p.y -= 1.0
         var rect = NSZeroRect
@@ -84,9 +89,31 @@ class ArtScenePrinter: NSView {
                           operation: .copy, fraction: 1.0, respectFlipped: false, hints: nil)
         }
         
-        /// Draw the picture's frame, image, and distances.
-        func drawPicture(_ picture: SCNNode, referencex: CGFloat, attributes attribs: [NSAttributedStringKey: AnyObject])
+        /// Draw an arrow from base, of a certain length. The arrow head is centered at {0, 0}, and the arrow is pointed at angle.
+        func drawArrow(base: CGPoint, length: CGFloat, angle: CGFloat)
         {
+            NSGraphicsContext.saveGraphicsState()
+            let transform = NSAffineTransform()
+            transform.translateX(by: base.x, yBy: base.y)
+            transform.rotate(byRadians: angle)
+            transform.concat()
+            NSBezierPath.strokeLine(from: NSPoint(x: 0, y: 0), to: NSPoint(x: length, y: 0.0))
+            let s = 2.0.inches // length of a side of the arrow head
+            let h = sqrt (s * s - s * s / 4.0) // distance between a vertex and the mid-point of its opposite side
+            let path = NSBezierPath()
+            path.move(to: NSPoint(x: -h / 2.0, y: 0.0))
+            path.line(to: NSPoint(x: h / 2.0, y: s / 2.0))
+            path.line(to: NSPoint.zero)
+            path.line(to: NSPoint(x: h / 2.0, y: -s / 2.0))
+            path.close()
+            path.stroke()
+            NSGraphicsContext.restoreGraphicsState()
+        }
+        
+        /// Draw the picture's frame, image, and distances.
+        func drawPicture(_ picture: SCNNode, reference: CGPoint?, attributes attribs: [NSAttributedStringKey: AnyObject])
+        {
+            let referencex = reference == nil ? -picture.parent!.size()!.width / 2.0 : reference!.x
             let font = attribs[.font] as! NSFont
             let hidden = theFrame(picture).isHidden
             let savedSize = picture.size()!
@@ -99,7 +126,7 @@ class ArtScenePrinter: NSView {
             transform.translateX(by: picture.position.x, yBy: picture.position.y)
             transform.concat()
             let rect = NSRect(origin: NSPoint(x: -pictureSize.width / 2, y: -pictureSize.height / 2), size: pictureSize)
-            if !theFrame(picture).isHidden {
+            if !hidden {
                 NSBezierPath.stroke(rect)
             }
 
@@ -119,22 +146,41 @@ class ArtScenePrinter: NSView {
             
             // draw the distance from the center of the previous picture, or the left side of the wall
             // if there is no previous picture
-            let x = picture.leftEdge - referencex
-            drawString(convertToFeetAndInches(x, units: .feet) as NSString,
-                       atPoint: NSPoint(x: -pictureSize.width / 2.0, y: -pictureSize.height / 2.0 - (font.ascender - font.descender)),
-                       justification: NodeEdge.left,
+            let x = picture.centerX - referencex
+//            let x2 = picture.parent!.size()!.width / 2.0 + picture.centerX
+            let xf = convertToFeetAndInches(x, units: .feet) as NSString
+//            let x2f = convertToFeetAndInches(x2, units: .feet) as NSString
+            var arrowLength = 5.0.inches
+            drawString(xf as NSString,
+                       atPoint: NSPoint(x: 0.0, y: -pictureSize.height / 2.0 - (font.ascender - font.descender)),
+                       justification: NodeEdge.center,
                        withAttributes: attribs)
+            NSBezierPath.strokeLine(from: NSPoint(x: 0.0, y: -pictureSize.height / 2.0 - 1.2 * (font.ascender - font.descender)), to: NSPoint(x: 0.0, y: -pictureSize.height / 2.0 - 2.0 * (font.ascender - font.descender)))
+            drawArrow(base: CGPoint(x: -arrowLength, y: -pictureSize.height / 2.0 - 1.6 * (font.ascender - font.descender)), length: arrowLength, angle: 0.0)
             
             // draw the distance from the floor
             let rotator = NSAffineTransform()
-//            rotator.translateX(by: bottomLeft.x, yBy: bottomLeft.y)
+            rotator.translateX(by: -picture.size()!.width / 2.0, yBy: picture.size()!.height / 2.0)
             rotator.rotate(byDegrees: 90.0)
             NSGraphicsContext.saveGraphicsState()
             rotator.concat()
-            let fromFloor = distanceForPicture(picture, axis: .y, coordinate: picture.bottomEdge)
-            drawString(fromFloor as NSString, atPoint: NSPoint(x: -pictureSize.height / 2.0, y: pictureSize.width / 2.0 - font.descender), justification: NodeEdge.left, withAttributes: attribs)
+            let fromFloor = distanceForPicture(picture, axis: .y, coordinate: picture.topEdge)
+            let ffSize = (fromFloor as NSString).size(withAttributes: attribs)
+            NSBezierPath.strokeLine(from: NSPoint.zero, to: NSPoint(x: 0.0, y: font.xHeight * 2.0))
+            NSBezierPath.strokeLine(from: NSPoint(x: 0.0, y: font.xHeight), to: NSPoint(x: -1.0.inches, y: font.xHeight))
+            drawString(fromFloor as NSString, atPoint: NSPoint(x: -1.0.inches, y:  -font.descender), justification: NodeEdge.right, withAttributes: attribs)
+            arrowLength = 2.0.inches
+            drawArrow(base: CGPoint(x: -ffSize.width - arrowLength - 1.0.inches, y: font.xHeight), length: arrowLength, angle: 0.0)
 //            NSBezierPath.strokeLine(from: NSPoint.zero, to: NSPoint(x: 0, y: -tick))
             NSGraphicsContext.restoreGraphicsState()
+            // Draw a line between the centers of the previous picture and the current picture
+            if reference != nil {
+                let adj =  reference!.x - picture.centerX
+                let opp = reference!.y - picture.centerY
+                let length = sqrt(adj * adj + opp * opp)
+                let angle: CGFloat = atan2(opp, adj)
+                drawArrow(base: NSPoint.zero, length: length, angle: angle)
+            }
             NSGraphicsContext.restoreGraphicsState()
             if hidden {
                 picture.setSize(savedSize)
@@ -165,21 +211,12 @@ class ArtScenePrinter: NSView {
             // Draw the pictures in x order, keeping track of the x coordinate of the previous picture
             // so that we can report its distance from the current picture.
             var pictures = wall.childNodes.filter{ nodeType($0) == .Picture }
-            pictures.sort(by: { $0.leftEdge < $1.leftEdge })
+            pictures.sort(by: { $0.position.x < $1.position.x })
             var previous: CGPoint?
             for picture in pictures {
                 // Draw a line from the left bottom of the previous picture to the left bottom of the current one.
-                let leftEdge = theFrame(picture).isHidden ? picture.position.x - theImage(picture).size()!.width / 2.0: picture.leftEdge
-                let bottomEdge = theFrame(picture).isHidden ? picture.position.y - theImage(picture).size()!.height / 2.0: picture.bottomEdge
-                if let previous = previous {
-                    NSBezierPath.strokeLine(from: NSPoint(x: previous.x, y: previous.y),
-                                            to: NSPoint(x: leftEdge, y: bottomEdge))
-                } else {
-                    previous = CGPoint(x: -wallSize.width / 2.0, y: 0.0)
-                }
-                drawPicture(picture, referencex: previous!.x, attributes: attributes)
-                previous!.x = leftEdge
-                previous!.y = bottomEdge
+                drawPicture(picture, reference: previous, attributes: attributes)
+                previous = CGPoint(x: picture.position.x, y: picture.position.y)
             }
         }
         
@@ -202,7 +239,7 @@ class ArtScenePrinter: NSView {
             let t = NSAffineTransform()
             t.translateX(by: center.x, yBy: center.y)
             t.concat()
-            for _ in 0...count - 1 {
+            for _ in 0..<count {
                 drawWall(wall)
                 let t = NSAffineTransform()
                 t.translateX(by: -pageWidth, yBy: pageHeight)

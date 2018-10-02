@@ -22,6 +22,7 @@ indirect enum NodeEdge: Equatable {
     case bottom
     case left
     case right
+    case center
     case pivot
     case side(Int, NodeEdge)
 }
@@ -213,8 +214,10 @@ func boxInfo(_ boxNode: SCNNode)->(x: String, y: String, width: String, height: 
 
 /// GetInfo properties for a picture.
 func pictureInfo(_ node: SCNNode, camera: SCNNode? = nil, hitPosition: SCNVector3? = nil) -> (x: String, y: String, width: String, height: String, hidden: String, distance: String) {
-    let size = nodeSize(node)
+    
     let wall = node.parent!
+    let isHidden = theFrame(node).isHidden
+    let size = nodeSize(isHidden ? theImage(node) : node)
     let area = wall.geometry as! SCNPlane
     var distance = ""
     if camera != nil && hitPosition != nil {
@@ -223,9 +226,9 @@ func pictureInfo(_ node: SCNNode, camera: SCNNode? = nil, hitPosition: SCNVector
         distance =  convertToFeetAndInches(sqrt(x * x + z * z))
     }
     return (convertToFeetAndInches(node.position.x + area.width / 2),
-        convertToFeetAndInches(node.position.y + area.height / 2),convertToFeetAndInches(size.width, units: .inches),
+        convertToFeetAndInches(node.position.y + area.height / 2), convertToFeetAndInches(size.width, units: .inches),
         convertToFeetAndInches(size.height, units: .inches),
-        theFrame(node).isHidden ? "No" : "Yes", distance)
+        isHidden ? "No" : "Yes", distance)
 }
 
 
@@ -529,4 +532,33 @@ func fitTableToBox(_ node: SCNNode)
 
     }
     
+}
+
+func showNodeAsRectangle(_ node: SCNNode)
+{
+    var size = theFrame(node).isHidden ? theImage(node).size()! : node.size()!
+    // The frame is 1/8 larger than the picture all around
+    size.height += 0.25.inches
+    size.width += 0.25.inches
+    let vertices: [SCNVector3] = [SCNVector3Make(-size.width / 2.0, size.height / 2.0, 0.0),
+                                  SCNVector3Make(size.width / 2.0, size.height / 2.0, 0.0),
+                                  SCNVector3Make(size.width / 2.0, -size.height / 2.0, 0.0),
+                                  SCNVector3Make(-size.width / 2.0, -size.height / 2.0, 0.0)]
+    let indices: [Int32] = [0, 3, 1, 2]
+    let source = SCNGeometrySource(vertices: vertices)
+    let element = SCNGeometryElement(indices: indices, primitiveType: .triangleStrip)
+    
+    let shape = SCNGeometry(sources: [source], elements: [element])
+    let gridColor = NSColor(calibratedRed: 0.5, green: 0.5, blue: 0.5, alpha: 0.8)
+    let material = SCNMaterial()
+    material.diffuse.contents = gridColor
+    shape.materials = [material]
+    let rectangle = SCNNode(geometry: shape)
+    
+    rectangle.name = "Outline"
+    for node in node.childNodes {
+        node.isHidden = true
+    }
+    node.addChildNode(rectangle)
+
 }
