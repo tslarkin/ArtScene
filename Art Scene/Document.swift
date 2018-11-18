@@ -180,9 +180,7 @@ class Document: NSDocument, NSWindowDelegate {
         if let children = sceneView.scene?.rootNode.childNodes ( passingTest: {  x, yes
             in nodeType(x) == .Picture } ) {
             for child in children {
-                if let material = child.geometry!.firstMaterial {
-                    material.emission.contents = NSColor.black
-                }
+                setNodeEmission(child, color: NSColor.black)
             }
         }
         let window = windowForSheet!

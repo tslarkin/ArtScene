@@ -309,9 +309,10 @@ class ArtSceneView: SCNView, Undo {
     @IBAction func deletePictures(_ sender: AnyObject?)
     {
         undoer.beginUndoGrouping()
-        if selection.count > 0 {
-            undoer.setActionName("Delete Pictures")
+        if let node = mouseNode, selection.contains(node) {
+            undoer.setActionName("Delete Selection")
             for picture in selection {
+                setNodeEmission(picture, color: NSColor.black)
                 changeParent(picture, to: nil)
             }
             selection = []
