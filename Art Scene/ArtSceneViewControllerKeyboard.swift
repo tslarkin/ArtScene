@@ -368,7 +368,7 @@ extension ArtSceneViewController
         hideGrids()
     }
     
-    func hideGrids(condition: CGFloat = 4.0)
+    func hideGrids(condition: CGFloat = 8.0)
     {
         let cameraNode = artSceneView.camera()
         let walls = artSceneView.nodesInsideFrustum(of: cameraNode).filter({ nodeType($0) == .Wall})

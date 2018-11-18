@@ -35,13 +35,10 @@ class ArtSceneViewController: NSViewController, Undo {
                 if undoer.groupingLevel == 1 {
                     undoer.endUndoGrouping()
                 }
-                if let outline = theNode?.childNode(withName: "Outline", recursively: false) {
-                    outline.removeFromParentNode()
-                    for node in theNode!.childNodes {
-                        node.isHidden = false
-                    }
-                    if artSceneView.frameWasHidden {
-                        _hideFrame(theNode!)
+                if editMode == .moving(.Picture) {
+                    let wall = theNode!.parent!
+                    for node in wall.childNodes.filter({ nodeType($0) != .Back && nodeType($0) != .Grid  && $0.name != nil}) {
+                        unflattenPicture(node)
                     }
                 }
             }
@@ -677,8 +674,10 @@ class ArtSceneViewController: NSViewController, Undo {
     @IBAction func editFramePosition(_ sender: AnyObject?)
     {
         editMode = .moving(.Picture)
-        artSceneView.frameWasHidden = theFrame(theNode!).isHidden
-        showNodeAsRectangle(theNode!)
+        let wall = theNode!.parent!
+        for node in wall.childNodes.filter({ nodeType($0) != .Back && nodeType($0) != .Grid && $0.name != nil}) {
+            flattenPicture(node)
+        }
     }
     
     @IBAction func editBoxPosition(_ sender: AnyObject) {

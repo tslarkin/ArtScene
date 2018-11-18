@@ -372,12 +372,12 @@ extension ArtSceneView
             controller.hideGrids()
             let (_, _, _, _, rotation, _) = wallInfo(currentNode)
             display = controller.makeDisplay(title: "Wall", items: [("y°", rotation)])
-            // Resize the wall. This is a bit more complicated because we want the pictures to maintain
-            // their positions as the wall resizes. What this means currently is that the pictures move
-            // half the distance of the wall size change, but in the opposite direction.
-            // Again, the edge of the wall opposite the active edge doesn't move, so the wall has to
-            // move to compensate for the fact that the wall naturally resizes symmetrically from the center.
-            // This case handles changes to both the height and the width of the walls. (Walls have no length, aka depth,
+        // Resize the wall. This is a bit more complicated because we want the pictures to maintain
+        // their positions as the wall resizes. What this means currently is that the pictures move
+        // half the distance of the wall size change, but in the opposite direction.
+        // Again, the edge of the wall opposite the active edge doesn't move, so the wall has to
+        // move to compensate for the fact that the wall naturally resizes symmetrically from the center.
+        // This case handles changes to both the height and the width of the walls. (Walls have no length, aka depth,
         // since they are two dimensional.
         case .resizing(.Wall, let edge):
             if !wallsLocked {
@@ -405,8 +405,9 @@ extension ArtSceneView
                     changeSize(currentNode, delta: newSize - currentNode.size()!)
                     dx *= direction
                     var translation = SCNVector3Make(dx / 2.0, dy / 2.0, 0.0)
+                    
                     // change the position so that the other side of the wall stays fixed.
-                    changePosition(currentNode, delta: translation)
+                    changePosition(currentNode, delta: translation, povAngle: camera().yRotation)
                     // Change the position of the pictures so that they stay the same distance
                     // from the inactive edge.
                     translation.x = -dx / 2.0
@@ -562,8 +563,10 @@ extension ArtSceneView
                 NSCursor.closedHand.set()
             }
         case .moving(.Picture):
-            frameWasHidden = theFrame(mouseNode).isHidden
-            showNodeAsRectangle(mouseNode)
+            let wall = mouseNode.parent!
+            for node in wall.childNodes.filter({ nodeType($0) != .Back && nodeType($0) != .Grid && $0.name != nil}) {
+                controller.flattenPicture(node)
+            }
             fallthrough
         case .moving(_):
             prepareForUndo(mouseNode)
@@ -608,13 +611,10 @@ extension ArtSceneView
     override func mouseUp(with theEvent: NSEvent) {
         if inDrag == true {
             undoer.endUndoGrouping()
-            if let outline = mouseNode?.childNode(withName: "Outline", recursively: false) {
-                outline.removeFromParentNode()
-                for node in mouseNode!.childNodes {
-                    node.isHidden = false
-                }
-                if frameWasHidden {
-                    controller._hideFrame(mouseNode!)
+            if editMode == .moving(.Picture) {
+                let wall = mouseNode!.parent!
+                for node in wall.childNodes.filter({ nodeType($0) != .Back && nodeType($0) != .Grid  && $0.name != nil}) {
+                    controller.unflattenPicture(node)
                 }
             }
         }

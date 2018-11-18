@@ -95,7 +95,7 @@ extension ArtSceneViewController {
     /// Make the entire picture from frame, matt, image, and glass.
     func makePicture(thumbnail: NSImage, size _size: CGSize)->SCNNode
     {
-        let front: CGFloat = 0.9 * (1.0 / 12.0)
+        let front: CGFloat = 0.9.inches
         var size = _size == CGSize.zero ? defaultFrameSize : _size
         if size.width < thumbnail.size.width {
             size.width = thumbnail.size.width
@@ -105,13 +105,13 @@ extension ArtSceneViewController {
         }
         let imageNode = makeImage(thumbnail)
         imageNode.position.z += front
-        imageNode.renderingOrder = 1
+//        imageNode.renderingOrder = 1
         let mattNode = makeMatt(size)
-        mattNode.position.z += front - 0.01
+        mattNode.position.z += front - 0.01.inches
         let frameNode = makeFrame(size)
         let glass = makeGlass(size)
         let pictureNode = SCNNode(geometry: glass)
-        pictureNode.position.z += 0.1
+        pictureNode.position.z += 0.0
         pictureNode.name = "Picture"
         pictureNode.addChildNode(frameNode)
         pictureNode.addChildNode(mattNode)
@@ -121,6 +121,31 @@ extension ArtSceneViewController {
 //        }
         return pictureNode
 
+    }
+    
+    func flattenPicture(_ picture: SCNNode)
+    {
+        picture.position.z = 0.001
+        let frame = theFrame(picture)
+        frame.position.z = -0.48.inches
+        frame.renderingOrder = 1
+        let matt = theMatt(picture)
+        matt.position.z = 0.005.inches
+        matt.renderingOrder = 2
+        let image = theImage(picture)
+        image.position.z = 0.01.inches
+        image.renderingOrder = 3
+    }
+    
+    func unflattenPicture(_ picture: SCNNode)
+    {
+        picture.position.z = 0.05
+        let frame = theFrame(picture)
+        frame.position.z = 0.5.inches
+        let matt = theMatt(picture)
+        matt.position.z = 0.9.inches - 0.01.inches
+        let image = theImage(picture)
+        image.position.z = 0.9.inches
     }
     
     func makePicture(_ path: String, size _size: CGSize = CGSize.zero) -> SCNNode? {

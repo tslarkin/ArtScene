@@ -117,7 +117,7 @@ extension SCNNode
         var element = SCNGeometryElement(indices: inchIndices, primitiveType: .line)
         
         var shape = SCNGeometry(sources: [source], elements: [element])
-        var gridColor = NSColor(calibratedRed: 0.05, green: 0.5, blue: 1.0, alpha: 0.98)
+        var gridColor = NSColor(calibratedRed: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)
         var material = SCNMaterial()
         material.emission.contents = gridColor
         shape.materials = [material]
@@ -129,6 +129,7 @@ extension SCNNode
         shape = SCNGeometry(sources: [source], elements: [element])
         gridColor = NSColor(calibratedRed: 1.0, green: 0.0, blue: 0.0, alpha: 1.0)
         material = SCNMaterial()
+        material.diffuse.contents = gridColor
         material.emission.contents = gridColor
         shape.materials = [material]
         let feet = SCNNode(geometry: shape)
