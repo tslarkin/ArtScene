@@ -241,13 +241,16 @@ extension ArtSceneViewController
         box.width += dWidth
         box.length += dLength
         box.height += dHeight
+		// The bottom of the box is on the floor.
+		proposal.position.y += dHeight / 2.0
+		
         if nodeIntersects(currentNode, proposal: proposal) { thump(); return }
         replaceNode(currentNode, with: proposal)
         theNode = proposal
         if nodeType(theNode) == .Table {
             fitTableToBox(theNode!)
         }
-        let (_, _, width, height, length, _) = boxInfo(currentNode)
+        let (_, _,  _, width, height, length, _) = boxInfo(proposal)
         hudUpdate = makeDisplay(title: "Box", items: [("width", width), ("height", height), ("length", length)], width: fontScaler * 210)
         hudUpdate!.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
     }
@@ -255,9 +258,10 @@ extension ArtSceneViewController
     func doBoxEditPosition(_ theEvent: NSEvent) {
         guard let keyString = theEvent.charactersIgnoringModifiers?.utf16,
             let currentNode = theNode else { return }
-        let shift = checkModifierFlags(theEvent, flag: .shift)
+        let shift = theEvent.modifierFlags.contains(.shift)
+		let option = theEvent.modifierFlags.contains(.option)
         let jump: CGFloat = shift ? 1.0 / 48.0 : 1.0 / 12.0 // ¼" or 1"
-        var dx: CGFloat = 0, dz: CGFloat = 0
+		var dx: CGFloat = 0, dz: CGFloat = 0, dy: CGFloat = 0
         let keyChar = Int(keyString[keyString.startIndex])
         switch keyChar {
         case NSRightArrowFunctionKey:
@@ -265,22 +269,30 @@ extension ArtSceneViewController
         case NSLeftArrowFunctionKey:
             dx = -jump
         case NSUpArrowFunctionKey:
-            dz = -jump
+			if option {
+				dy = jump
+			} else {
+				dz = -jump
+			}
         case NSDownArrowFunctionKey:
-            dz = jump
+			if option {
+				dy = -jump
+			} else {
+				dz = jump
+			}
         default:
             return
         }
-        let translation = SCNVector3Make(dx, 0.0, dz)
+        let translation = SCNVector3Make(dx, dy, dz)
         let proposal = currentNode.clone()
         let d = Art_Scene.rotate(vector: translation, axis: SCNVector3Make(0, 1, 0), angle: artSceneView.camera().yRotation)
         proposal.position = proposal.position + d
         if nodeIntersects(currentNode, proposal: proposal) { thump(); return }
         replaceNode(currentNode, with: proposal)
         theNode = proposal
-        let (x, y, _, _, _, _) = boxInfo(proposal)
+        let (x, y, elevation, _, _, _, _) = boxInfo(proposal)
         hudUpdate = makeDisplay(title: "Box",
-                                items: [("↔", x), ("↕", y)],
+                                items: [("↔", x), ("↕", y), ("↑", elevation)],
                                 width: fontScaler * 150)
         hudUpdate!.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
     }
