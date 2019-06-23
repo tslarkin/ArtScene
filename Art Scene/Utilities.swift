@@ -196,7 +196,7 @@ func wallInfo(_ wall: SCNNode, camera: SCNNode? = nil, hitPosition: SCNVector3? 
     
 }
 
-func boxInfo(_ boxNode: SCNNode)->(x: String, y: String, width: String, height: String, length: String, rotation: String) {
+func boxInfo(_ boxNode: SCNNode)->(x: String, y: String, elevation: String, width: String, height: String, length: String, rotation: String) {
     let box = boxNode.geometry as! SCNBox
     let scale = boxNode.scale
     let width = convertToFeetAndInches(box.width * scale.x)
@@ -204,12 +204,13 @@ func boxInfo(_ boxNode: SCNNode)->(x: String, y: String, width: String, height: 
     let height = convertToFeetAndInches(box.height * scale.y)
     let x = convertToFeetAndInches(boxNode.position.x)
     let y = convertToFeetAndInches(boxNode.position.z)
+	let elevation = convertToFeetAndInches(boxNode.position.y - box.height * scale.y / 2)
     var angle = (boxNode.eulerAngles.y * r2d).truncatingRemainder(dividingBy: 360.0)
     if angle < 0 {
         angle += 360.0
     }
     let rotation = String(format: "%0.0f°", angle)
-    return (x, y, width, height, length, rotation)
+    return (x, y, elevation, width, height, length, rotation)
 }
 
 /// GetInfo properties for a picture.
