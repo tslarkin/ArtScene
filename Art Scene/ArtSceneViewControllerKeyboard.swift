@@ -235,22 +235,17 @@ extension ArtSceneViewController
         default:
             super.keyDown(with: theEvent)
         }
-        let proposal = currentNode.clone()
-        proposal.geometry = currentNode.geometry?.copy() as! SCNBox
-        let box = proposal.geometry as! SCNBox
+        let box = currentNode.geometry as! SCNBox
         box.width += dWidth
         box.length += dLength
         box.height += dHeight
 		// The bottom of the box is on the floor.
-		proposal.position.y += dHeight / 2.0
+		currentNode.position.y += dHeight / 2.0
 		
-        if nodeIntersects(currentNode, proposal: proposal) { thump(); return }
-        replaceNode(currentNode, with: proposal)
-        theNode = proposal
         if nodeType(theNode) == .Table {
             fitTableToBox(theNode!)
         }
-        let (_, _,  _, width, height, length, _) = boxInfo(proposal)
+        let (_, _,  _, width, height, length, _) = boxInfo(currentNode)
         hudUpdate = makeDisplay(title: "Box", items: [("width", width), ("height", height), ("length", length)], width: fontScaler * 210)
         hudUpdate!.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
     }
@@ -284,13 +279,9 @@ extension ArtSceneViewController
             return
         }
         let translation = SCNVector3Make(dx, dy, dz)
-        let proposal = currentNode.clone()
         let d = Art_Scene.rotate(vector: translation, axis: SCNVector3Make(0, 1, 0), angle: artSceneView.camera().yRotation)
-        proposal.position = proposal.position + d
-        if nodeIntersects(currentNode, proposal: proposal) { thump(); return }
-        replaceNode(currentNode, with: proposal)
-        theNode = proposal
-        let (x, y, elevation, _, _, _, _) = boxInfo(proposal)
+        currentNode.position = currentNode.position + d
+        let (x, y, elevation, _, _, _, _) = boxInfo(currentNode)
         hudUpdate = makeDisplay(title: "Box",
                                 items: [("↔", x), ("↕", y), ("↑", elevation)],
                                 width: fontScaler * 150)

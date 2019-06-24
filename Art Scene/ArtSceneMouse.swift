@@ -435,32 +435,18 @@ extension ArtSceneView
 				dz = 0
 			}
             let translation = SCNVector3Make(dx, dy, dz)
-            // This trick supports collision detection, if we ever get it to work.
-            // Construct a node that is placed where the current node would be if it were moved by dx and dz.
-            let proposal = currentNode.clone()
             // Rotate the translation so that the vector is rotated relative the camera. It turns out that the
             // user expects that when she drags left (or right) the object moves relative to her, not relative
             // to the object's coordinate system.
             let d = Art_Scene.rotate(vector: translation, axis: SCNVector3Make(0, 1, 0), angle: camera().yRotation)
-            proposal.position = currentNode.position + d
-            // If there's a collision with the proposed location, cancel the movement.
-            if nodeIntersects(currentNode, proposal: proposal) { thump(); return }
-            // Otherwise replace the current node with the proposal. This supports another unimplemented scheme
-            // where the location of the proposal could be modified by the nodeIntersects function to advance
-            // the node to the point of contact.
-            replaceNode(currentNode, with: proposal)
-            mouseNode = proposal
+            currentNode.position = currentNode.position + d
             let (x, y, elevation, _, _, _, _) = boxInfo(currentNode)
             display = controller.makeDisplay(title: "\(String(describing: currentNode.name!))", items: [("↔", x), ("↕", y), ("↑", elevation)], width: fontScaler * 150)
-        // Rotating of all furniture is the same. Again we use the proposal and replacement scheme.
+        // Rotating of all furniture is the same.
         case .rotating(.Box), .rotating(.Chair), .rotating(.Table):
             if delta.x == 0.0 { return }
-            let proposal = currentNode.clone()
-            proposal.yRotation += delta.x / 4.0
-            if nodeIntersects(currentNode, proposal: proposal) { thump(); return }
-            replaceNode(currentNode, with: proposal)
-            mouseNode = proposal
-            let (_, _, _, _, _, _, rotation) = boxInfo(proposal)
+            currentNode.yRotation += delta.x / 4.0
+            let (_, _, _, _, _, _, rotation) = boxInfo(currentNode)
             display = controller.makeDisplay(title: "\(String(describing: currentNode.name!))", items: [("y°", rotation)], width: fontScaler * 150)
         // Change any of the dimensions of the box.
         // If the top (face = 4), the change the box height, and move the box up to keep it on the floor.
@@ -493,10 +479,7 @@ extension ArtSceneView
             default: ()
             }
             if dWidth == 0.0 && dLength == 0 && dHeight == 0.0 { break }
-            // Again, use a proposal to check for collisions.
-            let proposal = currentNode.clone()
-            proposal.geometry = currentNode.geometry?.copy() as! SCNBox
-            let box = proposal.geometry as! SCNBox
+            let box = currentNode.geometry as! SCNBox
             box.width += dWidth
             box.length += dLength
             box.height += dHeight
@@ -504,20 +487,14 @@ extension ArtSceneView
             // Again, rotate the movement vector so that the movement happens with respect to the
             // coordinate system of the camera.
             let d = Art_Scene.rotate(vector: delta, axis: SCNVector3Make(0, 1, 0), angle: currentNode.yRotation)
-            proposal.position = proposal.position - 0.5 * d
-            if nodeIntersects(currentNode, proposal: proposal) { thump(); return }
-            // Resizing the length and width of the box has diverged from the code for resizing the top,
-            // due to pressure to support collision detection. We don't change the volume or position
-            // of the current node; we replace the current node with the proposal.
-            replaceNode(currentNode, with: proposal)
-            if type == .Table {
-                fitTableToBox(proposal)
+            currentNode.position = currentNode.position - 0.5 * d
+ 			// Resize the table. The size of the table top does not increase; the height of the legs increase.
+           if type == .Table {
+                fitTableToBox(currentNode)
             }
-            mouseNode = proposal
-            let (_, _, _, width, height, length, _) = boxInfo(proposal)
+            let (_, _, _, width, height, length, _) = boxInfo(currentNode)
             display = controller.makeDisplay(title: "\(String(describing: currentNode.name!))",
                 items: [("width", width), ("length", length), ("height", height)], width: fontScaler * 200)
-        // Resize the table. The size of the table top does not increase; the height of the legs increase.
         default: ()
         }
         if display != nil {
