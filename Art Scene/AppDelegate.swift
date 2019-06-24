@@ -47,7 +47,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if lightsPanel == nil {
             var topLevelObjects: NSArray?
             
-            Bundle.main.loadNibNamed(NSNib.Name(rawValue: "Lights"), owner: self, topLevelObjects: &topLevelObjects)
+            Bundle.main.loadNibNamed("Lights", owner: self, topLevelObjects: &topLevelObjects)
             lightsPanel = topLevelObjects!.filter({ $0 is NSPanel })[0] as? NSPanel
         }
         lightsPanel?.setIsVisible(true)

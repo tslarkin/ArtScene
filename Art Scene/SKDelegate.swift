@@ -81,7 +81,7 @@ extension ArtSceneViewController: SKSceneDelegate
         var rowDataSizes: Dictionary<String, CGFloat> = [:]
         let font = NSFont(name: "LucidaGrande", size: fontSize)!
         let lineHeight: CGFloat = ceil(font.ascender - font.descender) + 2
-        let attributes: [NSAttributedStringKey: AnyObject] = [.font: font]
+        let attributes: [NSAttributedString.Key: AnyObject] = [.font: font]
         for(key, value) in items {
             let keysize = (key as NSString).size(withAttributes: attributes)
             let ksize: CGFloat = keysize.width

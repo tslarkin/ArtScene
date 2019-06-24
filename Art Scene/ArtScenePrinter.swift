@@ -41,18 +41,18 @@ class ArtScenePrinter: NSView {
         return bounds
     }
     
-    func drawCenteredString(_ name: NSString, atPoint point: NSPoint, withAttributes attribs: [NSAttributedStringKey: AnyObject]) {
+    func drawCenteredString(_ name: NSString, atPoint point: NSPoint, withAttributes attribs: [NSAttributedString.Key: AnyObject]) {
         let size = name.size(withAttributes: attribs)
         var p = point
         p.x -= size.width / 2.0
         name.draw(at: p, withAttributes: attribs)
     }
     
-    func drawRectString(_ string: NSString, inRect rect: CGRect, withAttributes attribs: [NSAttributedStringKey: AnyObject]) {
+    func drawRectString(_ string: NSString, inRect rect: CGRect, withAttributes attribs: [NSAttributedString.Key: AnyObject]) {
         string.draw(in: rect, withAttributes: attribs)
     }
     
-    func drawString(_ name: NSString, atPoint point: NSPoint, justification: NodeEdge, withAttributes attribs: [NSAttributedStringKey: AnyObject])
+    func drawString(_ name: NSString, atPoint point: NSPoint, justification: NodeEdge, withAttributes attribs: [NSAttributedString.Key: AnyObject])
     {
         let size = name.size(withAttributes: attribs)
         var p = point
@@ -76,7 +76,7 @@ class ArtScenePrinter: NSView {
     {
         /// Draw the picture's image from the cache, if it is available. Otherwise, draw the
         /// name of the picture
-        func drawImage(_ name: NSString, node: SCNNode, rect: CGRect, attribs: [NSAttributedStringKey: AnyObject])
+        func drawImage(_ name: NSString, node: SCNNode, rect: CGRect, attribs: [NSAttributedString.Key: AnyObject])
         {
             var newImage: NSImage!
             let data = node.geometry?.firstMaterial?.diffuse.contents
@@ -111,7 +111,7 @@ class ArtScenePrinter: NSView {
         }
         
         /// Draw the picture's frame, image, and distances.
-        func drawPicture(_ picture: SCNNode, reference: CGPoint?, attributes attribs: [NSAttributedStringKey: AnyObject])
+        func drawPicture(_ picture: SCNNode, reference: CGPoint?, attributes attribs: [NSAttributedString.Key: AnyObject])
         {
             let referencex = reference == nil ? -picture.parent!.size()!.width / 2.0 : reference!.x
             let font = attribs[.font] as! NSFont
@@ -196,9 +196,9 @@ class ArtScenePrinter: NSView {
             let font = NSFont.systemFont(ofSize: fontSize)
 //            let font = NSFont.systemFont(ofSize: fontSize)
             let style = NSMutableParagraphStyle()
-            style.lineBreakMode = NSParagraphStyle.LineBreakMode.byWordWrapping
+            style.lineBreakMode = .byWordWrapping
             style.alignment = NSTextAlignment.center
-            let attributes: [NSAttributedStringKey: AnyObject] = [.font: font, .paragraphStyle: style]
+            let attributes: [NSAttributedString.Key: AnyObject] = [.font: font, .paragraphStyle: style]
             
             // Stroke a rect the size of wall with its center at {0, 0}
             let wallSize = nodeSize(wall)
@@ -260,10 +260,10 @@ class ArtScenePrinter: NSView {
         
         let font = NSFont.systemFont(ofSize: 8.0 * bounds.height / frame.height)
         let style = NSMutableParagraphStyle()
-        style.lineBreakMode = NSParagraphStyle.LineBreakMode.byTruncatingMiddle
+		style.lineBreakMode = .byTruncatingMiddle
         style.alignment = NSTextAlignment.center
-        let attributes: [NSAttributedStringKey: AnyObject] = [NSAttributedStringKey.font: font,
-                                                        NSAttributedStringKey.paragraphStyle: style]
+        let attributes: [NSAttributedString.Key: AnyObject] = [NSAttributedString.Key.font: font,
+                                                        NSAttributedString.Key.paragraphStyle: style]
         
         let oldFrame = frame
         let scale = bounds.size.width / frame.size.width

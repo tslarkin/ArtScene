@@ -25,13 +25,13 @@ extension ArtSceneViewController
         var dx: CGFloat = 0, dy: CGFloat = 0
         let keyChar = Int(keyString[keyString.startIndex])
         switch keyChar {
-        case NSRightArrowFunctionKey:
+        case NSEvent.SpecialKey.rightArrow.rawValue:
             dx = jump
-        case NSLeftArrowFunctionKey:
+        case NSEvent.SpecialKey.leftArrow.rawValue:
             dx = -jump
-        case NSUpArrowFunctionKey:
+        case NSEvent.SpecialKey.upArrow.rawValue:
             dy = jump
-        case NSDownArrowFunctionKey:
+        case NSEvent.SpecialKey.downArrow.rawValue:
             dy = -jump
         default:
             return
@@ -64,10 +64,10 @@ extension ArtSceneViewController
         if checkModifierFlags(theEvent, flag: .option) {
             var angle = theNode.yRotation
             switch keyChar {
-            case NSLeftArrowFunctionKey:
+            case NSEvent.SpecialKey.leftArrow.rawValue:
                 SCNTransaction.animationDuration = 0.0
                 angle += rotation
-            case NSRightArrowFunctionKey:
+            case NSEvent.SpecialKey.rightArrow.rawValue:
                 SCNTransaction.animationDuration = 0.0
                 angle -= rotation
             default:
@@ -78,13 +78,13 @@ extension ArtSceneViewController
             var dz: CGFloat = 0.0
             var dx: CGFloat = 0.0
             switch keyChar {
-            case NSUpArrowFunctionKey:
+            case NSEvent.SpecialKey.upArrow.rawValue:
                 dz = -jump
-            case NSDownArrowFunctionKey:
+            case NSEvent.SpecialKey.downArrow.rawValue:
                 dz = jump
-            case NSLeftArrowFunctionKey:
+            case NSEvent.SpecialKey.leftArrow.rawValue:
                 dx = -jump
-            case NSRightArrowFunctionKey:
+            case NSEvent.SpecialKey.rightArrow.rawValue:
                 dx = jump
             default: break
             }
@@ -106,13 +106,13 @@ extension ArtSceneViewController
         let jump: CGFloat = shift ? 1.0 / 48.0 : 1.0 / 12.0 // ¼" or 3"
         let keyChar = Int(keyString[keyString.startIndex])
         switch keyChar {
-        case NSRightArrowFunctionKey:
+        case NSEvent.SpecialKey.rightArrow.rawValue:
             size.width += jump
-        case NSLeftArrowFunctionKey:
+        case NSEvent.SpecialKey.leftArrow.rawValue:
             size.width -= jump
-        case NSUpArrowFunctionKey:
+        case NSEvent.SpecialKey.upArrow.rawValue:
             size.height += jump
-        case NSDownArrowFunctionKey:
+        case NSEvent.SpecialKey.downArrow.rawValue:
             size.height -= jump
         default:
             return
@@ -134,9 +134,9 @@ extension ArtSceneViewController
         let jump: CGFloat = shift ? 1.0 / 48.0 : 1.0 / 12.0 // ¼" or 1"
         let keyChar = Int(keyString[keyString.startIndex])
         switch keyChar {
-        case NSUpArrowFunctionKey:
+        case NSEvent.SpecialKey.upArrow.rawValue:
             size.height += jump
-        case NSDownArrowFunctionKey:
+        case NSEvent.SpecialKey.downArrow.rawValue:
             size.height -= jump
         default:
             return
@@ -172,14 +172,14 @@ extension ArtSceneViewController
         var dx: CGFloat = 0.0
         var dy: CGFloat = 0.0
         switch keyChar {
-        case NSUpArrowFunctionKey:
+        case NSEvent.SpecialKey.upArrow.rawValue:
             dy = jump
-        case NSDownArrowFunctionKey:
+        case NSEvent.SpecialKey.downArrow.rawValue:
             newsize.height -= jump
             dy = -jump
-        case NSRightArrowFunctionKey:
+        case NSEvent.SpecialKey.rightArrow.rawValue:
             dx = jump
-        case NSLeftArrowFunctionKey:
+        case NSEvent.SpecialKey.leftArrow.rawValue:
             newsize.width -= jump
             dx = -jump
         default:
@@ -216,17 +216,17 @@ extension ArtSceneViewController
         var dLength: CGFloat = 0.0
         var dHeight: CGFloat = 0.0
         switch keyChar {
-        case NSUpArrowFunctionKey:
+        case NSEvent.SpecialKey.upArrow.rawValue:
             if !command { dHeight = jump }
-        case NSDownArrowFunctionKey:
+        case NSEvent.SpecialKey.downArrow.rawValue:
             if !command { dHeight -= jump }
-        case NSRightArrowFunctionKey:
+        case NSEvent.SpecialKey.rightArrow.rawValue:
             if command {
                 dLength = jump
             } else {
                 dWidth = jump
             }
-        case NSLeftArrowFunctionKey:
+        case NSEvent.SpecialKey.leftArrow.rawValue:
             if command {
                 dLength = -jump
             } else {
@@ -259,17 +259,17 @@ extension ArtSceneViewController
 		var dx: CGFloat = 0, dz: CGFloat = 0, dy: CGFloat = 0
         let keyChar = Int(keyString[keyString.startIndex])
         switch keyChar {
-        case NSRightArrowFunctionKey:
+        case NSEvent.SpecialKey.rightArrow.rawValue:
             dx = jump
-        case NSLeftArrowFunctionKey:
+        case NSEvent.SpecialKey.leftArrow.rawValue:
             dx = -jump
-        case NSUpArrowFunctionKey:
+        case NSEvent.SpecialKey.upArrow.rawValue:
 			if option {
 				dy = jump
 			} else {
 				dz = -jump
 			}
-        case NSDownArrowFunctionKey:
+        case NSEvent.SpecialKey.downArrow.rawValue:
 			if option {
 				dy = -jump
 			} else {
@@ -306,9 +306,9 @@ extension ArtSceneViewController
         if commandDown {
             var up: CGFloat = 0.0
             switch charCode {
-            case NSUpArrowFunctionKey:
+            case NSEvent.SpecialKey.upArrow.rawValue:
                 up += jump
-            case NSDownArrowFunctionKey:
+            case NSEvent.SpecialKey.downArrow.rawValue:
                 up -= jump
             default:
                 super.keyDown(with: theEvent)
@@ -320,9 +320,9 @@ extension ArtSceneViewController
             let quarter: CGFloat = .pi / 2.0
             var sign: CGFloat = 0
             switch charCode {
-            case NSLeftArrowFunctionKey:
+            case NSEvent.SpecialKey.leftArrow.rawValue:
                 sign = 1
-            case NSRightArrowFunctionKey:
+            case NSEvent.SpecialKey.rightArrow.rawValue:
                 sign = -1
             default: return
             }
@@ -331,13 +331,13 @@ extension ArtSceneViewController
             cameraNode.yRotation = direction
         } else if optionDown {
             switch charCode {
-            case NSLeftArrowFunctionKey:
+            case NSEvent.SpecialKey.leftArrow.rawValue:
                 cameraNode.yRotation += rotation
-            case NSRightArrowFunctionKey:
+            case NSEvent.SpecialKey.rightArrow.rawValue:
                 cameraNode.yRotation -= rotation
-            case NSUpArrowFunctionKey:
+            case NSEvent.SpecialKey.upArrow.rawValue:
                 cameraNode.eulerAngles.x += rotation
-            case NSDownArrowFunctionKey:
+            case NSEvent.SpecialKey.downArrow.rawValue:
                 cameraNode.eulerAngles.x -= rotation
             default:
                 super.keyDown(with: theEvent)
@@ -350,12 +350,12 @@ extension ArtSceneViewController
             let u = v × SCNVector3(0, 1, 0)
             // If the key is down arrow, we don't need to modify v
             switch charCode {
-            case NSUpArrowFunctionKey:
+            case NSEvent.SpecialKey.upArrow.rawValue:
                 v.x *= -1.0
                 v.z *= -1.0
-            case NSLeftArrowFunctionKey:
+            case NSEvent.SpecialKey.leftArrow.rawValue:
                 v = u
-            case NSRightArrowFunctionKey:
+            case NSEvent.SpecialKey.rightArrow.rawValue:
                 v = u
                 v.x *= -1.0
                 v.z *= -1.0
@@ -389,7 +389,7 @@ extension ArtSceneViewController
         }
     }
     
-    override func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+    func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         if menuItem.tag == 0 {
             return true
         } else if undoer.canUndo {

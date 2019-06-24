@@ -188,7 +188,7 @@ class ArtSceneViewController: NSViewController, Undo {
         wallNode.castsShadow = true
         
         let font = NSFont(name: "Lucida Grande", size: 0.75)!
-        let attributes = [NSAttributedStringKey.font: font]
+        let attributes = [NSAttributedString.Key.font: font]
         let string = NSAttributedString(string: "Back", attributes: attributes)
         let size = string.size()
         let text = SCNText(string: string, extrusionDepth: 0.0)

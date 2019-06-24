@@ -122,7 +122,7 @@ class ArtSceneView: SCNView, Undo {
         var size: CGFloat = 24
         let font = NSFont.boldSystemFont(ofSize: size)
         let q = "?"
-        let attributes: [NSAttributedStringKey: AnyObject] = [.font: font, .strokeColor: NSColor.white,
+        let attributes: [NSAttributedString.Key: AnyObject] = [.font: font, .strokeColor: NSColor.white,
                                                               .foregroundColor: NSColor.black, .strokeWidth: NSNumber(value: -2)]
         let qSize = (q as NSString).size(withAttributes: attributes)
         var image: NSImage = NSImage(size: NSSize(width: qSize.width + 2, height: qSize.height + 2))
@@ -172,9 +172,6 @@ class ArtSceneView: SCNView, Undo {
         hud = HUD(size: frame.size, controller: controller)
         overlaySKScene = hud
         registerForDraggedTypes([NSPasteboard.PasteboardType(rawValue: "NSFilenamesPboardType")])
-        if #available(OSX 10.12, *) {
-        }
-
     }
     
     /// Returns the single scene camera node.
@@ -205,7 +202,7 @@ class ArtSceneView: SCNView, Undo {
     
     @IBAction func daySky(_ sender: AnyObject)
     {
-        let skybox = NSImage.Name(rawValue: "miramar.jpg")
+        let skybox = "miramar.jpg"
         let path = Bundle.main.pathForImageResource(skybox)!
         let image = NSImage(contentsOfFile: path)
          scene!.background.contents = image
@@ -213,7 +210,7 @@ class ArtSceneView: SCNView, Undo {
     
     @IBAction func nightSky(_ sender: AnyObject)
     {
-        let skybox = NSImage.Name(rawValue: "purplenebula.png")
+        let skybox = "purplenebula.png"
         let path = Bundle.main.pathForImageResource(skybox)!
         let image = NSImage(contentsOfFile: path)
         scene!.background.contents = image
@@ -242,7 +239,7 @@ class ArtSceneView: SCNView, Undo {
         }
     }
     
-    override func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+    func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         if menuItem.action == #selector(ArtSceneView.shadows(_:)) {
             if omniLight?.light?.castsShadow == true {
                 menuItem.title = "No Shadows"
@@ -351,9 +348,9 @@ class ArtSceneView: SCNView, Undo {
     override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation {
         let hits: [SCNHitTestResult]
         if #available(OSX 10.13, *) {
-            hits = hitTest(sender.draggingLocation(), options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
+            hits = hitTest(sender.draggingLocation, options: [SCNHitTestOption.searchMode:  NSNumber(value: SCNHitTestSearchMode.all.rawValue)])
         } else {
-            hits = hitTest(sender.draggingLocation(), options: nil)
+            hits = hitTest(sender.draggingLocation, options: nil)
         }
         
         guard let wallHit = hitOfType(hits, type: .Wall) else {
@@ -371,7 +368,7 @@ class ArtSceneView: SCNView, Undo {
     }
     
     override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
-        if NSImage.canInit(with: sender.draggingPasteboard()) {
+        if NSImage.canInit(with: sender.draggingPasteboard) {
             return NSDragOperation.copy
         } else {
             return NSDragOperation()
@@ -379,16 +376,16 @@ class ArtSceneView: SCNView, Undo {
     }
     
     override func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
-        return NSImage.canInit(with: sender.draggingPasteboard())
+        return NSImage.canInit(with: sender.draggingPasteboard)
     }
     
     override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
         var result = false
-        let pasteboard = sender.draggingPasteboard()
+        let pasteboard = sender.draggingPasteboard
         if let plist = pasteboard.propertyList(forType: NSPasteboard.PasteboardType(rawValue: "NSFilenamesPboardType")) as? NSArray
             {
                 let path = plist[0] as! String
-                var point = sender.draggingLocation()
+                var point = sender.draggingLocation
                 point = convert(point, from: nil)
                 let hitResults: [SCNHitTestResult]
                 if #available(OSX 10.13, *) {

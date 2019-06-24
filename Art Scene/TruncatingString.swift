@@ -10,7 +10,7 @@ import Foundation
 
 extension String
 {
-    func truncate(maxWidth: CGFloat, attributes: [NSAttributedStringKey: Any])->String
+    func truncate(maxWidth: CGFloat, attributes: [NSAttributedString.Key: Any])->String
     {
         var s = self
         var width = (self as NSString).size(withAttributes: attributes).width

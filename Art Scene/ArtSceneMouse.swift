@@ -564,7 +564,7 @@ extension ArtSceneView
             if selectionSet.contains(mouseNode) {
                 selection.append(mouseNode)
             } else {
-                selection.remove(at: selection.index(of: mouseNode)!)
+                selection.remove(at: selection.firstIndex(of: mouseNode)!)
             }
            if selection.count > 0 {
                 masterNode = selection.count == 0 ? mouseNode : selection[0]

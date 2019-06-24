@@ -498,7 +498,7 @@ func nodeIntersects(_ node: SCNNode, proposal: SCNNode)->Bool
 
 func thump()
 {
-    NSSound(named: NSSound.Name("Thump"))?.play()
+    NSSound(named: "Thump")?.play()
 }
 
 func fitTableToBox(_ node: SCNNode)

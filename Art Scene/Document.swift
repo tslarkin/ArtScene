@@ -155,7 +155,7 @@ class Document: NSDocument, NSWindowDelegate {
         tileMaterial.diffuse.contentsTransform = transform
         tileMaterial.diffuse.wrapS = SCNWrapMode.repeat
         tileMaterial.diffuse.wrapT = SCNWrapMode.repeat
-        let image = NSImage(named: NSImage.Name("floor.jpg"))!
+        let image = NSImage(named: "floor.jpg")!
         tileMaterial.diffuse.contents = image
         floor.materials = [tileMaterial]
         floorNode.eulerAngles.x = -.pi / 2.0
@@ -195,7 +195,7 @@ class Document: NSDocument, NSWindowDelegate {
     override var windowNibName: NSNib.Name? {
         // Returns the nib file name of the document
         // If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this property and override -makeWindowControllers instead.
-        return NSNib.Name("Document")
+        return "Document"
     }
     
     func windowDidResignMain(_ notification: Notification) {
@@ -260,8 +260,8 @@ class Document: NSDocument, NSWindowDelegate {
     override func printOperation(withSettings printSettings: [NSPrintInfo.AttributeKey : Any]) throws -> NSPrintOperation
     {
         let info = printInfo
-        info.horizontalPagination = NSPrintInfo.PaginationMode.autoPagination
-        info.verticalPagination = NSPrintInfo.PaginationMode.autoPagination
+        info.horizontalPagination = NSPrintInfo.PaginationMode.automatic
+        info.verticalPagination = NSPrintInfo.PaginationMode.automatic
         let op = NSPrintOperation(view: sceneView.printView(info), printInfo: info)
         return op
     }
