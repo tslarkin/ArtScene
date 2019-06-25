@@ -88,7 +88,7 @@ class Document: NSDocument, NSWindowDelegate {
         scene.rootNode.addChildNode(gridNode)
         let floor = makeGrayFloor()
         scene.rootNode.addChildNode(floor)
-        let wallNode = sceneView.controller.makeWall(at: SCNVector3(x: 0.0, y: 6.0, z: -15.0))
+        let wallNode = sceneView.makeWall(at: SCNVector3(x: 0.0, y: 6.0, z: -15.0))
         scene.rootNode.addChildNode(wallNode)
         
         
@@ -174,7 +174,7 @@ class Document: NSDocument, NSWindowDelegate {
             sceneView.scene = scene
         }
         if (scene?.rootNode.childNode(withName: "Lock", recursively: false)) != nil {
-            sceneView.controller.wallsLocked = true
+            sceneView.wallsLocked = true
         }
         // if the scene was saved with a selection, then the nodes have to revert their emissions to black
         if let children = sceneView.scene?.rootNode.childNodes ( passingTest: {  x, yes
@@ -206,12 +206,12 @@ class Document: NSDocument, NSWindowDelegate {
     func windowDidBecomeMain()
     {
         let delegate = NSApp.delegate as! AppDelegate
-        var color = sceneView.omniLight!.light!.color as! NSColor
+        var color = sceneView.omniLight.light!.color as! NSColor
         if #available(OSX 10.14, *) {
             color = color.usingColorSpaceName(NSColorSpaceName.calibratedWhite)!
         }
         delegate.setOmniLightIntensity(color.whiteComponent)
-        color = sceneView.ambientLight!.light!.color as! NSColor
+        color = sceneView.ambientLight.light!.color as! NSColor
         if #available(OSX 10.14, *) {
             color = color.usingColorSpaceName(NSColorSpaceName.calibratedWhite)!
         }
@@ -265,6 +265,10 @@ class Document: NSDocument, NSWindowDelegate {
         let op = NSPrintOperation(view: sceneView.printView(info), printInfo: info)
         return op
     }
+	
+	override func awakeFromNib() {
+		Bundle.main.loadNibNamed(("ActionMenu" as NSString) as NSNib.Name, owner: sceneView, topLevelObjects: nil)
+	}
     
 }
 

@@ -10,7 +10,7 @@ import SceneKit
 import SpriteKit
 import Cocoa
 
-extension ArtSceneViewController
+extension ArtSceneView
 {
     // MARK: Edit node position
 
@@ -19,7 +19,7 @@ extension ArtSceneViewController
     func doFrameEditPosition(_ theEvent: NSEvent)
     {
         guard let keyString = theEvent.charactersIgnoringModifiers?.utf16,
-        let theNode = theNode else { return }
+        let theNode = selectedNode else { return }
         let shift = checkModifierFlags(theEvent, flag: .shift)
         let jump: CGFloat = shift ? 1.0 / 48.0 : 1.0 / 12.0 // ¼" or 1"
         var dx: CGFloat = 0, dy: CGFloat = 0
@@ -55,7 +55,7 @@ extension ArtSceneViewController
     func doWallEditPosition (_ theEvent: NSEvent)
     {
         guard let keyString = theEvent.charactersIgnoringModifiers?.utf16,
-            let theNode = theNode else { return }
+            let theNode = selectedNode else { return }
         let shift = checkModifierFlags(theEvent, flag: .shift)
         let jump: CGFloat = shift ? 1.0 / 48.0 : 1.0 / 6.0
         let rotation: CGFloat = 5.01 / r2d
@@ -91,7 +91,7 @@ extension ArtSceneViewController
             changePosition(theNode, delta: SCNVector3Make(dx, 0.0, dz))
         }
         hideGrids()
-        let (x, z, _, _, rot, distance) = wallInfo(theNode, camera: artSceneView.camera())
+        let (x, z, _, _, rot, distance) = wallInfo(theNode, camera: camera)
         hudUpdate = makeDisplay(title: "Wall", items: [("↔", x), ("↕", z), ("y°", rot), ("↑", distance!)], width: fontScaler * 175)
         hudUpdate!.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
     }
@@ -100,7 +100,7 @@ extension ArtSceneViewController
     func doFrameEditSize(_ theEvent: NSEvent)
     {
         guard let keyString = theEvent.charactersIgnoringModifiers?.utf16,
-            let theNode = theNode else { return }
+            let theNode = selectedNode else { return }
         var size = theNode.size()!
         let shift = checkModifierFlags(theEvent, flag: .shift)
         let jump: CGFloat = shift ? 1.0 / 48.0 : 1.0 / 12.0 // ¼" or 3"
@@ -128,7 +128,7 @@ extension ArtSceneViewController
     func doImageEditSize(_ theEvent: NSEvent)
     {
         guard let keyString = theEvent.charactersIgnoringModifiers?.utf16 else { return }
-        var size = theImage(theNode!).size()!
+        var size = theImage(selectedNode!).size()!
         let ratio = size.width / size.height
         let shift = checkModifierFlags(theEvent, flag: .shift)
         let jump: CGFloat = shift ? 1.0 / 48.0 : 1.0 / 12.0 // ¼" or 1"
@@ -143,9 +143,9 @@ extension ArtSceneViewController
         }
         size.width = size.height * ratio
         if size.height < minimumImageSize || size.width < minimumImageSize { return }
-        changeImageSize(theNode!, to: size)
+        changeImageSize(selectedNode!, to: size)
         
-        let (width, height, name) = imageInfo(theNode!)
+        let (width, height, name) = imageInfo(selectedNode!)
         hudUpdate = makeDisplay(title: name,
                                      items: [("width", width), ("height", height)],
                                      width: 200)
@@ -162,7 +162,7 @@ extension ArtSceneViewController
     // default orientation makes rotation easy.
     func doWallEditSize(_ theEvent: NSEvent)
     {
-        guard let theNode = theNode,
+        guard let theNode = selectedNode,
             let keyString = theEvent.charactersIgnoringModifiers?.utf16 else { return }
         let shift = checkModifierFlags(theEvent, flag: .shift)
         let jump: CGFloat = shift ? 1 / 48.0 : 0.25 // ¼" or 3"
@@ -205,7 +205,7 @@ extension ArtSceneViewController
     
     func doBoxEditSize(_ theEvent: NSEvent)
     {
-        guard let currentNode = theNode,
+        guard let currentNode = selectedNode,
             let _ = currentNode.geometry as? SCNBox,
             let keyString = theEvent.charactersIgnoringModifiers?.utf16 else { return }
         let shift = checkModifierFlags(theEvent, flag: .shift, exclusive: false)
@@ -242,8 +242,8 @@ extension ArtSceneViewController
 		// The bottom of the box is on the floor.
 		currentNode.position.y += dHeight / 2.0
 		
-        if nodeType(theNode) == .Table {
-            fitTableToBox(theNode!)
+        if nodeType(selectedNode) == .Table {
+            fitTableToBox(selectedNode!)
         }
         let (_, _,  _, width, height, length, _) = boxInfo(currentNode)
         hudUpdate = makeDisplay(title: "Box", items: [("width", width), ("height", height), ("length", length)], width: fontScaler * 210)
@@ -252,7 +252,7 @@ extension ArtSceneViewController
     
     func doBoxEditPosition(_ theEvent: NSEvent) {
         guard let keyString = theEvent.charactersIgnoringModifiers?.utf16,
-            let currentNode = theNode else { return }
+            let currentNode = selectedNode else { return }
         let shift = theEvent.modifierFlags.contains(.shift)
 		let option = theEvent.modifierFlags.contains(.option)
         let jump: CGFloat = shift ? 1.0 / 48.0 : 1.0 / 12.0 // ¼" or 1"
@@ -279,7 +279,7 @@ extension ArtSceneViewController
             return
         }
         let translation = SCNVector3Make(dx, dy, dz)
-        let d = Art_Scene.rotate(vector: translation, axis: SCNVector3Make(0, 1, 0), angle: artSceneView.camera().yRotation)
+        let d = Art_Scene.rotate(vector: translation, axis: SCNVector3Make(0, 1, 0), angle: camera.yRotation)
         currentNode.position = currentNode.position + d
         let (x, y, elevation, _, _, _, _) = boxInfo(currentNode)
         hudUpdate = makeDisplay(title: "Box",
@@ -297,8 +297,6 @@ extension ArtSceneViewController
         let shift = checkModifierFlags(theEvent, flag: .shift, exclusive: false)
         let jump: CGFloat = shift ? 0.1 : 1.0
         let rotation: CGFloat = (shift ? 1.0 : 5.0) / r2d
-        let cameraNode = artSceneView.camera()
-        let omniLight = artSceneView.omniLight!
         SCNTransaction.animationDuration = 1.0
         let optionDown =  checkModifierFlags(theEvent, flag: .option, exclusive: false)
         let controlDown = checkModifierFlags(theEvent, flag: .control, exclusive: false)
@@ -313,8 +311,8 @@ extension ArtSceneViewController
             default:
                 super.keyDown(with: theEvent)
             }
-            cameraNode.position.y += up
-            omniLight.position = cameraNode.position
+            camera.position.y += up
+            omniLight.position = camera.position
         } else if optionDown && controlDown {
             SCNTransaction.animationDuration = 2.0
             let quarter: CGFloat = .pi / 2.0
@@ -326,26 +324,26 @@ extension ArtSceneViewController
                 sign = -1
             default: return
             }
-            let quadrant = Int(round(cameraNode.yRotation / quarter))
+            let quadrant = Int(round(camera.yRotation / quarter))
             let direction = (CGFloat(quadrant)  + sign) * quarter 
-            cameraNode.yRotation = direction
+            camera.yRotation = direction
         } else if optionDown {
             switch charCode {
             case NSEvent.SpecialKey.leftArrow.rawValue:
-                cameraNode.yRotation += rotation
+                camera.yRotation += rotation
             case NSEvent.SpecialKey.rightArrow.rawValue:
-                cameraNode.yRotation -= rotation
+                camera.yRotation -= rotation
             case NSEvent.SpecialKey.upArrow.rawValue:
-                cameraNode.eulerAngles.x += rotation
+                camera.eulerAngles.x += rotation
             case NSEvent.SpecialKey.downArrow.rawValue:
-                cameraNode.eulerAngles.x -= rotation
+                camera.eulerAngles.x -= rotation
             default:
                 super.keyDown(with: theEvent)
             }
-            omniLight.yRotation = cameraNode.yRotation
-            omniLight.eulerAngles.x = cameraNode.eulerAngles.x
+            omniLight.yRotation = camera.yRotation
+            omniLight.eulerAngles.x = camera.eulerAngles.x
         } else {
-            let angle = cameraNode.yRotation
+            let angle = camera.yRotation
             var v = SCNVector3(x: sin(angle) * jump, y: 0.0, z: cos(angle) * jump)
             let u = v × SCNVector3(0, 1, 0)
             // If the key is down arrow, we don't need to modify v
@@ -361,10 +359,10 @@ extension ArtSceneViewController
                 v.z *= -1.0
             default: break
             }
-            var position = cameraNode.position
+            var position = camera.position
             position.x += v.x
             position.z += v.z
-            cameraNode.position = position
+            camera.position = position
             omniLight.position = position
         }
         updateCameraStatus()
@@ -373,11 +371,10 @@ extension ArtSceneViewController
     
     func hideGrids(condition: CGFloat = 8.0)
     {
-        let cameraNode = artSceneView.camera()
-        let walls = artSceneView.nodesInsideFrustum(of: cameraNode).filter({ nodeType($0) == .Wall})
+        let walls = nodesInsideFrustum(of: camera).filter({ nodeType($0) == .Wall})
         for wall in walls {
             if let grid = wall.grid() {
-               let position = wall.convertPosition(cameraNode.position, from: nil)
+               let position = wall.convertPosition(camera.position, from: nil)
                 let distance = position.z
                if distance <= condition * 2.0 {
                     grid.isHidden = false
@@ -389,18 +386,6 @@ extension ArtSceneViewController
         }
     }
     
-    func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
-        if menuItem.tag == 0 {
-            return true
-        } else if undoer.canUndo {
-            menuItem.title = "Undo \(undoer.undoActionName)"
-            return true
-        } else {
-            menuItem.title = "Undo"
-            return false
-        }
-    }
-
     @IBAction func undo(_ sender: AnyObject) {
         if undoer.groupingLevel == 1 {
             undoer.endUndoGrouping()
@@ -418,24 +403,24 @@ extension ArtSceneViewController
         case "+":
             if #available(OSX 10.13, *)
             {
-                camera.fieldOfView += 2.0
+                camera.camera?.fieldOfView += 2.0
             } else {
-                camera.xFov += 2.0
-                camera.yFov += 2.0
+                camera.camera?.xFov += 2.0
+                camera.camera?.yFov += 2.0
             }
             updateCameraStatus()
             return
         case "-":
             if #available(OSX 10.13, *) {
-                camera.fieldOfView -= 2.0
+                camera.camera?.fieldOfView -= 2.0
             }else {
-                camera.xFov -= 2.0
-                camera.yFov -= 2.0
+                camera.camera?.xFov -= 2.0
+                camera.camera?.yFov -= 2.0
             }
             updateCameraStatus()
             return
         case "i":
-            artSceneView.getTheInfo(nil)
+            getTheInfo(nil)
         case "c":
             let defaults = UserDefaults.standard
             cameraHidden = !cameraHidden
@@ -444,7 +429,7 @@ extension ArtSceneViewController
             let defaults = UserDefaults.standard
             wantsCameraHelp = !wantsCameraHelp
             defaults.set(wantsCameraHelp, forKey: "wantsCameraHelp")
-            artSceneView.isPlaying = true
+            isPlaying = true
        default:
             ()
         }
@@ -452,13 +437,12 @@ extension ArtSceneViewController
             if case EditMode.none = editMode {
                 doCameraEdit(theEvent)
             } else {
-                guard let theNode = theNode else {
-                    status = "No object!"
+                guard let currentNode = selectedNode else {
                     return
                 }
                 if undoer.groupingLevel == 0 {
                     undoer.beginUndoGrouping()
-                    undoer.setActionName(actionName(theNode, editMode)!)
+                    undoer.setActionName(actionName(currentNode, editMode)!)
                 }
                 
                 switch editMode {
@@ -478,7 +462,7 @@ extension ArtSceneViewController
                     doBoxEditSize(theEvent)
                 case .resizing(.Table, _):
                     doBoxEditSize(theEvent)
-                    fitTableToBox(theNode)
+                    fitTableToBox(currentNode)
                 default: ()
                 }
             }

@@ -20,17 +20,17 @@ import Cocoa
  
  */
 
-protocol Undo : AnyObject
-{
-    /// The scene document
-    var document: Document! { get }
-    /// The edit mode of the adopting class
-    var editMode: EditMode { get }
-    /// The set of selected pictures, needed by `SetPosition`
-    var selection: Array<SCNNode> { get set }
-}
+//protocol Undo : AnyObject
+//{
+//    /// The scene document
+//    var document: Document! { get }
+//    /// The edit mode of the adopting class
+//    var editMode: EditMode { get }
+//    /// The set of selected pictures, needed by `SetPosition`
+//    var selection: Array<SCNNode> { get set }
+//}
 
-extension Undo
+extension ArtSceneView
 {
     func checkModifierFlags(_ event: NSEvent, flag: NSEvent.ModifierFlags.Element, exclusive: Bool = true)->Bool
     {
@@ -50,7 +50,7 @@ extension Undo
     {
         let undoer = document!.undoManager!
         undoer.registerUndo(withTarget: self, handler: { $0.changePosition(node, delta: SCNVector3Make(-delta.x, -delta.y, -delta.z))})
-        let d = rotate(vector: delta, axis: SCNVector3Make(0, 1, 0), angle: povAngle)
+        let d = Art_Scene.rotate(vector: delta, axis: SCNVector3Make(0, 1, 0), angle: povAngle)
         node.position = node.position + d
     }
     
@@ -103,7 +103,7 @@ extension Undo
         let undoer = document!.undoManager!
         undoer.registerUndo(withTarget: self,
                             handler: { $0.changePictureSize(node, to: size) })
-        (self as! ArtSceneViewController).reframePictureWithSize(node, newsize: to)
+        reframePictureWithSize(node, newsize: to)
     }
     
     func changeImageSize(_ node: SCNNode,to: CGSize)
@@ -112,7 +112,7 @@ extension Undo
         let undoer = document!.undoManager!
         undoer.registerUndo(withTarget: self,
                             handler: { $0.changeImageSize(node, to: size) })
-            (self as! ArtSceneViewController).reframeImageWithSize(node, newsize: to)
+            reframeImageWithSize(node, newsize: to)
     }
     
     func actionName(_ node: SCNNode, _ editMode: EditMode)->String?

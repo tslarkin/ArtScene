@@ -75,7 +75,7 @@ extension ArtSceneView
         guard hitResults.count > 0  else /* no hits */ {
             if !(editMode == EditMode.getInfo) && !(editMode == .none) {
                 NSCursor.arrow.set()
-                mouseNode = nil
+                selectedNode = nil
                 editMode = .none
             }
             return
@@ -83,17 +83,17 @@ extension ArtSceneView
         let hit = hitResults[0]
         switch editMode {
         case .getInfo:
-            mouseNode = hit.node
+            selectedNode = hit.node
             return
         case .selecting:
             if let picture = pictureOf(hit.node) {
-                mouseNode = picture
+                selectedNode = picture
             } else {
-                mouseNode = nil
+                selectedNode = nil
             }
             return
         case .contextualMenu:
-            mouseNode = hit.node
+            selectedNode = hit.node
             return
         default:
             break
@@ -101,13 +101,13 @@ extension ArtSceneView
         
         guard let type = nodeType(hit.node) else {
             NSCursor.arrow.set()
-            mouseNode = nil
+            selectedNode = nil
             editMode = .none
             return
         }
         switch type {
         case .Chair:
-            mouseNode = hit.node
+            selectedNode = hit.node
             if hit.worldCoordinates.y < 0.25 {
                 rotateCursor.set()
                 editMode = .rotating(.Chair)
@@ -116,7 +116,7 @@ extension ArtSceneView
                 NSCursor.openHand.set()
             }
         case .Box, .Table:
-            mouseNode = hit.node
+            selectedNode = hit.node
 			let box = hit.node.geometry as! SCNBox
 			let bottom = -box.height / 2.0
             if hit.localCoordinates.y >= bottom && hit.localCoordinates.y <= (bottom + 0.25) {
@@ -190,32 +190,32 @@ extension ArtSceneView
         case .Left, .Right:
             let edge: NodeEdge = type == .Left ? .left : .right
             editMode = .resizing(.Picture, edge)
-            mouseNode = hit.node.parent!.parent!
+            selectedNode = hit.node.parent!.parent!
             NSCursor.resizeLeftRight.set()
         case .Top, .Bottom:
             editMode = .resizing(.Picture, type == .Top ? .top : .bottom)
-            mouseNode = hit.node.parent!.parent!
+            selectedNode = hit.node.parent!.parent!
             NSCursor.resizeUpDown.set()
         case .Image:
             let optionDown = checkModifierFlags(theEvent, flag: .option)
             if optionDown {
                 editMode = .resizing(.Image, .none)
                 resizeCursor.set()
-                mouseNode = pictureOf(hit.node.parent!)
+                selectedNode = pictureOf(hit.node.parent!)
             } else {
                 fallthrough
             }
         case .Picture, .Matt:
             if case EditMode.getInfo = editMode {
-                mouseNode = hit.node
+                selectedNode = hit.node
             } else {
-                mouseNode = pictureOf(hit.node)
+                selectedNode = pictureOf(hit.node)
                 editMode = .moving(.Picture)
                 NSCursor.openHand.set()
             }
         case .Wall:
             if wallsLocked {
-                mouseNode = hit.node
+                selectedNode = hit.node
                 if case EditMode.getInfo = editMode {
                 } else {
                     NSCursor.arrow.set()
@@ -224,8 +224,8 @@ extension ArtSceneView
                 break
             }
             let local = NSPoint(x: hit.localCoordinates.x, y: hit.localCoordinates.y)
-            mouseNode = hit.node
-            let size = nodeSize(mouseNode!)
+            selectedNode = hit.node
+            let size = nodeSize(selectedNode!)
             let width2 = size.width / 2
             let height2 = size.height / 2
             let cusp: CGFloat = 0.5
@@ -257,10 +257,10 @@ extension ArtSceneView
             }
         default:
             NSCursor.arrow.set()
-            mouseNode = nil
+            selectedNode = nil
             editMode = .none
         }
-        if mouseNode === scene?.rootNode {
+        if selectedNode === scene?.rootNode {
             Swift.print("Yoiks!")
         }
         
@@ -269,7 +269,7 @@ extension ArtSceneView
     /// Based on `editMode` and `mouseNode`, perform a drag operation, either resizing,
     /// moving, or rotating a wall, picture, selection of pictures, or furniture.
     override func mouseDragged(with theEvent: NSEvent) {
-        guard let currentNode = mouseNode else {
+        guard let currentNode = selectedNode else {
             return
         }
         
@@ -311,7 +311,7 @@ extension ArtSceneView
                 // The status display reports the location of the dragged picture.
                 if node === currentNode {
                     let (x, y, _, _, _, _) = pictureInfo(currentNode)
-                    display = controller.makeDisplay(title: "Picture", items: [("↔", x), ("↕", y)], width: fontScaler * 150)
+                    display = makeDisplay(title: "Picture", items: [("↔", x), ("↕", y)], width: fontScaler * 150)
                 }
             }
         // Resizing the picture (frame and mat)
@@ -334,9 +334,9 @@ extension ArtSceneView
             if dx == 0.0 && dy == 0.0 { break }
             // Constrain the minimum size of a picture.
             size = CGSize(width: max(size.width + dx, 1.0 / 3.0), height: max(size.height + dy, 1.0 / 3.0)) // minimum size for picture is 4"
-            controller.doChangePictureSize(currentNode, to: size)
+            doChangePictureSize(currentNode, to: size)
             let (_, _, width, height, _, _) = pictureInfo(currentNode)
-            display = controller.makeDisplay(title: "Picture", items: [("width", width), ("height", height)], width: fontScaler * 200)
+            display = makeDisplay(title: "Picture", items: [("width", width), ("height", height)], width: fontScaler * 200)
         // Resize the image. The frame and mat resize proportionally.
         case .resizing(.Image, _):
             var size = theImage(currentNode).size()!
@@ -346,9 +346,9 @@ extension ArtSceneView
             (dx, dy) = snapToGrid(d1: dx, d2: dy, snap: gridFactor)
             if dx == 0.0 && dy == 0.0 { break }
             size = CGSize(width: size.width + dx, height: size.height + dy)
-            controller.doChangeImageSize(currentNode, from: theImage(currentNode).size()!, to: size)
+            doChangeImageSize(currentNode, from: theImage(currentNode).size()!, to: size)
             let (width, height, name) = imageInfo(currentNode)
-            display = controller.makeDisplay(title: name, items: [("width", width), ("height", height)], width: fontScaler * 200)
+            display = makeDisplay(title: name, items: [("width", width), ("height", height)], width: fontScaler * 200)
         // Move a wall. This is very simple. The pictures don't need to be moved because their positions are
         // in the wall's coordinate system.
         case .moving(.Wall):
@@ -357,10 +357,10 @@ extension ArtSceneView
                 let (dx, dz) = snapToGrid(d1: delta.x, d2: delta.y, snap: gridFactor)
                 if dx == 0.0 && dz == 0.0 { break }
                 let translation = SCNVector3Make(dx, 0.0, dz)
-                changePosition(currentNode, delta: translation, povAngle: camera().yRotation)
-                controller.hideGrids()
-                let (x, z, _, _, _, dist) = wallInfo(currentNode, camera: camera())
-                display = controller.makeDisplay(title: "Wall", items: [("↔", x), ("↕", z), ("↑", dist!)], width: fontScaler * 150)
+                changePosition(currentNode, delta: translation, povAngle: camera.yRotation)
+                hideGrids()
+                let (x, z, _, _, _, dist) = wallInfo(currentNode, camera: camera)
+                display = makeDisplay(title: "Wall", items: [("↔", x), ("↕", z), ("↑", dist!)], width: fontScaler * 150)
             }
         // Rotate the wall.
         case .rotating(.Wall):
@@ -370,9 +370,9 @@ extension ArtSceneView
             let newAngle = currentNode.eulerAngles.y + dy
             // The name changePivot is unfortunate since the pivot has another meaning in Scene Kit.
             changePivot(currentNode, delta: newAngle - currentNode.yRotation)
-            controller.hideGrids()
+            hideGrids()
             let (_, _, _, _, rotation, _) = wallInfo(currentNode)
-            display = controller.makeDisplay(title: "Wall", items: [("y°", rotation)])
+            display = makeDisplay(title: "Wall", items: [("y°", rotation)])
         // Resize the wall. This is a bit more complicated because we want the pictures to maintain
         // their positions as the wall resizes. What this means currently is that the pictures move
         // half the distance of the wall size change, but in the opposite direction.
@@ -408,7 +408,7 @@ extension ArtSceneView
                     var translation = SCNVector3Make(dx / 2.0, dy / 2.0, 0.0)
                     
                     // change the position so that the other side of the wall stays fixed.
-                    changePosition(currentNode, delta: translation, povAngle: camera().yRotation)
+                    changePosition(currentNode, delta: translation, povAngle: camera.yRotation)
                     // Change the position of the pictures so that they stay the same distance
                     // from the inactive edge.
                     translation.x = -dx / 2.0
@@ -416,9 +416,9 @@ extension ArtSceneView
                     for child in currentNode.childNodes.filter({ nodeType($0) == .Picture }) {
                         changePosition(child, delta: translation)
                     }
-                    controller.hideGrids()
+                    hideGrids()
                     let (_, _, width, height, _, _) = wallInfo(currentNode)
-                    display = controller.makeDisplay(title: "Wall",
+                    display = makeDisplay(title: "Wall",
                                                      items: [("width", width),
                                                              ("height", height)],
                                                      width: 200)
@@ -438,16 +438,16 @@ extension ArtSceneView
             // Rotate the translation so that the vector is rotated relative the camera. It turns out that the
             // user expects that when she drags left (or right) the object moves relative to her, not relative
             // to the object's coordinate system.
-            let d = Art_Scene.rotate(vector: translation, axis: SCNVector3Make(0, 1, 0), angle: camera().yRotation)
+            let d = Art_Scene.rotate(vector: translation, axis: SCNVector3Make(0, 1, 0), angle: camera.yRotation)
             currentNode.position = currentNode.position + d
             let (x, y, elevation, _, _, _, _) = boxInfo(currentNode)
-            display = controller.makeDisplay(title: "\(String(describing: currentNode.name!))", items: [("↔", x), ("↕", y), ("↑", elevation)], width: fontScaler * 150)
+            display = makeDisplay(title: "\(String(describing: currentNode.name!))", items: [("↔", x), ("↕", y), ("↑", elevation)], width: fontScaler * 150)
         // Rotating of all furniture is the same.
         case .rotating(.Box), .rotating(.Chair), .rotating(.Table):
             if delta.x == 0.0 { return }
             currentNode.yRotation += delta.x / 4.0
             let (_, _, _, _, _, _, rotation) = boxInfo(currentNode)
-            display = controller.makeDisplay(title: "\(String(describing: currentNode.name!))", items: [("y°", rotation)], width: fontScaler * 150)
+            display = makeDisplay(title: "\(String(describing: currentNode.name!))", items: [("y°", rotation)], width: fontScaler * 150)
         // Change any of the dimensions of the box.
         // If the top (face = 4), the change the box height, and move the box up to keep it on the floor.
         // This case also handles changing the length (z-axis) and width (x-axis) of the box.
@@ -493,12 +493,12 @@ extension ArtSceneView
                 fitTableToBox(currentNode)
             }
             let (_, _, _, width, height, length, _) = boxInfo(currentNode)
-            display = controller.makeDisplay(title: "\(String(describing: currentNode.name!))",
+            display = makeDisplay(title: "\(String(describing: currentNode.name!))",
                 items: [("width", width), ("length", length), ("height", height)], width: fontScaler * 200)
         default: ()
         }
         if display != nil {
-            controller.hudUpdate = display
+            hudUpdate = display
             display!.run(SKAction.sequence([SKAction.wait(forDuration: 2.0), SKAction.fadeOut(withDuration: 1.0)]))
         }
     }
@@ -506,10 +506,9 @@ extension ArtSceneView
     /// Switches according to `editMode`.
     override func mouseDown(with theEvent: NSEvent) {
         /* Called when a mouse click occurs */
-        controller.editMode = .none
         deltaSum = CGPoint.zero
         if case EditMode.selecting = editMode,
-            mouseNode == nil {
+            selectedNode == nil {
             for node in selection {
                 setNodeEmission(node, color: NSColor.black)
             }
@@ -517,7 +516,7 @@ extension ArtSceneView
             return
         }
         
-        guard let mouseNode = mouseNode else { return }
+        guard let mouseNode = selectedNode else { return }
         switch editMode {
         case .getInfo:
             var hitResults: [SCNHitTestResult]
@@ -548,7 +547,7 @@ extension ArtSceneView
         case .moving(.Picture):
             let wall = mouseNode.parent!
             for node in wall.childNodes.filter({ nodeType($0) != .Back && nodeType($0) != .Grid && $0.name != nil}) {
-                controller.flattenPicture(node)
+                flattenPicture(node)
             }
             fallthrough
         case .moving(_):
@@ -595,9 +594,9 @@ extension ArtSceneView
         if inDrag == true {
             undoer.endUndoGrouping()
             if editMode == .moving(.Picture) {
-                let wall = mouseNode!.parent!
+                let wall = selectedNode!.parent!
                 for node in wall.childNodes.filter({ nodeType($0) != .Back && nodeType($0) != .Grid  && $0.name != nil}) {
-                    controller.unflattenPicture(node)
+                    unflattenPicture(node)
                 }
             }
         }

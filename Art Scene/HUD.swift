@@ -12,10 +12,10 @@ class HUD: SKScene
 {
 //    open var labelNode: SKLabelNode?
     var display: SKShapeNode?
-    let controller: ArtSceneViewController
+    let controller: ArtSceneView
     
     
-    init(size: CGSize, controller: ArtSceneViewController) {
+    init(size: CGSize, controller: ArtSceneView) {
         self.controller = controller
         super.init(size: size)
         self.delegate = controller
@@ -28,7 +28,7 @@ class HUD: SKScene
     }
     
     override func flagsChanged(with event: NSEvent) {
-        controller.artSceneView.flagsChanged(with: event)
+        controller.flagsChanged(with: event)
     }
     
     

@@ -13,7 +13,7 @@ import CoreGraphics
 /**
  Logic for framing pictures.
 */
-extension ArtSceneViewController {
+extension ArtSceneView {
     
     /// Make a black picture frame, one inch deep, of a given height and width.
     func makeFrame(_ size: CGSize) -> SCNNode {

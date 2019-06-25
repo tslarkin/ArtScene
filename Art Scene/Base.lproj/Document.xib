@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14113" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14113"/>
-        <plugIn identifier="com.apple.SceneKitIBPlugin" version="14113"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14490.70"/>
+        <plugIn identifier="com.apple.SceneKitIBPlugin" version="14490.70"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -20,7 +20,7 @@
             <windowCollectionBehavior key="collectionBehavior" fullScreenPrimary="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="453" y="317" width="1143" height="614"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1440"/>
             <value key="minSize" type="size" width="94" height="86"/>
             <view key="contentView" id="gIp-Ho-8D9">
                 <rect key="frame" x="0.0" y="0.0" width="1143" height="614"/>
@@ -30,38 +30,14 @@
                         <rect key="frame" x="0.0" y="0.0" width="1143" height="614"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <connections>
-                            <outlet property="controller" destination="bVB-bI-cVA" id="k5d-3j-SbI"/>
                             <outlet property="document" destination="-2" id="Rlp-AG-7HA"/>
                         </connections>
                     </sceneView>
-                    <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ekZ-od-wn4">
-                        <rect key="frame" x="0.0" y="581" width="1145" height="33"/>
-                        <constraints>
-                            <constraint firstAttribute="height" constant="33" id="KIc-tt-JVU"/>
-                        </constraints>
-                        <textFieldCell key="cell" lineBreakMode="truncatingTail" refusesFirstResponder="YES" allowsUndo="NO" sendsActionOnEndEditing="YES" alignment="left" title="Label" placeholderString="" drawsBackground="YES" usesSingleLineMode="YES" id="ODo-u6-Hpf">
-                            <font key="font" metaFont="system" size="24"/>
-                            <color key="textColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                        <connections>
-                            <action selector="hideStatus:" target="bVB-bI-cVA" id="Uxu-qp-8jy"/>
-                            <binding destination="bVB-bI-cVA" name="value" keyPath="status" id="Ero-bP-xJK">
-                                <dictionary key="options">
-                                    <bool key="NSAllowsEditingMultipleValuesSelection" value="NO"/>
-                                    <bool key="NSRaisesForNotApplicableKeys" value="NO"/>
-                                </dictionary>
-                            </binding>
-                        </connections>
-                    </textField>
                 </subviews>
                 <constraints>
                     <constraint firstItem="aAp-gS-prI" firstAttribute="leading" secondItem="gIp-Ho-8D9" secondAttribute="leading" id="1G2-vD-Z2W"/>
-                    <constraint firstItem="ekZ-od-wn4" firstAttribute="top" secondItem="gIp-Ho-8D9" secondAttribute="top" id="6Ry-Ie-dcm"/>
+                    <constraint firstItem="aAp-gS-prI" firstAttribute="top" secondItem="gIp-Ho-8D9" secondAttribute="top" id="I9t-Bz-zT0"/>
                     <constraint firstAttribute="bottom" secondItem="aAp-gS-prI" secondAttribute="bottom" id="UDT-fr-ftT"/>
-                    <constraint firstAttribute="trailing" secondItem="ekZ-od-wn4" secondAttribute="trailing" constant="-2" id="XCy-wd-SBf"/>
-                    <constraint firstItem="aAp-gS-prI" firstAttribute="top" secondItem="ekZ-od-wn4" secondAttribute="bottom" constant="-33" id="bQ6-0l-sCb"/>
-                    <constraint firstItem="ekZ-od-wn4" firstAttribute="leading" secondItem="gIp-Ho-8D9" secondAttribute="leading" id="d8H-or-BAf"/>
                     <constraint firstAttribute="trailing" secondItem="aAp-gS-prI" secondAttribute="trailing" id="j3Q-2p-BF9"/>
                 </constraints>
             </view>
@@ -74,7 +50,6 @@
             <connections>
                 <outlet property="artSceneView" destination="aAp-gS-prI" id="vgj-Ba-Qtv"/>
                 <outlet property="document" destination="-2" id="wkn-yF-lnF"/>
-                <outlet property="statusBar" destination="ekZ-od-wn4" id="u8U-4h-vZ9"/>
                 <outlet property="view" destination="aAp-gS-prI" id="HE4-XO-hu1"/>
             </connections>
         </customObject>

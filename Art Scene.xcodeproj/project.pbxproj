@@ -15,6 +15,7 @@
 		120CF83A2139500F00ED0546 /* Notes.txt in Resources */ = {isa = PBXBuildFile; fileRef = 120CF8392139500F00ED0546 /* Notes.txt */; };
 		1232CBCD2121FA00006F9A64 /* NSImage+File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1232CBCC2121FA00006F9A64 /* NSImage+File.swift */; };
 		1232CBCF212328A4006F9A64 /* 4way-arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 1232CBCE212328A4006F9A64 /* 4way-arrow.png */; };
+		1241C6AC22C28D400061E3D1 /* ArtSceneViewDrag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1241C6AB22C28D400061E3D1 /* ArtSceneViewDrag.swift */; };
 		1254A8001BD82B100056A0C8 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1254A7FF1BD82B100056A0C8 /* Utilities.swift */; };
 		1254A8021BD96EE40056A0C8 /* TextFieldExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1254A8011BD96EE40056A0C8 /* TextFieldExtension.swift */; };
 		1254A8041BDA9C1F0056A0C8 /* Print.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1254A8031BDA9C1F0056A0C8 /* Print.swift */; };
@@ -47,7 +48,7 @@
 		12E222F6214AA0E5005EE7C5 /* lightwood.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 12E222F4214AA0E5005EE7C5 /* lightwood.jpg */; };
 		12E95BB42126A68900F025B6 /* SCNNodeExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB32126A68900F025B6 /* SCNNodeExtension.swift */; };
 		12E95BB6212825B100F025B6 /* ArtSceneMouse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB5212825B100F025B6 /* ArtSceneMouse.swift */; };
-		12E95BB82128269900F025B6 /* ArtSceneViewControllerKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */; };
+		12E95BB82128269900F025B6 /* ArtSceneViewKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95BB72128269900F025B6 /* ArtSceneViewKeyboard.swift */; };
 		12EBCA6F213C966B00881DC7 /* ReleaseNotes.html in Resources */ = {isa = PBXBuildFile; fileRef = 12EBCA6E213C966B00881DC7 /* ReleaseNotes.html */; };
 		12EBCA76213DC94500881DC7 /* floor.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 12EBCA75213DC94500881DC7 /* floor.jpg */; };
 		12EBCA78213EA13F00881DC7 /* docicon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 12EBCA77213EA13F00881DC7 /* docicon.icns */; };
@@ -75,6 +76,7 @@
 		120CF8392139500F00ED0546 /* Notes.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = Notes.txt; path = "Art Scene/Notes.txt"; sourceTree = SOURCE_ROOT; };
 		1232CBCC2121FA00006F9A64 /* NSImage+File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSImage+File.swift"; sourceTree = "<group>"; };
 		1232CBCE212328A4006F9A64 /* 4way-arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "4way-arrow.png"; sourceTree = "<group>"; };
+		1241C6AB22C28D400061E3D1 /* ArtSceneViewDrag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtSceneViewDrag.swift; sourceTree = "<group>"; };
 		1254A7FF1BD82B100056A0C8 /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Utilities.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		1254A8011BD96EE40056A0C8 /* TextFieldExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextFieldExtension.swift; sourceTree = "<group>"; };
 		1254A8031BDA9C1F0056A0C8 /* Print.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Print.swift; sourceTree = "<group>"; };
@@ -109,7 +111,7 @@
 		12E222F4214AA0E5005EE7C5 /* lightwood.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = lightwood.jpg; sourceTree = "<group>"; };
 		12E95BB32126A68900F025B6 /* SCNNodeExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCNNodeExtension.swift; sourceTree = "<group>"; };
 		12E95BB5212825B100F025B6 /* ArtSceneMouse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtSceneMouse.swift; sourceTree = "<group>"; };
-		12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtSceneViewControllerKeyboard.swift; sourceTree = "<group>"; };
+		12E95BB72128269900F025B6 /* ArtSceneViewKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtSceneViewKeyboard.swift; sourceTree = "<group>"; };
 		12EBCA6E213C966B00881DC7 /* ReleaseNotes.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ReleaseNotes.html; sourceTree = "<group>"; };
 		12EBCA75213DC94500881DC7 /* floor.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = floor.jpg; sourceTree = "<group>"; };
 		12EBCA77213EA13F00881DC7 /* docicon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = docicon.icns; sourceTree = "<group>"; };
@@ -157,11 +159,12 @@
 				127CF8B01BD1810A00F571D9 /* AppDelegate.swift */,
 				127CF8B21BD1810A00F571D9 /* Document.swift */,
 				127CF8CC1BD1821000F571D9 /* ArtSceneView.swift */,
+				1241C6AB22C28D400061E3D1 /* ArtSceneViewDrag.swift */,
 				127CF8CE1BD1823300F571D9 /* ArtSceneViewMenu.swift */,
 				12E95BB5212825B100F025B6 /* ArtSceneMouse.swift */,
 				1254A8051BDAB9910056A0C8 /* ArtScenePrinter.swift */,
 				127CF8CF1BD1823300F571D9 /* ArtSceneViewController.swift */,
-				12E95BB72128269900F025B6 /* ArtSceneViewControllerKeyboard.swift */,
+				12E95BB72128269900F025B6 /* ArtSceneViewKeyboard.swift */,
 				126D31972141900B00D6463B /* SKDelegate.swift */,
 				1200F71C1BD690FE003E4F24 /* Gestures.swift */,
 				127CF8D01BD1823300F571D9 /* Framer.swift */,
@@ -328,7 +331,7 @@
 				1232CBCD2121FA00006F9A64 /* NSImage+File.swift in Sources */,
 				125A067B1BE909F200D145AC /* Undo.swift in Sources */,
 				127CF8B31BD1810A00F571D9 /* Document.swift in Sources */,
-				12E95BB82128269900F025B6 /* ArtSceneViewControllerKeyboard.swift in Sources */,
+				12E95BB82128269900F025B6 /* ArtSceneViewKeyboard.swift in Sources */,
 				127CF8D31BD1823300F571D9 /* Framer.swift in Sources */,
 				127CF8CD1BD1821000F571D9 /* ArtSceneView.swift in Sources */,
 				127CF8B11BD1810A00F571D9 /* AppDelegate.swift in Sources */,
@@ -336,6 +339,7 @@
 				12E95BB42126A68900F025B6 /* SCNNodeExtension.swift in Sources */,
 				1200F71D1BD690FE003E4F24 /* Gestures.swift in Sources */,
 				12E95BB6212825B100F025B6 /* ArtSceneMouse.swift in Sources */,
+				1241C6AC22C28D400061E3D1 /* ArtSceneViewDrag.swift in Sources */,
 				1254A8041BDA9C1F0056A0C8 /* Print.swift in Sources */,
 				126D3196213ED95E00D6463B /* HUD.swift in Sources */,
 				1254A8001BD82B100056A0C8 /* Utilities.swift in Sources */,

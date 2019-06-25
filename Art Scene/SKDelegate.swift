@@ -12,7 +12,7 @@ let standardFontSize: CGFloat = 24.0
 let fontSize: CGFloat = 18.0
 let fontScaler: CGFloat = fontSize / standardFontSize
 
-extension ArtSceneViewController: SKSceneDelegate
+extension ArtSceneView: SKSceneDelegate
 {
     func makeCameraHelp()->SKNode
     {
@@ -37,7 +37,6 @@ extension ArtSceneViewController: SKSceneDelegate
     
     func updateCameraStatus() {
         if (cameraHidden) { return }
-        let camera = artSceneView.camera()
         let x = convertToFeetAndInches(camera.position.x)
         let y = convertToFeetAndInches(camera.position.y)
         let z = convertToFeetAndInches(camera.position.z)
@@ -104,7 +103,7 @@ extension ArtSceneViewController: SKSceneDelegate
         display.fillColor = NSColor.gray
         let color = NSColor(calibratedWhite: 0.05, alpha: 0.98)
         display.fillColor = color
-        let size = artSceneView.frame.size
+        let size = frame.size
         display.position = CGPoint(x: size.width / 3.0 - displaySize.width / 2.0, y: size.height / 2.0)
         display.name = "HUD Display"
         
