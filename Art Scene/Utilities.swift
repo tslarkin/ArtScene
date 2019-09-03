@@ -43,6 +43,11 @@ enum NodeType: String {
     case Box
     case Chair
     case Table
+	case Camera
+}
+
+enum EditTool: Equatable {
+	case mouse, keyboard
 }
 
 enum EditMode: Equatable {
@@ -346,7 +351,7 @@ func isPrime(_ num: Int)->Bool {
     return factors.count == 1 && factors[0].power == 1
 }
 
-var snapToGridP = true
+var snapToGridP = false
 let gridFactor:CGFloat = 48.0
 let rotationFactor: CGFloat = 1.0 / (.pi / 180.0 * 5)
 

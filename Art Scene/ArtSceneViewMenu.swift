@@ -18,6 +18,7 @@ extension ArtSceneView {
     /// Set `editMode` and the cursor image based on modifier keys.
     override func flagsChanged(with theEvent: NSEvent) {
         if inDrag { return }
+		if editTool == .keyboard { return }
         if case EditMode.getInfo = editMode { return }
         if case EditMode.placing(.Chair) = editMode { return }
         let controlAlone = checkModifierFlags(theEvent, flag: .control)
@@ -42,6 +43,8 @@ extension ArtSceneView {
         }
         
     }
+	
+	// MARK: Create Menus
     
     func makePictureMenu() -> NSMenu
     {
@@ -72,19 +75,9 @@ extension ArtSceneView {
         return menu
     }
     
-    @objc func addGrid(_ sender: AnyObject)
-    {
-        selectedNode?.setGrid()
-        hideGrids()
-    }
-    
-    @objc func removeGrid(_ sender: AnyObject)
-    {
-        selectedNode!.removeGrid()
-    }
-    
     /// Main logic for returning a menu appropriate to the context.
     override func menu(for event: NSEvent) -> NSMenu? {
+		closeKeyboardUndo()
         editMode = .none
         let p = self.convert(event.locationInWindow, from: nil)
         var hitResults: [SCNHitTestResult]
@@ -106,6 +99,7 @@ extension ArtSceneView {
         if let picture = picture {
             selectedNode = picture
             if selection.contains(picture) && selection.count > 1 {
+				// Return the menu from the ActionMenu.xib
                 return super.menu(for: event)
             } else {
                 selectedNode = picture
@@ -193,79 +187,25 @@ extension ArtSceneView {
             return nil
         }
      }
-    
-    @objc func equalizeCenterDistances(_ sender: AnyObject?)
-    {
-        SCNTransaction.animationDuration = 0.5
-        let pictures = selection.sorted { $0.position.x < $1.position.x }
-        let wall = masterNode!.parent!
-        let width = (wall.geometry as! SCNPlane).width
-        let centerDistance = width / CGFloat(selection.count + 1)
-        var positionx = centerDistance - width / 2.0
-        for picture in pictures {
-            picture.position.x = positionx
-            positionx += centerDistance
-        }
-    }
-    
-    @objc func equalizeGaps(_ sender: AnyObject?) {
-        SCNTransaction.animationDuration = 0.5
-        let pictures = selection.sorted { $0.position.x < $1.position.x }
-        let wall = masterNode!.parent!
-        let wallWidth = (wall.geometry as! SCNPlane).width
-        let pictureWidth = pictures.map(nodeSize).reduce(0.0, { $0 + $1.width })
-        let whiteSpace = wallWidth - pictureWidth
-        let gap = whiteSpace / CGFloat(pictures.count + 1)
-        var positionx = gap - wallWidth / 2.0
-        for picture in pictures {
-            let plane = thePlane(picture)
-            picture.position.x = positionx + plane.width / 2.0
-            positionx += plane.width + gap
-        }
-        
-    }
-    
-    @objc func alignTops(_ sender: AnyObject?) {
-        guard let masterNode = masterNode else { return }
-        SCNTransaction.animationDuration = 0.5
-        let masterPlane = theFrame(masterNode).isHidden ? thePlane(theImage(masterNode)) : thePlane(masterNode)
-        let masterTop = masterNode.position.y + masterPlane.height / 2
-        for picture in selection {
-            let plane = theFrame(picture).isHidden ? thePlane(theImage(picture)) : thePlane(picture)
-            picture.position.y = masterTop - plane.height / 2
-        }
-    }
-    
-    @objc func alignBottoms(_ sender: AnyObject?) {
-        guard let masterNode = masterNode else { return }
-       SCNTransaction.animationDuration = 0.5
-        let masterPlane = theFrame(masterNode).isHidden ? thePlane(theImage(masterNode)) : thePlane(masterNode)
-        let masterBottom = masterNode.position.y - masterPlane.height / 2
-        for picture in selection {
-            let plane = theFrame(picture).isHidden ? thePlane(theImage(picture)) : thePlane(picture)
-            picture.position.y = masterBottom + plane.height / 2
-        }
-        
-    }
-    
-    @objc func alignHCenters(_ sender: AnyObject?) {
-        guard let masterNode = masterNode else { return }
-        SCNTransaction.animationDuration = 0.5
-        let masterCenter = masterNode.position.y
-        for picture in selection {
-            picture.position.y = masterCenter
-        }
-        
-    }
-    
-    @objc func alignVCenters(_ sender: AnyObject?) {
-        guard let masterNode = masterNode else { return }
-        let masterCenter = masterNode.position.x
-        for picture in selection {
-            picture.position.x = masterCenter
-        }
-        
-    }
+	
+	// MARK: Menu Actions
+
+	@IBAction func projection(_ sender: AnyObject) {
+		if let cam = camera.camera {
+			cam.usesOrthographicProjection = !cam.usesOrthographicProjection
+		}
+	}
+	
+	@objc func addGrid(_ sender: AnyObject)
+	{
+		selectedNode?.setGrid()
+		hideGrids()
+	}
+	
+	@objc func removeGrid(_ sender: AnyObject)
+	{
+		selectedNode!.removeGrid()
+	}
 	
 	/// Sets the status line from the position of `node`.
 	func showNodePosition(_ node: SCNNode) {
@@ -331,6 +271,79 @@ extension ArtSceneView {
 	{
 		if let node = selectedNode, nodeType(node) == .Picture, let spot = node.childNode(withName: "Spotlight", recursively: false) {
 			spot.removeFromParentNode()
+		}
+		
+	}
+	
+	@objc func equalizeCenterDistances(_ sender: AnyObject?)
+	{
+		SCNTransaction.animationDuration = 0.5
+		let pictures = selection.sorted { $0.position.x < $1.position.x }
+		let wall = masterNode!.parent!
+		let width = (wall.geometry as! SCNPlane).width
+		let centerDistance = width / CGFloat(selection.count + 1)
+		var positionx = centerDistance - width / 2.0
+		for picture in pictures {
+			picture.position.x = positionx
+			positionx += centerDistance
+		}
+	}
+	
+	@objc func equalizeGaps(_ sender: AnyObject?) {
+		SCNTransaction.animationDuration = 0.5
+		let pictures = selection.sorted { $0.position.x < $1.position.x }
+		let wall = masterNode!.parent!
+		let wallWidth = (wall.geometry as! SCNPlane).width
+		let pictureWidth = pictures.map(nodeSize).reduce(0.0, { $0 + $1.width })
+		let whiteSpace = wallWidth - pictureWidth
+		let gap = whiteSpace / CGFloat(pictures.count + 1)
+		var positionx = gap - wallWidth / 2.0
+		for picture in pictures {
+			let plane = thePlane(picture)
+			picture.position.x = positionx + plane.width / 2.0
+			positionx += plane.width + gap
+		}
+		
+	}
+	
+	@objc func alignTops(_ sender: AnyObject?) {
+		guard let masterNode = masterNode else { return }
+		SCNTransaction.animationDuration = 0.5
+		let masterPlane = theFrame(masterNode).isHidden ? thePlane(theImage(masterNode)) : thePlane(masterNode)
+		let masterTop = masterNode.position.y + masterPlane.height / 2
+		for picture in selection {
+			let plane = theFrame(picture).isHidden ? thePlane(theImage(picture)) : thePlane(picture)
+			picture.position.y = masterTop - plane.height / 2
+		}
+	}
+	
+	@objc func alignBottoms(_ sender: AnyObject?) {
+		guard let masterNode = masterNode else { return }
+		SCNTransaction.animationDuration = 0.5
+		let masterPlane = theFrame(masterNode).isHidden ? thePlane(theImage(masterNode)) : thePlane(masterNode)
+		let masterBottom = masterNode.position.y - masterPlane.height / 2
+		for picture in selection {
+			let plane = theFrame(picture).isHidden ? thePlane(theImage(picture)) : thePlane(picture)
+			picture.position.y = masterBottom + plane.height / 2
+		}
+		
+	}
+	
+	@objc func alignHCenters(_ sender: AnyObject?) {
+		guard let masterNode = masterNode else { return }
+		SCNTransaction.animationDuration = 0.5
+		let masterCenter = masterNode.position.y
+		for picture in selection {
+			picture.position.y = masterCenter
+		}
+		
+	}
+	
+	@objc func alignVCenters(_ sender: AnyObject?) {
+		guard let masterNode = masterNode else { return }
+		let masterCenter = masterNode.position.x
+		for picture in selection {
+			picture.position.x = masterCenter
 		}
 		
 	}
@@ -655,41 +668,48 @@ extension ArtSceneView {
 	
 	/// A menu action to put the controller in `.Moving(.Wall)` mode.
 	@objc func editWallPosition(_ sender: AnyObject?) {
+		editTool = .keyboard
 		editMode = .moving(.Wall)
 	}
 	
 	/// A menu action to put the controller in `.Resizing(.Wall)` mode.
 	@objc func editWallSize(_ sender: AnyObject?)
 	{
+		editTool = .keyboard
 		editMode = .resizing(.Wall, .none)
 	}
 	
 	/// A menu action to put the controller in `.Resizing(.Picture)` mode.
 	@objc func editFrameSize(_ sender: AnyObject?)
 	{
+		editTool = .keyboard
 		editMode = .resizing(.Picture, .none)
 	}
 	
 	@objc func editImageSize(_ sender: AnyObject?)
 	{
+		editTool = .keyboard
 		editMode = .resizing(.Image, .none)
 	}
 	
 	/// A menu action to put the controller in `.Moving(.Picture)` mode.
 	@IBAction func editFramePosition(_ sender: AnyObject?)
 	{
+		editTool = .keyboard
 		editMode = .moving(.Picture)
-		let wall = selectedNode!.parent!
-		for node in wall.childNodes.filter({ nodeType($0) != .Back && nodeType($0) != .Grid && $0.name != nil}) {
-			flattenPicture(node)
-		}
+//		let wall = selectedNode!.parent!
+//		for node in wall.childNodes.filter({ nodeType($0) != .Back && nodeType($0) != .Grid && $0.name != nil}) {
+//			flattenPicture(node)
+//		}
 	}
 	
 	@IBAction func editBoxPosition(_ sender: AnyObject) {
+		editTool = .keyboard
 		editMode = .moving(.Box)
 	}
 	
 	@IBAction func editBoxSize(_ sender: AnyObject) {
+		editTool = .keyboard
 		editMode = .resizing(.Box, .none)
 	}
 	
@@ -697,7 +717,7 @@ extension ArtSceneView {
 	{
 		undoer.beginUndoGrouping()
 		undoer.setActionName("Rotate Wall CW")
-		changePivot(selectedNode!, delta: -.pi / 2.0)
+		changeRotation(selectedNode!, delta: -.pi / 2.0)
 		undoer.endUndoGrouping()
 		getInfo(selectedNode!)
 	}
@@ -706,7 +726,7 @@ extension ArtSceneView {
 	{
 		undoer.beginUndoGrouping()
 		undoer.setActionName("Rotate Wall CCW")
-		changePivot(selectedNode!, delta: .pi / 2.0)
+		changeRotation(selectedNode!, delta: .pi / 2.0)
 		undoer.endUndoGrouping()
 		getInfo(selectedNode!)
 	}
@@ -921,7 +941,6 @@ extension ArtSceneView {
 			return
 		}
 		hudUpdate = makeDisplay(title: title, items: hudTable, width: fontScaler * 220)
-		isPlaying = true
 	}
 	
 	@IBAction func getTheInfo(_ sender: AnyObject?) {

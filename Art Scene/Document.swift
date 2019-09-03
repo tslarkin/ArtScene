@@ -268,6 +268,7 @@ class Document: NSDocument, NSWindowDelegate {
 	
 	override func awakeFromNib() {
 		Bundle.main.loadNibNamed(("ActionMenu" as NSString) as NSNib.Name, owner: sceneView, topLevelObjects: nil)
+		sceneView.isPlaying = true
 	}
     
 }

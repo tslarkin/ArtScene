@@ -369,7 +369,7 @@ extension ArtSceneView
             if (dy == 0) { return }
             let newAngle = currentNode.eulerAngles.y + dy
             // The name changePivot is unfortunate since the pivot has another meaning in Scene Kit.
-            changePivot(currentNode, delta: newAngle - currentNode.yRotation)
+            changeRotation(currentNode, delta: newAngle - currentNode.yRotation)
             hideGrids()
             let (_, _, _, _, rotation, _) = wallInfo(currentNode)
             display = makeDisplay(title: "Wall", items: [("y°", rotation)])
@@ -439,17 +439,17 @@ extension ArtSceneView
             // user expects that when she drags left (or right) the object moves relative to her, not relative
             // to the object's coordinate system.
             let d = Art_Scene.rotate(vector: translation, axis: SCNVector3Make(0, 1, 0), angle: camera.yRotation)
-            currentNode.position = currentNode.position + d
+			changePosition(currentNode, delta: d)
             let (x, y, elevation, _, _, _, _) = boxInfo(currentNode)
             display = makeDisplay(title: "\(String(describing: currentNode.name!))", items: [("↔", x), ("↕", y), ("↑", elevation)], width: fontScaler * 150)
         // Rotating of all furniture is the same.
         case .rotating(.Box), .rotating(.Chair), .rotating(.Table):
             if delta.x == 0.0 { return }
-            currentNode.yRotation += delta.x / 4.0
+			changeRotation(currentNode, delta: delta.x / 4.0)
             let (_, _, _, _, _, _, rotation) = boxInfo(currentNode)
             display = makeDisplay(title: "\(String(describing: currentNode.name!))", items: [("y°", rotation)], width: fontScaler * 150)
         // Change any of the dimensions of the box.
-        // If the top (face = 4), the change the box height, and move the box up to keep it on the floor.
+        // If the top (face = 4), then change the box height, and move the box up to keep it on the floor.
         // This case also handles changing the length (z-axis) and width (x-axis) of the box.
         // There are four cases to consider. We can be changing the x size or the z size,
         // and the change can be made on the left side or right side of the face, which
@@ -480,14 +480,14 @@ extension ArtSceneView
             }
             if dWidth == 0.0 && dLength == 0 && dHeight == 0.0 { break }
             let box = currentNode.geometry as! SCNBox
-            box.width += dWidth
-            box.length += dLength
-            box.height += dHeight
-            let delta = SCNVector3Make(dWidth * sign, -dHeight, dLength * sign)
+			changeVolume(currentNode, to: SCNVector3(x: box.width + dWidth,
+													 y: box.height + dHeight,
+													 z: box.length + dLength))
             // Again, rotate the movement vector so that the movement happens with respect to the
             // coordinate system of the camera.
+			let delta = SCNVector3Make(dWidth * sign, -dHeight, dLength * sign)
             let d = Art_Scene.rotate(vector: delta, axis: SCNVector3Make(0, 1, 0), angle: currentNode.yRotation)
-            currentNode.position = currentNode.position - 0.5 * d
+			changePosition(currentNode, delta: -0.5 * d)
  			// Resize the table. The size of the table top does not increase; the height of the legs increase.
            if type == .Table {
                 fitTableToBox(currentNode)
@@ -506,6 +506,8 @@ extension ArtSceneView
     /// Switches according to `editMode`.
     override func mouseDown(with theEvent: NSEvent) {
         /* Called when a mouse click occurs */
+		closeKeyboardUndo()
+		editTool = .mouse
         deltaSum = CGPoint.zero
         if case EditMode.selecting = editMode,
             selectedNode == nil {
@@ -545,10 +547,10 @@ extension ArtSceneView
                 NSCursor.closedHand.set()
             }
         case .moving(.Picture):
-            let wall = mouseNode.parent!
-            for node in wall.childNodes.filter({ nodeType($0) != .Back && nodeType($0) != .Grid && $0.name != nil}) {
-                flattenPicture(node)
-            }
+//            let wall = mouseNode.parent!
+//            for node in wall.childNodes.filter({ nodeType($0) != .Back && nodeType($0) != .Grid && $0.name != nil}) {
+//                flattenPicture(node)
+//            }
             fallthrough
         case .moving(_):
             prepareForUndo(mouseNode)
@@ -593,12 +595,12 @@ extension ArtSceneView
     override func mouseUp(with theEvent: NSEvent) {
         if inDrag == true {
             undoer.endUndoGrouping()
-            if editMode == .moving(.Picture) {
-                let wall = selectedNode!.parent!
-                for node in wall.childNodes.filter({ nodeType($0) != .Back && nodeType($0) != .Grid  && $0.name != nil}) {
-                    unflattenPicture(node)
-                }
-            }
+//            if editMode == .moving(.Picture) {
+//                let wall = selectedNode!.parent!
+//                for node in wall.childNodes.filter({ nodeType($0) != .Back && nodeType($0) != .Grid  && $0.name != nil}) {
+//                    unflattenPicture(node)
+//                }
+//            }
         }
         
         inDrag = false

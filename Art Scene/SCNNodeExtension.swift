@@ -71,11 +71,62 @@ extension SCNNode
         }
     }
     
-    func setGrid()
+	func setBoxGrid()
+	{
+		let thinWidth = 0.0625.inches
+		let thickWidth = thinWidth * 4.0
+		let gap = 1.0 / gridFactor * 4.0
+		let mySize = size()!
+		let hCount: Int = Int(ceil(mySize.height / gap)) // number of horizontal lines
+		let vCount: Int = Int(ceil(mySize.width / gap)) + 1 // number of vertical lines
+		let grid = SCNNode()
+		let minorMaterial = SCNMaterial()
+		minorMaterial.diffuse.contents = NSColor.lightGray
+		minorMaterial.shininess = 0.0
+		let majorMaterial = SCNMaterial()
+		majorMaterial.diffuse.contents = NSColor.gray
+		majorMaterial.shininess = 0.0
+		var y = -mySize.height / 2.0
+		var lineWidth: CGFloat
+		var material: SCNMaterial
+		for line in 0...hCount {
+			if line % 12 == 0 {
+				material = majorMaterial
+				lineWidth = thickWidth
+			} else {
+				material = minorMaterial
+				lineWidth = thinWidth
+			}
+			let box = SCNBox(width: mySize.width, height: lineWidth, length: thinWidth, chamferRadius: 0)
+			box.materials = [material]
+			let node = SCNNode(geometry: box)
+			node.position = SCNVector3(x: 0, y: y, z: lineWidth)
+			grid.addChildNode(node)
+			y += gap
+		}
+		var x = -mySize.width / 2.0
+		for line in 0...vCount {
+			if line % 12 == 0 {
+				material = majorMaterial
+				lineWidth = thickWidth
+			} else {
+				material = minorMaterial
+				lineWidth = thinWidth
+			}
+			let box = SCNBox(width: lineWidth, height: mySize.height, length: thinWidth, chamferRadius: 0)
+			box.materials = [material]
+			let node = SCNNode(geometry: box)
+			node.position = SCNVector3(x: x, y: 0, z: lineWidth)
+			grid.addChildNode(node)
+			x += gap
+		}
+		grid.name = "Grid"
+		grid.position = SCNVector3Make(0.0, 0.0, 0.0)
+		addChildNode(grid)
+	}
+	
+	func setLineGrid()
     {
-        if hasGrid() {
-            removeGrid()
-        }
         let gap = 1.0 / gridFactor * 4.0
         let mySize = size()!
         let hCount: Int = Int(ceil(mySize.height / gap)) // number of horizontal lines
@@ -88,8 +139,8 @@ extension SCNNode
         var footGrid: [SCNVector3] = []
         var y = -mySize.height / 2.0
         for line in 0...hCount {
-            let vector1 = SCNVector3Make(-mySize.width / 2.0, y, 0.0)
-            let vector2 = SCNVector3Make(mySize.width / 2.0, y, 0.0)
+            let vector1 = SCNVector3Make(-mySize.width / 2.0, y, 0)
+            let vector2 = SCNVector3Make(mySize.width / 2.0, y, 0)
             if line % 12 == 0 {
                 footGrid.append(vector1)
                 footGrid.append(vector2)
@@ -101,8 +152,8 @@ extension SCNNode
         }
         var x = -mySize.width / 2.0
         for line in 0...vCount {
-            let vector1 = SCNVector3Make(x, -mySize.height / 2.0, 0.0)
-            let vector2 = SCNVector3Make(x, mySize.height / 2.0, 0.0)
+            let vector1 = SCNVector3Make(x, -mySize.height / 2.0, 0)
+            let vector2 = SCNVector3Make(x, mySize.height / 2.0, 0)
             if line % 12 == 0 {
                 footGrid.append(vector1)
                 footGrid.append(vector2)
@@ -122,6 +173,7 @@ extension SCNNode
         material.emission.contents = gridColor
         shape.materials = [material]
         let inches = SCNNode(geometry: shape)
+		inches.name = "Grid"
  
         source = SCNGeometrySource(vertices: footGrid)
         element = SCNGeometryElement(indices: footIndices, primitiveType: .line)
@@ -133,14 +185,23 @@ extension SCNNode
         material.emission.contents = gridColor
         shape.materials = [material]
         let feet = SCNNode(geometry: shape)
-
+		feet.name = "Grid"
+		
         let grid = SCNNode()
         grid.addChildNode(inches)
         grid.addChildNode(feet)
         grid.name = "Grid"
-        grid.position = SCNVector3Make(0.0, 0.0, 0.001)
+        grid.position = SCNVector3Make(0.0, 0.0, 0.0)
         addChildNode(grid)
     }
+	
+	func setGrid()
+	{
+		if hasGrid() {
+			removeGrid()
+		}
+		setBoxGrid()
+	}
     
     func grid()->SCNNode?
     {

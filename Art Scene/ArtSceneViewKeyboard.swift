@@ -12,6 +12,12 @@ import Cocoa
 
 extension ArtSceneView
 {
+	func closeKeyboardUndo() {
+		if undoer.groupingLevel == 1 {
+			undoer.endUndoGrouping()
+			editMode = .none
+		}
+	}
     // MARK: Edit node position
 
     
@@ -73,7 +79,7 @@ extension ArtSceneView
             default:
                 super.keyDown(with: theEvent)
             }
-            changePivot(theNode, delta: angle - theNode.yRotation)
+            changeRotation(theNode, delta: angle - theNode.yRotation)
         } else {
             var dz: CGFloat = 0.0
             var dx: CGFloat = 0.0
@@ -236,12 +242,9 @@ extension ArtSceneView
             super.keyDown(with: theEvent)
         }
         let box = currentNode.geometry as! SCNBox
-        box.width += dWidth
-        box.length += dLength
-        box.height += dHeight
+		changeVolume(currentNode, to: SCNVector3(x:  box.width + dWidth, y: box.height + dHeight, z: box.length + dLength))
 		// The bottom of the box is on the floor.
-		currentNode.position.y += dHeight / 2.0
-		
+		changePosition(currentNode, delta: SCNVector3(x: 0.0, y: dHeight / 2.0, z: 0.0))
         if nodeType(selectedNode) == .Table {
             fitTableToBox(selectedNode!)
         }
@@ -280,7 +283,7 @@ extension ArtSceneView
         }
         let translation = SCNVector3Make(dx, dy, dz)
         let d = Art_Scene.rotate(vector: translation, axis: SCNVector3Make(0, 1, 0), angle: camera.yRotation)
-        currentNode.position = currentNode.position + d
+		changePosition(currentNode, delta: d)
         let (x, y, elevation, _, _, _, _) = boxInfo(currentNode)
         hudUpdate = makeDisplay(title: "Box",
                                 items: [("↔", x), ("↕", y), ("↑", elevation)],
@@ -420,7 +423,9 @@ extension ArtSceneView
             updateCameraStatus()
             return
         case "i":
+			editTool = .mouse
             getTheInfo(nil)
+			return
         case "c":
             let defaults = UserDefaults.standard
             cameraHidden = !cameraHidden
@@ -429,12 +434,11 @@ extension ArtSceneView
             let defaults = UserDefaults.standard
             wantsCameraHelp = !wantsCameraHelp
             defaults.set(wantsCameraHelp, forKey: "wantsCameraHelp")
-            isPlaying = true
        default:
             ()
         }
         if pad {
-            if case EditMode.none = editMode {
+            if editTool == .mouse {
                 doCameraEdit(theEvent)
             } else {
                 guard let currentNode = selectedNode else {
@@ -468,6 +472,7 @@ extension ArtSceneView
             }
         }
         else {
+			editTool = .mouse
             editMode = .none
         }
     }

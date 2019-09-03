@@ -29,24 +29,26 @@ class ArtSceneView: SCNView {
 					  "20x24":  CGSize(width: 20, height: 24),
 					  "24x20":  CGSize(width: 24, height: 20),
 					  "24x24":  CGSize(width: 24, height: 24)]
+
+	var editTool: EditTool = .mouse
 	
 	/// Set during `mouseMoved` based on which node the mouse is over, as determined by
 	/// `hitTest`.
-	var editMode = EditMode.none {
-		willSet(newMode) {
-			if case EditMode.none = newMode {
-				if undoer.groupingLevel == 1 {
-					undoer.endUndoGrouping()
-				}
-				if editMode == .moving(.Picture) {
-					let wall = selectedNode!.parent!
-					for node in wall.childNodes.filter({ nodeType($0) != .Back && nodeType($0) != .Grid  && $0.name != nil}) {
-						unflattenPicture(node)
-					}
-				}
-			}
-		}
-	}
+	var editMode = EditMode.none //{
+//		willSet(newMode) {
+//			if case EditMode.none = newMode {
+//				if editMode == .moving(.Picture),
+//					let parent = selectedNode?.parent,
+//					nodeType(parent) == .Wall {
+//					for node in parent.childNodes.filter({ nodeType($0) != .Back
+//						&& nodeType($0) != .Grid
+//						&& $0.name != nil}) {
+//						unflattenPicture(node)
+//					}
+//				}
+//			}
+//		}
+//	}
 	
 	var defaultFrameSize: CGSize = CGSize(width: 2, height: 2)
 	/// The target of key-based editing, either a picture or a wall.
@@ -252,7 +254,9 @@ class ArtSceneView: SCNView {
 			return scene!.rootNode.childNode(withName: "Floor", recursively: false)!
 		}
 	}
-    func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+    @objc func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+		closeKeyboardUndo()
+		editTool = .mouse
         if menuItem.action == #selector(ArtSceneView.shadows(_:)) {
             if omniLight.light?.castsShadow == true {
                 menuItem.title = "No Shadows"

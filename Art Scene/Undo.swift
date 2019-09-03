@@ -39,10 +39,10 @@ extension ArtSceneView
         return flagDown
     }
     
-    func changePivot(_ node: SCNNode, delta: CGFloat)
+    func changeRotation(_ node: SCNNode, delta: CGFloat)
     {
         let undoer = document!.undoManager!
-        undoer.registerUndo(withTarget: self, handler: { $0.changePivot(node, delta: -delta) })
+        undoer.registerUndo(withTarget: self, handler: { $0.changeRotation(node, delta: -delta) })
         node.yRotation += delta
     }
     
